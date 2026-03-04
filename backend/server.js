@@ -2,9 +2,11 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const plantRoutes = require("./routes/plants");
+const plantRoutes = require("./routes/plants"); ///PLACEHOLDER
 const authRoutes = require("./routes/auth");
 const reviewRoutes = require("./routes/reviews");
+const facilityRoutes = require("./routes/facility")
+
 
 const app = express();
 const PORT = 5000;
@@ -37,9 +39,10 @@ async function connectDB() {
 connectDB();
 
 // routes
-app.use("/api/plants", plantRoutes);
+app.use("/api/plants", plantRoutes); //PLACEHOLDER
 app.use("/api/auth", authRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/facility", facilityRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

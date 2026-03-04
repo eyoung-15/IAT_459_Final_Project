@@ -4,9 +4,11 @@ const Review = require("../models/Reviews");
 const verifyToken = require("../middleware/auth");
 
 // // GET ROUTE (Public anyone can see reviews)
-router.get("/", async (req, res) => {
+router.get("/:facilityId", async (req, res) => {
   try {
-    const reviews = await Review.find();
+    const reviews = await Review.find({
+        facility: req.params.facilityId,
+    }).populate("user", "username");
     res.json(reviews);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -28,7 +30,6 @@ router.post("/", verifyToken, async (req, res) => {
     const review = await Review.create({
         ...req.body,
         userId: req.user.id,
-        username: req.user.username
         
     });
     res.status(201).json(review);
