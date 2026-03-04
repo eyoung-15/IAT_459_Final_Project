@@ -17,14 +17,6 @@ router.get("/:facilityId", async (req, res) => {
 
 // POST ROUTE (create review - protected for only logged in users)
 router.post("/", verifyToken, async (req, res) => {
-//   const plant = new Plant({
-//     commonName: req.body.commonName,
-//     family: req.body.family,
-//     category: req.body.category,
-//     origin: req.body.origin,
-//     climate: req.body.climate,
-//     imgUrl: req.body.imgUrl,
-//   });
 
   try {
     const review = await Review.create({
