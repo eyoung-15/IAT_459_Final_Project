@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Review = require("../models/Reviews");
-const auth = require("../middleware/auth");
+const verifyToken = require("../middleware/auth");
 
 // // GET ROUTE (Public anyone can see reviews)
 router.get("/", async (req, res) => {
