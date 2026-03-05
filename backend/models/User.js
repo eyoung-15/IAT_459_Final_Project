@@ -15,8 +15,8 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  visited: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}],
-  bucketList: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}]
+  // visited: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}],
+  // bucketList: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}]
 });
 
 module.exports = mongoose.model("User", UserSchema);
