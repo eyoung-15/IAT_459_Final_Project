@@ -1,29 +1,29 @@
 const mongoose = require("mongoose");
 
 const FacilitySchema = new mongoose.Schema({
-  name: {
+  Name: {
     type: String,
     required: true
   },
-  category: {
+  Category: {
     type: String,
   },
-  province: {
+  Province: {
     type: String,
   },
-  city: {
+  City: {
     type: String,
   },
-  address: {
+  Address: {
     type: String,
   },
-  latitude: {
+  Latitude: {
     type: Number,
   },
-  longitude: {
+  Longitude: {
     type: Number,
   },
-  tags:{
+  PostalCode:{
     type: String,
   },
 });
