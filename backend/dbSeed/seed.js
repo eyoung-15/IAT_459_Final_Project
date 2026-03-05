@@ -14,7 +14,7 @@ const Facility = require("../models/Facility"); // facility 'schema'
 const MONGO_URI = process.env.MONGO_URI;
 
 // IMPORTANT: User ID to own the seeded data (admin)
-const SYSTEM_USER_ID = "69a8859f33a8b33b4e1bcca7";
+const SYSTEM_USER_ID = "69aa0eaea17176d6834b90dd";
 
 // the filename to process
 const CSV_FILE_NAME = "facility_dataset_.csv";
