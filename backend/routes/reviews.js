@@ -21,7 +21,7 @@ router.post("/", verifyToken, async (req, res) => {
   try {
     const review = await Review.create({
         ...req.body,
-        userId: req.user.id,
+        user: req.user.id,
         
     });
     res.status(201).json(review);
