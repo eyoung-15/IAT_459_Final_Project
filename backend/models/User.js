@@ -15,6 +15,12 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+  role: {
+    type: String,
+    enum: ["member", "admin"],
+    default: "member"
+
+  },
   // visited: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}],
   // bucketList: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}]
 });

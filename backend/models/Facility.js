@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const FacilitySchema = new mongoose.Schema({
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // points to the User collection
+    required: true,
+  },
   Name: {
     type: String,
     required: true
