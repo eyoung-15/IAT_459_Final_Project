@@ -54,7 +54,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
       });
     }
 
-    await Plant.findByIdAndDelete(req.params.id);
+    await Facility.findByIdAndDelete(req.params.id);
     res.json({ message: "Facility successfully deleted" });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
