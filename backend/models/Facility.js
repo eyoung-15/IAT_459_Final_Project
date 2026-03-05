@@ -18,10 +18,10 @@ const FacilitySchema = new mongoose.Schema({
     type: String,
   },
   Latitude: {
-    type: Number,
+    type: String,
   },
   Longitude: {
-    type: Number,
+    type: String,
   },
   PostalCode:{
     type: String,
