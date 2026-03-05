@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Plant = require("../models/Plant");
+const Plant = require("../models/Plants");
 
 // GET ROUTE (fetch first 3)
 router.get("/", async (req, res) => {
