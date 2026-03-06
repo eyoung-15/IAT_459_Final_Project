@@ -43,7 +43,7 @@ router.post("/login", async (req, res) => {
     // 3. Generate Token
     const token = jwt.sign({ id: user._id, username: user.username, role: user.role}, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-    res.json({ token, user: { id: user._id, username: user.username } });
+    res.json({ token, user: { id: user._id, username: user.username, role: user.role} });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
