@@ -123,8 +123,8 @@ function Dashboard() {
           )}
         </div>
 
-        {/* Logout button: connected directly to the global logout function from our Context */}
-        {/* <button
+        {/* Logout btn - global function*/}
+        <button
           onClick={logout}
           style={{
             padding: "10px 20px",
@@ -137,9 +137,9 @@ function Dashboard() {
           }}
         >
           Logout
-        </button> */}
+        </button>
 
-        {/* Instead of logout btn, site dashboard allows visitors too, thus login btn */}
+        {/* As well as logout btn, site dashboard allows visitors too, thus login btn */}
         {
           <Link to="/login" style={{ color: "#122A64", fontWeight: "bold" }}>
             Login
