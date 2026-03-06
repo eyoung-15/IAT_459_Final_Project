@@ -1,33 +1,25 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext"; // global state provider
+import { AuthProvider } from "./context/AuthContext";
 import Dashboard from "./Dashboard";
 import Login from "./Login";
-import ProtectedRoute from "./ProtectedRoute"; // the "bounce" component
-import Register from "./Register";
+import ProtectedRoute from "./ProtectedRoute";
+import Register from "./pages/Register";
 
 function App() {
   return (
-    //wrap the entire app in AuthProvider so every component
-    // can access the user's login status and token.
-
+    //wraps app in AuthProvider so components can access token
     <AuthProvider>
       <Router>
         <Routes>
-          {/* public routes: anyone can access these */}
+          {/*PUBLIC ROUTES - doesn't need token*/}
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />{" "}
-          {/* ADD ROUTE HERE */}
-          {/* protected route: the Dashboard is nested inside ProtectedRoute.
-              It checks for a token before allowing the 
-              Dashboard component to render
-          */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* PROTECTED ROUTE - needs token!*/}
           <Route
             path="/"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
+            element={<ProtectedRoute>{/* <TravelJournal /> */}</ProtectedRoute>}
           />
         </Routes>
       </Router>
