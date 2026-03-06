@@ -43,77 +43,102 @@ function Login() {
   }
 
   return (
-    <div
-      style={{
-        padding: "50px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <h2 style={{ color: "#1b5e20", marginBottom: "20px" }}>
-        Login to Plant Dashboard
-      </h2>
-
-      <form
-        onSubmit={handleLogin}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          maxWidth: "320px",
-          gap: "15px",
-        }}
-      >
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{
-            padding: "12px",
-            fontSize: "1.1rem",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-          }}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{
-            padding: "12px",
-            fontSize: "1.1rem",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-          }}
-        />
-
-        <button
-          type="submit"
-          style={{
-            padding: "12px",
-            fontSize: "1.1rem",
-            backgroundColor: "#2e7d32",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          Login
-        </button>
-      </form>
-      <p style={{ marginTop: "20px" }}>
-        Don't have an account?{" "}
-        <Link to="/register" style={{ color: "#2e7d32", fontWeight: "bold" }}>
-          Register here
-        </Link>
-      </p>
+    <div>
+      <h2 style={styles.title}>Login</h2>
+      <div className="auth-container" style={styles.container}>
+        {/* LEFT COLUMN */}
+        <div className="card" style={styles.cardLeft}>
+          <h3 style={styles.title}>LOG IN TO YOUR ACCOUNT</h3>
+          <p style={styles.text}>
+            <p style={styles.footerText}>
+              Don't have an account yet?{" "}
+              <Link
+                to="/register"
+                style={{ color: "white", fontWeight: "bold" }}
+              >
+                Register here
+              </Link>
+            </p>
+          </p>
+        </div>
+        {/* RIGHT COLUMN */}
+        <div className="card" style={styles.cardRight}>
+          <form onSubmit={handleLogin} className="form">
+            <input
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button type="submit" style={styles.button}>
+              Login
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "100vh",
+    backgroundColor: "#122A64",
+  },
+  cardLeft: {
+    width: "100%",
+    maxWidth: "400px",
+    height: "300px",
+    padding: "2rem",
+    backgroundColor: "#122A64",
+    borderRadius: "0",
+    border: "solid white 1px",
+  },
+  cardRight: {
+    width: "100%",
+    maxWidth: "400px",
+    height: "300px",
+    padding: "2rem",
+    backgroundColor: "white",
+    borderRadius: "0",
+    border: "solid white 1px",
+  },
+  title: {
+    textAlign: "center",
+    color: "white",
+    backgroundColor: "#122A64",
+  },
+  button: {
+    marginTop: "1rem",
+    backgroundColor: "#122A64",
+    color: "white",
+    border: "none",
+    padding: "10px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    width: "100%",
+  },
+  footerText: {
+    marginTop: "1.5rem",
+    textAlign: "center",
+    fontSize: "0.9rem",
+    color: "white",
+  },
+  link: {
+    color: "#122A64",
+    cursor: "pointer",
+    fontWeight: "bold",
+    textDecoration: "underline",
+  },
+  text: { color: "white", textAlign: "center" },
+};
 
 export default Login;
