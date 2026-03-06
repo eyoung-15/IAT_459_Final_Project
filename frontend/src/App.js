@@ -4,6 +4,7 @@ import Dashboard from "./Dashboard";
 import Login from "./Login";
 import ProtectedRoute from "./ProtectedRoute";
 import Register from "./pages/Register";
+import Item from "./Item";
 
 function App() {
   return (
@@ -18,8 +19,12 @@ function App() {
 
           {/* PROTECTED ROUTE - needs token!*/}
           <Route
-            path="/"
-            element={<ProtectedRoute>{/* <TravelJournal /> */}</ProtectedRoute>}
+            path="/Item"
+            element={
+              <ProtectedRoute>
+                <Item />
+              </ProtectedRoute>
+            }
           />
         </Routes>
       </Router>
@@ -28,3 +33,4 @@ function App() {
 }
 
 export default App;
+
