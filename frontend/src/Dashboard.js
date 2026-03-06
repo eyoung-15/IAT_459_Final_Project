@@ -1,23 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import "./App.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
+import Item from "./Item";
 
 function Dashboard() {
-  const [facilities, setFacilities] = useState([]); // holds the array of plants from the database
-
-  // const [formData, setFormData] = useState({
-  //   // holds the current text typed into the form
-  //   commonName: "",
-  //   family: "",
-  //   category: "",
-  //   origin: "",
-  //   climate: "",
-  //   imgUrl: "",
-  // });
-
+  // Main facilities array
+  const [facilities, setFacilities] = useState([]);
   //Get token, user, logout from AuthContext
   const { token, user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   // initial load
   useEffect(() => {
@@ -26,6 +18,19 @@ function Dashboard() {
       .then((data) => setFacilities(data))
       .catch((err) => console.error("Error fetching facilities:", err));
   }, []);
+
+  // const [formData, setFormData] = useState({
+  //   // holds the current text typed into the form
+  //   Name: "",
+  //   Category: "",
+  //   Province: "",
+  //   City: "",
+  //   Address: "",
+  //   Latitude: "",
+  //   Longitude: "",
+  //   PostalCode: "",
+  //   imgUrl: "",
+  // });
 
   // helper function for the Controlled Form
   // Updates the specific field in our formData state based on the input's 'name' attribute
@@ -36,12 +41,12 @@ function Dashboard() {
   //   });
   // }
 
-  // // creating data: protected POST request
+  // creating data: protected POST request
   // async function handleSubmit(e) {
   //   e.preventDefault(); // stop the page from refreshing
 
   //   try {
-  //     const response = await fetch("http://localhost:5000/api/plants", {
+  //     const response = await fetch("http://localhost:5000/api/facility", {
   //       method: "POST",
   //       headers: {
   //         "Content-Type": "application/json",
@@ -57,18 +62,21 @@ function Dashboard() {
   //     }
 
   //     // if successful, the server sends back the newly created plant (including its new MongoDB _id)
-  //     const newPlant = await response.json();
+  //     const newFacility = await response.json();
 
   //     // update our local React state to include the new plant instantly without refreshing the page
-  //     setPlants([...plants, newPlant]);
+  //     setFacilities([...facilities, newFacility]);
 
   //     // clear the form fields
   //     setFormData({
-  //       commonName: "",
-  //       family: "",
-  //       category: "",
-  //       origin: "",
-  //       climate: "",
+  //       Name: "",
+  //       Category: "",
+  //       Province: "",
+  //       City: "",
+  //       Address: "",
+  //       Latitude: "",
+  //       Longitude: "",
+  //       PostalCode: "",
   //       imgUrl: "",
   //     });
   //   } catch (err) {
@@ -77,10 +85,10 @@ function Dashboard() {
   //   }
   // }
 
-  // // deleting data: protected DELETE request
+  // deleting data: protected DELETE request
   // const handleDelete = async (id) => {
   //   try {
-  //     const response = await fetch(`http://localhost:5000/api/plants/${id}`, {
+  //     const response = await fetch(`http://localhost:5000/api/facility/${id}`, {
   //       method: "DELETE",
   //       headers: {
   //         // attach the token to prove user is authorized - again
@@ -94,7 +102,7 @@ function Dashboard() {
 
   //     // if the backend successfully deleted it, remove it from our local React state
   //     // this filters out the deleted plant so it disappears from the screen instantly
-  //     setPlants(plants.filter((plant) => plant._id !== id));
+  //     setFacilities(facilities.filter((facility) => facility._id !== id));
   //   } catch (err) {
   //     console.error(err);
   //     alert(err.message);
@@ -115,34 +123,52 @@ function Dashboard() {
           <h1 style={{ margin: 0 }}>
             Canada Museums, Galleries, & Cultural Sites
           </h1>
-          {/* conditional rendering: only show the welcome message if the user object successfully loaded */}
+          {/* conditionally show welcome message if the user object successfully loaded */}
           {user && (
-            <h3 style={{ color: "#122A64", marginTop: "5px", marginBottom: 0 }}>
+            <h3
+              style={{
+                color: "#122A64",
+                marginTop: "5px",
+                marginBottom: 0,
+                fontWeight: "normal",
+                fontSize: "1rem",
+              }}
+            >
               Welcome back, {user.username}!
             </h3>
           )}
         </div>
 
-        {/* Conditionaly display login/logout buttons based on if user has token */}
+        {/* Conditionaly display navigation buttons based on if user has token */}
         {!token ? (
           <Link to="/login" style={{ color: "#122A64", fontWeight: "bold" }}>
             Login
           </Link>
         ) : (
-          <button
-            onClick={logout}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#122A64",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            Logout
-          </button>
+          <div>
+            {/* To Item page */}
+            <Link
+              to="/Item"
+              style={{ padding: "4rem", color: "#122A64", fontWeight: "bold" }}
+            >
+              Item
+            </Link>
+            {/* logout */}
+            <button
+              onClick={logout}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#122A64",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              Logout
+            </button>
+          </div>
         )}
       </header>
 
@@ -150,27 +176,20 @@ function Dashboard() {
         {/* ADD NEW ITEM */}
         {/* <div className="left-panel">
           <div className="card form-card">
-            <h3>Add New Plant</h3>
+            <h3>Add New Facility</h3>
             <form onSubmit={handleSubmit} className="plant-form">
               <label>Name</label>
               <input
-                name="commonName"
-                value={formData.commonName}
+                name="Name"
+                value={formData.Name}
                 onChange={handleChange}
                 required
-              />
-
-              <label>Family</label>
-              <input
-                name="family"
-                value={formData.family}
-                onChange={handleChange}
               />
 
               <label>Category</label>
               <input
                 name="category"
-                value={formData.category}
+                value={formData.Category}
                 onChange={handleChange}
               />
 
@@ -195,11 +214,10 @@ function Dashboard() {
                 onChange={handleChange}
               />
 
-              <button type="submit">Add Plant</button>
+              <button type="submit">Add Facility</button>
             </form>
           </div>
         </div> */}
-
         {/* GRID OF ITEMS */}
         <div className="right-panel">
           <div className="facilities-grid">
@@ -232,7 +250,7 @@ function Dashboard() {
                   {/* DELETE */}
                   {/* <button
                     className="delete-btn"
-                    onClick={() => handleDelete(plant._id)}
+                    onClick={() => handleDelete(facility._id)}
                   >
                     Delete
                   </button> */}
