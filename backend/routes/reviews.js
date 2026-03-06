@@ -23,7 +23,6 @@ router.post("/", verifyToken, async (req, res) => {
         facility: req.body.facility,
         rating: req.body.rating,
         comment: req.body.comment,
-        username: req.body.username,
         user: req.user.id,
         
     });
@@ -37,11 +36,23 @@ router.post("/", verifyToken, async (req, res) => {
 // DELETE ROUTE
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
-    await Review.findByIdAndDelete(req.params.id);
-    res.json({ message: "Review deleted" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+    const review =  await Review.findById(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({message: "Review not found"});
+    }
+
+   if (review.user.toString() !== req.user.id) {
+         return res.status(403).json({
+           message: "Forbidden: You do not have permission to delete this review.",
+         });
+       }
+   
+       await Review.findByIdAndDelete(req.params.id);
+       res.json({ message: "Review successfully deleted" });
+     } catch (err) {
+       res.status(500).json({ message: "Server error", error: err.message });
+     }
+   });
 
 module.exports = router;
