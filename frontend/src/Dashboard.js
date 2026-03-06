@@ -123,28 +123,27 @@ function Dashboard() {
           )}
         </div>
 
-        {/* Logout btn - global function*/}
-        <button
-          onClick={logout}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#c62828",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          Logout
-        </button>
-
-        {/* As well as logout btn, site dashboard allows visitors too, thus login btn */}
-        {
+        {/* Conditionaly display login/logout buttons based on if user has token */}
+        {!token ? (
           <Link to="/login" style={{ color: "#122A64", fontWeight: "bold" }}>
             Login
           </Link>
-        }
+        ) : (
+          <button
+            onClick={logout}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#122A64",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            Logout
+          </button>
+        )}
       </header>
 
       <div className="content-wrapper">
