@@ -117,7 +117,7 @@ function Dashboard() {
           </h1>
           {/* conditional rendering: only show the welcome message if the user object successfully loaded */}
           {user && (
-            <h3 style={{ color: "#2e7d32", marginTop: "5px", marginBottom: 0 }}>
+            <h3 style={{ color: "#122A64", marginTop: "5px", marginBottom: 0 }}>
               Welcome back, {user.username}!
             </h3>
           )}
