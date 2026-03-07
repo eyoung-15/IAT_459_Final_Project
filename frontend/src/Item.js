@@ -1,8 +1,8 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "./context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-function Item(props) {
+function Item() {
   //Get token, user, logout from AuthContext
   const { token, user, logout } = useContext(AuthContext);
 
@@ -54,9 +54,9 @@ function Item(props) {
           </div>
         )}
       </header>
+
       <h2>Page 2.</h2>
     </div>
   );
 }
-
 export default Item;
