@@ -55,7 +55,7 @@ function Item() {
         )}
       </header>
 
-      <h2>Page 2.</h2>
+      <h2>Page 2 - Protected</h2>
     </div>
   );
 }
