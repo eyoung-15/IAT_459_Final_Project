@@ -2,7 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const plantRoutes = require("./routes/plants"); ///PLACEHOLDER
 const authRoutes = require("./routes/auth");
 const reviewRoutes = require("./routes/reviews");
 const facilityRoutes = require("./routes/facility")
@@ -39,7 +38,6 @@ async function connectDB() {
 connectDB();
 
 // routes
-app.use("/api/plants", plantRoutes); //PLACEHOLDER
 app.use("/api/auth", authRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/facility", facilityRoutes);
