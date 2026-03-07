@@ -145,7 +145,7 @@ function Dashboard() {
               to="/Item"
               style={{ padding: "4rem", color: "#122A64", fontWeight: "bold" }}
             >
-              Item
+              Page 2
             </Link>
             {/* logout */}
             <button
