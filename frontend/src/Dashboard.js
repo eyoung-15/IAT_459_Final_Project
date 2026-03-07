@@ -2,14 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import "./App.css";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
-import Item from "./Item";
 
 function Dashboard() {
   // Main facilities array
   const [facilities, setFacilities] = useState([]);
   //Get token, user, logout from AuthContext
   const { token, user, logout } = useContext(AuthContext);
-  const navigate = useNavigate();
 
   // initial load
   useEffect(() => {
@@ -19,95 +17,91 @@ function Dashboard() {
       .catch((err) => console.error("Error fetching facilities:", err));
   }, []);
 
-  // const [formData, setFormData] = useState({
-  //   // holds the current text typed into the form
-  //   Name: "",
-  //   Category: "",
-  //   Province: "",
-  //   City: "",
-  //   Address: "",
-  //   Latitude: "",
-  //   Longitude: "",
-  //   PostalCode: "",
-  //   imgUrl: "",
-  // });
+  // Form for adding new item
+  const [formData, setFormData] = useState({
+    Name: "",
+    Category: "",
+    Province: "",
+    City: "",
+    Address: "",
+    Latitude: "",
+    Longitude: "",
+    PostalCode: "",
+    imgUrl: "",
+  });
 
-  // helper function for the Controlled Form
-  // Updates the specific field in our formData state based on the input's 'name' attribute
-  // function handleChange(e) {
-  //   setFormData({
-  //     ...formData,
-  //     [e.target.name]: e.target.value,
-  //   });
-  // }
+  // Updates the field in formData
+  function handleChange(e) {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  }
 
-  // creating data: protected POST request
-  // async function handleSubmit(e) {
-  //   e.preventDefault(); // stop the page from refreshing
+  // stop page from refreshing on submit
+  async function handleSubmit(e) {
+    e.preventDefault();
 
-  //   try {
-  //     const response = await fetch("http://localhost:5000/api/facility", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         // attach the token to prove user is authorized
-  //         Authorization: token,
-  //       },
-  //       body: JSON.stringify(formData), // send the form data to the server
-  //     });
+    try {
+      const response = await fetch("http://localhost:5000/api/facility", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // prove users authorized
+          Authorization: token,
+        },
+        // Send data to server
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to add facility. Are you authorized?");
+      }
 
-  //     // basic error handling if the token is invalid/missing or the server rejects
-  //     if (!response.ok) {
-  //       throw new Error("Failed to add plant. Are you authorized?");
-  //     }
+      // Server sends back new item response
+      const newFacility = await response.json();
 
-  //     // if successful, the server sends back the newly created plant (including its new MongoDB _id)
-  //     const newFacility = await response.json();
+      // Update frontend visual
+      setFacilities([...facilities, newFacility]);
 
-  //     // update our local React state to include the new plant instantly without refreshing the page
-  //     setFacilities([...facilities, newFacility]);
+      // clear form
+      setFormData({
+        Name: "",
+        Category: "",
+        Province: "",
+        City: "",
+        Address: "",
+        Latitude: "",
+        Longitude: "",
+        PostalCode: "",
+        imgUrl: "",
+      });
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  }
 
-  //     // clear the form fields
-  //     setFormData({
-  //       Name: "",
-  //       Category: "",
-  //       Province: "",
-  //       City: "",
-  //       Address: "",
-  //       Latitude: "",
-  //       Longitude: "",
-  //       PostalCode: "",
-  //       imgUrl: "",
-  //     });
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert(err.message); // show the error to the user
-  //   }
-  // }
+  // Deleting data
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/facility/${id}`, {
+        method: "DELETE",
+        headers: {
+          // prove users authorized
+          Authorization: token,
+        },
+      });
 
-  // deleting data: protected DELETE request
-  // const handleDelete = async (id) => {
-  //   try {
-  //     const response = await fetch(`http://localhost:5000/api/facility/${id}`, {
-  //       method: "DELETE",
-  //       headers: {
-  //         // attach the token to prove user is authorized - again
-  //         Authorization: token,
-  //       },
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error("Failed to delete. Are you authorized?");
-  //     }
-
-  //     // if the backend successfully deleted it, remove it from our local React state
-  //     // this filters out the deleted plant so it disappears from the screen instantly
-  //     setFacilities(facilities.filter((facility) => facility._id !== id));
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert(err.message);
-  //   }
-  // };
+      if (!response.ok) {
+        throw new Error("Failed to delete. Are you authorized?");
+      }
+      // remove from frontend
+      setFacilities(facilities.filter((facility) => facility._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
 
   return (
     <div className="page-container">
@@ -172,52 +166,49 @@ function Dashboard() {
         )}
       </header>
 
+      {/* ADD NEW FACILITY */}
+      <div className="left-panel">
+        <div className="card form-card">
+          <h3>Add New Facility</h3>
+          <form onSubmit={handleSubmit} className="form">
+            <label>Name</label>
+            <input
+              name="Name"
+              value={formData.Name}
+              onChange={handleChange}
+              required
+            />
+
+            <label>Category</label>
+            <input
+              name="Category"
+              value={formData.Category}
+              onChange={handleChange}
+            />
+
+            <label>Province</label>
+            <input
+              name="Province"
+              value={formData.Province}
+              onChange={handleChange}
+            />
+
+            <label>City</label>
+            <input name="City" value={formData.City} onChange={handleChange} />
+
+            <label>Address</label>
+            <input
+              name="Address"
+              value={formData.Address}
+              onChange={handleChange}
+            />
+
+            <button type="submit">Add Facility</button>
+          </form>
+        </div>
+      </div>
+
       <div className="content-wrapper">
-        {/* ADD NEW ITEM */}
-        {/* <div className="left-panel">
-          <div className="card form-card">
-            <h3>Add New Facility</h3>
-            <form onSubmit={handleSubmit} className="plant-form">
-              <label>Name</label>
-              <input
-                name="Name"
-                value={formData.Name}
-                onChange={handleChange}
-                required
-              />
-
-              <label>Category</label>
-              <input
-                name="category"
-                value={formData.Category}
-                onChange={handleChange}
-              />
-
-              <label>Origin</label>
-              <input
-                name="origin"
-                value={formData.origin}
-                onChange={handleChange}
-              />
-
-              <label>Climate</label>
-              <input
-                name="climate"
-                value={formData.climate}
-                onChange={handleChange}
-              />
-
-              <label>Image URL</label>
-              <input
-                name="imgUrl"
-                value={formData.imgUrl}
-                onChange={handleChange}
-              />
-
-              <button type="submit">Add Facility</button>
-            </form>
-          </div>
-        </div> */}
         {/* GRID OF ITEMS */}
         <div className="right-panel">
           <div className="facilities-grid">
@@ -248,12 +239,12 @@ function Dashboard() {
                     <strong>Address:</strong> {facility.Address}
                   </p>
                   {/* DELETE */}
-                  {/* <button
+                  <button
                     className="delete-btn"
                     onClick={() => handleDelete(facility._id)}
                   >
                     Delete
-                  </button> */}
+                  </button>
                 </div>
               </div>
             ))}
