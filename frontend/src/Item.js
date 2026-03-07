@@ -87,7 +87,7 @@ function Item() {
         )}
       </header>
 
-      <h2>Page 2 (Protected Dashboard)</h2>
+      <h2>Page 2 (Protected Dashboard Item.js)</h2>
       <div className="content-wrapper">
         {/* GRID OF ITEMS */}
         <div className="right-panel">
