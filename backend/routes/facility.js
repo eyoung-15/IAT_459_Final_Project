@@ -6,6 +6,7 @@ const verifyToken = require("../middleware/auth");
 // // GET ROUTE
 router.get("/", async (req, res) => {
   try {
+    // .sort({_id: -1}) reverses the id's to ensure that the newest id's are displayed first
     const facilities = await Facility.find().sort({ _id: -1 }).limit(100);
     res.json(facilities);
   } catch (err) {
