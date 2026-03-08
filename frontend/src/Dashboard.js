@@ -8,6 +8,8 @@ function Dashboard() {
   const [facilities, setFacilities] = useState([]);
   //Get token, user, logout from AuthContext
   const { token, user, logout } = useContext(AuthContext);
+  // State for search filtering
+  const [searchTerm, setSearchTerm] = useState("");
 
   // initial load
   useEffect(() => {
@@ -102,6 +104,12 @@ function Dashboard() {
       alert(err.message);
     }
   };
+
+  const filteredFacilities = facilities.filter((facility) => {
+    return (facility.Name || "")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="page-container">
@@ -208,12 +216,28 @@ function Dashboard() {
         </div>
       </div>
 
+      {/* SEARCH FILTER */}
+      <div className="card">
+        <div style={{ padding: "4rem" }}>
+          <div className="form">
+            <input
+              type="text"
+              placeholder="Search by Facility Name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <button onClick={() => setSearchTerm("")}>Clear Search</button>
+        </div>
+      </div>
+
       <div className="content-wrapper">
         {/* GRID OF ITEMS */}
         <div className="right-panel">
           <div className="facilities-grid">
             {/* loop over every facility */}
-            {facilities.map((facility) => (
+            {filteredFacilities.map((facility) => (
               // keys are required by React to keep track of list items efficiently
               <div key={facility._id} className="facilities-card">
                 <div className="image-container">
@@ -256,3 +280,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
