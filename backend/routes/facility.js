@@ -6,7 +6,7 @@ const verifyToken = require("../middleware/auth");
 // // GET ROUTE
 router.get("/", async (req, res) => {
   try {
-    const facilities = await Facility.find().limit(100);
+    const facilities = await Facility.find().sort({ _id: -1 }).limit(100);
     res.json(facilities);
   } catch (err) {
     res.status(500).json({ message: err.message });
