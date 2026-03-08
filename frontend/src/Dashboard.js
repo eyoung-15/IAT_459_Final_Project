@@ -61,7 +61,7 @@ function Dashboard() {
       const newFacility = await response.json();
 
       // Update frontend visual
-      setFacilities([...facilities, newFacility]);
+      setFacilities([newFacility, ...facilities]);
 
       // clear form
       setFormData({
