@@ -23,7 +23,7 @@ function Login() {
 
       if (res.ok) {
         login(data.token);
-        navigate("/dashboard");
+        navigate("/");
       } else {
         alert(data.message || "Login failed");
       }
