@@ -1,4 +1,9 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import {
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Dashboard from "./Dashboard";
 import Login from "./Login";
@@ -12,7 +17,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* PUBLIC ROUTES */}
+          {/* PUBLIC ROUTES - no token needed */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -34,6 +39,9 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Catch all other routes - redirect to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

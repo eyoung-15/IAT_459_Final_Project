@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Add useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import "./HeritageHub.css";
 
@@ -7,20 +7,27 @@ function Dashboard() {
   const [facilities, setFacilities] = useState([]);
   const { token, user, logout } = useContext(AuthContext);
   const [searchTerm, setSearchTerm] = useState("");
-  const navigate = useNavigate(); // Add navigate for potential redirects
+  const navigate = useNavigate();
+
+  // IMMEDIATELY check for token - if no token, redirect before anything else
+  useEffect(() => {
+    console.log("Dashboard - checking token:", token);
+    if (!token) {
+      console.log("No token in Dashboard, redirecting to login");
+      navigate("/login", { replace: true });
+    }
+  }, [token, navigate]);
 
   useEffect(() => {
-    // If no token, redirect to login (extra safety)
-    if (!token) {
-      navigate("/login");
-      return;
+    // Only fetch if we have a token
+    if (token) {
+      console.log("Fetching facilities with token");
+      fetch("http://localhost:5000/api/facility")
+        .then((res) => res.json())
+        .then((data) => setFacilities(data))
+        .catch((err) => console.error("Error fetching facilities:", err));
     }
-
-    fetch("http://localhost:5000/api/facility")
-      .then((res) => res.json())
-      .then((data) => setFacilities(data))
-      .catch((err) => console.error("Error fetching facilities:", err));
-  }, [token, navigate]);
+  }, [token]);
 
   const [formData, setFormData] = useState({
     Name: "",
@@ -43,6 +50,13 @@ function Dashboard() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    // Double-check token before submitting
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
     try {
       const response = await fetch("http://localhost:5000/api/facility", {
         method: "POST",
@@ -56,7 +70,7 @@ function Dashboard() {
       if (response.status === 401) {
         // Unauthorized - token might be invalid
         logout();
-        navigate("/login");
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -83,6 +97,12 @@ function Dashboard() {
   }
 
   const handleDelete = async (id) => {
+    // Double-check token before deleting
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
     try {
       const response = await fetch(`http://localhost:5000/api/facility/${id}`, {
         method: "DELETE",
@@ -93,7 +113,7 @@ function Dashboard() {
 
       if (response.status === 401) {
         logout();
-        navigate("/login");
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -107,7 +127,7 @@ function Dashboard() {
     }
   };
 
-  // Don't render anything if not authenticated
+  // If no token, don't render anything - let the useEffect redirect handle it
   if (!token) {
     return null;
   }

@@ -11,6 +11,7 @@ function ProtectedRoute({ children }) {
   // if the token is null (not authenticated)
   if (!token) {
     //redirect to login and save the location they tried to access
+    console.log("No token found, redirecting to login");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
