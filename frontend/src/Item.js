@@ -61,9 +61,9 @@ function Item() {
           </Link>
         ) : (
           <div>
-            {/* To Dashboard page */}
+            {/* To Home page */}
             <Link
-              to="/dashboard"
+              to="/"
               style={{ padding: "4rem", color: "#122A64", fontWeight: "bold" }}
             >
               Home
