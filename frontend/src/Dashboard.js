@@ -1,17 +1,13 @@
 import { useContext, useEffect, useState } from "react";
-import "./App.css";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
+import "./HeritageHub.css";
 
 function Dashboard() {
-  // Main facilities array
   const [facilities, setFacilities] = useState([]);
-  //Get token, user, logout from AuthContext
   const { token, user, logout } = useContext(AuthContext);
-  // State for search filtering
   const [searchTerm, setSearchTerm] = useState("");
 
-  // initial load
   useEffect(() => {
     fetch("http://localhost:5000/api/facility")
       .then((res) => res.json())
@@ -19,7 +15,6 @@ function Dashboard() {
       .catch((err) => console.error("Error fetching facilities:", err));
   }, []);
 
-  // Form for adding new item
   const [formData, setFormData] = useState({
     Name: "",
     Category: "",
@@ -32,7 +27,6 @@ function Dashboard() {
     imgUrl: "",
   });
 
-  // Updates the field in formData
   function handleChange(e) {
     setFormData({
       ...formData,
@@ -40,32 +34,22 @@ function Dashboard() {
     });
   }
 
-  // stop page from refreshing on submit
   async function handleSubmit(e) {
     e.preventDefault();
-
     try {
       const response = await fetch("http://localhost:5000/api/facility", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // prove users authorized
           Authorization: token,
         },
-        // Send data to server
         body: JSON.stringify(formData),
       });
       if (!response.ok) {
         throw new Error("Failed to add facility. Are you authorized?");
       }
-
-      // Server sends back new item response
       const newFacility = await response.json();
-
-      // Update frontend visual
       setFacilities([newFacility, ...facilities]);
-
-      // clear form
       setFormData({
         Name: "",
         Category: "",
@@ -83,21 +67,17 @@ function Dashboard() {
     }
   }
 
-  // Deleting data
   const handleDelete = async (id) => {
     try {
       const response = await fetch(`http://localhost:5000/api/facility/${id}`, {
         method: "DELETE",
         headers: {
-          // prove users authorized
           Authorization: token,
         },
       });
-
       if (!response.ok) {
         throw new Error("Failed to delete. Are you authorized?");
       }
-      // remove from frontend
       setFacilities(facilities.filter((facility) => facility._id !== id));
     } catch (err) {
       console.error(err);
@@ -112,167 +92,163 @@ function Dashboard() {
   });
 
   return (
-    <div className="page-container">
-      <header
-        className="main-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <h1 style={{ margin: 0 }}>
-            Canada Museums, Galleries, & Cultural Sites
-          </h1>
-          {/* conditionally show welcome message if the user object successfully loaded */}
-          {user && (
-            <h3
-              style={{
-                color: "#122A64",
-                marginTop: "5px",
-                marginBottom: 0,
-                fontWeight: "normal",
-                fontSize: "1rem",
-              }}
-            >
-              Welcome back, {user.username}!
-            </h3>
-          )}
-        </div>
-
-        {/* Conditionaly display navigation buttons based on if user has token */}
-        {!token ? (
-          <Link to="/login" style={{ color: "#122A64", fontWeight: "bold" }}>
-            Login
-          </Link>
-        ) : (
-          <div>
-            {/* To Item page */}
-            <Link
-              to="/Item"
-              style={{ padding: "4rem", color: "#122A64", fontWeight: "bold" }}
-            >
-              Page 2
+    <div className="heritage-hub">
+      <nav className="navbar">
+        <div className="nav-container">
+          <div className="nav-left">
+            <Link to="/" className="logo">
+              Heritage<span>Hub</span>
             </Link>
-            {/* logout */}
-            <button
-              onClick={logout}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#122A64",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-            >
+            <div className="nav-links">
+              <Link to="/" className="nav-link">
+                Explore
+              </Link>
+              <Link to="/" className="nav-link">
+                Map View
+              </Link>
+              <Link to="/Item" className="nav-link">
+                Page 2
+              </Link>
+            </div>
+          </div>
+
+          <div className="nav-right">
+            {user && (
+              <span className="user-greeting">Welcome, {user.username}!</span>
+            )}
+            <button onClick={logout} className="logout-btn">
               Logout
             </button>
           </div>
-        )}
-      </header>
+        </div>
+      </nav>
 
-      {/* ADD NEW FACILITY */}
-      <div className="left-panel">
-        <div className="card form-card">
-          <h3>Add New Facility</h3>
-          <form onSubmit={handleSubmit} className="form">
-            <label>Name</label>
+      <div className="featured" style={{ marginTop: "2rem" }}>
+        <h2 className="section-title">Manage Facilities</h2>
+
+        {/* Add Form */}
+        <div
+          style={{
+            marginBottom: "3rem",
+            background: "white",
+            padding: "2rem",
+            borderRadius: "16px",
+          }}
+        >
+          <h3 style={{ marginBottom: "1.5rem" }}>Add New Facility</h3>
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+              gap: "1rem",
+            }}
+          >
             <input
               name="Name"
+              placeholder="Name"
               value={formData.Name}
               onChange={handleChange}
               required
             />
-
-            <label>Category</label>
             <input
               name="Category"
+              placeholder="Category"
               value={formData.Category}
               onChange={handleChange}
             />
-
-            <label>Province</label>
             <input
               name="Province"
+              placeholder="Province"
               value={formData.Province}
               onChange={handleChange}
             />
-
-            <label>City</label>
-            <input name="City" value={formData.City} onChange={handleChange} />
-
-            <label>Address</label>
+            <input
+              name="City"
+              placeholder="City"
+              value={formData.City}
+              onChange={handleChange}
+            />
             <input
               name="Address"
+              placeholder="Address"
               value={formData.Address}
               onChange={handleChange}
             />
-
-            <button type="submit">Add Facility</button>
+            <button
+              type="submit"
+              className="auth-button"
+              style={{ gridColumn: "span 2" }}
+            >
+              Add Facility
+            </button>
           </form>
         </div>
-      </div>
 
-      {/* SEARCH FILTER */}
-      <div className="card">
-        <div style={{ padding: "4rem" }}>
-          <div className="form">
-            <input
-              type="text"
-              placeholder="Search by Facility Name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          <button onClick={() => setSearchTerm("")}>Clear Search</button>
+        {/* Search */}
+        <div style={{ marginBottom: "2rem" }}>
+          <input
+            type="text"
+            placeholder="Search facilities..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: "0.75rem",
+              width: "300px",
+              borderRadius: "8px",
+              border: "1px solid #eaeef2",
+            }}
+          />
+          <button
+            onClick={() => setSearchTerm("")}
+            className="filter-btn"
+            style={{ marginLeft: "1rem" }}
+          >
+            Clear
+          </button>
         </div>
-      </div>
 
-      <div className="content-wrapper">
-        {/* GRID OF ITEMS */}
-        <div className="right-panel">
-          <div className="facilities-grid">
-            {/* loop over every facility */}
-            {filteredFacilities.map((facility) => (
-              // keys are required by React to keep track of list items efficiently
-              <div key={facility._id} className="facilities-card">
-                <div className="image-container">
-                  {/* conditional rendering for the image */}
-                  {facility.imgUrl ? (
-                    <img src={facility.imgUrl} alt={facility.Name} />
-                  ) : (
-                    <div className="placeholder">No Image</div>
-                  )}
-                </div>
-                <div className="card-details">
-                  <h3>{facility.Name}</h3>
-                  <p>
-                    <strong>Category:</strong> {facility.Category}
-                  </p>
-                  <p>
-                    <strong>Province:</strong> {facility.Province}
-                  </p>
-                  <p>
-                    <strong>City:</strong> {facility.City}
-                  </p>
-                  <p>
-                    <strong>Address:</strong> {facility.Address}
-                  </p>
-                  {/* DELETE */}
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(facility._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
+        {/* Facilities Grid */}
+        <div className="facilities-grid-home">
+          {filteredFacilities.map((facility) => (
+            <div key={facility._id} className="facility-card-home">
+              <div className="card-image-container">
+                {facility.imgUrl ? (
+                  <img
+                    src={facility.imgUrl}
+                    alt={facility.Name}
+                    className="facility-image"
+                  />
+                ) : (
+                  <div className="image-placeholder">🏛️</div>
+                )}
               </div>
-            ))}
-          </div>
+              <div className="card-content">
+                <div className="location-tag">
+                  {facility.City?.toUpperCase()},{" "}
+                  {facility.Province?.toUpperCase()}
+                </div>
+                <h3 className="facility-name">{facility.Name}</h3>
+                <p className="facility-description">
+                  <strong>Category:</strong> {facility.Category}
+                  <br />
+                  <strong>Address:</strong> {facility.Address}
+                </p>
+                <button
+                  onClick={() => handleDelete(facility._id)}
+                  className="filter-btn"
+                  style={{
+                    background: "#fee",
+                    color: "#c00",
+                    borderColor: "#fcc",
+                    width: "100%",
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -280,4 +256,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-

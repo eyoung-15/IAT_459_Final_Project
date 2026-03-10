@@ -1,24 +1,18 @@
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
+import "./Auth.css"; // This should work - Auth.css is in the same directory as Login.js
 
 function Login() {
-  //keep track of what user types into inputs
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  //AuthContext login function
   const { login } = useContext(AuthContext);
-
   const navigate = useNavigate();
 
-  //Submit handler
   async function handleLogin(e) {
-    // prevent page refresh
     e.preventDefault();
 
     try {
-      // send to backend
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,14 +21,10 @@ function Login() {
 
       const data = await res.json();
 
-      // if successful
       if (res.ok) {
-        // pass token to context
         login(data.token);
-        // redirect to home
-        navigate("/Dashboard");
+        navigate("/dashboard");
       } else {
-        // if unsuccessful
         alert(data.message || "Login failed");
       }
     } catch (err) {
@@ -43,102 +33,90 @@ function Login() {
   }
 
   return (
-    <div>
-      <h2 style={styles.title}>Login</h2>
-      <div className="auth-container" style={styles.container}>
-        {/* LEFT COLUMN */}
-        <div className="card" style={styles.cardLeft}>
-          <h3 style={styles.title}>LOG IN TO YOUR ACCOUNT</h3>
-          <p style={styles.text}>
-            <p style={styles.footerText}>
-              Don't have an account yet?{" "}
-              <Link
-                to="/register"
-                style={{ color: "white", fontWeight: "bold" }}
-              >
-                Register here
+    <div className="auth-page">
+      <nav className="auth-nav">
+        <div className="nav-container">
+          <Link to="/" className="logo">
+            Heritage<span>Hub</span>
+          </Link>
+          <Link to="/" className="back-link">
+            ← Back to Explore
+          </Link>
+        </div>
+      </nav>
+
+      <div className="auth-container">
+        <div className="auth-grid">
+          {/* Left Column - Form */}
+          <div className="auth-form-container">
+            <h1 className="auth-title">Welcome Back</h1>
+            <p className="auth-subtitle">
+              Sign in to access your digital passport and bucket list.
+            </p>
+
+            <form onSubmit={handleLogin} className="auth-form">
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Password</label>
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-options">
+                <Link to="/forgot-password" className="forgot-link">
+                  Forgot password?
+                </Link>
+              </div>
+
+              <button type="submit" className="auth-button">
+                Sign In →
+              </button>
+            </form>
+
+            <p className="auth-footer">
+              Don't have a passport yet?{" "}
+              <Link to="/register" className="auth-link">
+                Create an account
               </Link>
             </p>
-          </p>
-        </div>
-        {/* RIGHT COLUMN */}
-        <div className="card" style={styles.cardRight}>
-          <form onSubmit={handleLogin} className="form">
-            <input
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button type="submit" style={styles.button}>
-              Login
-            </button>
-          </form>
+          </div>
+
+          {/* Right Column - Quote with Image */}
+          <div className="auth-quote-container">
+            <div className="quote-content">
+              <img
+                src="/login-img.png"
+                alt="HeritageHub"
+                className="quote-image"
+              />
+              <blockquote className="quote-text">
+                "Traveling—it leaves you speechless, then turns you into a
+                storyteller."
+              </blockquote>
+              <p className="quote-author">
+                — Discover the unseen Canada with HeritageHub.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "100vh",
-    backgroundColor: "#122A64",
-  },
-  cardLeft: {
-    width: "100%",
-    maxWidth: "400px",
-    height: "300px",
-    padding: "2rem",
-    backgroundColor: "#122A64",
-    borderRadius: "0",
-    border: "solid white 1px",
-  },
-  cardRight: {
-    width: "100%",
-    maxWidth: "400px",
-    height: "300px",
-    padding: "2rem",
-    backgroundColor: "white",
-    borderRadius: "0",
-    border: "solid white 1px",
-  },
-  title: {
-    textAlign: "center",
-    color: "white",
-    backgroundColor: "#122A64",
-  },
-  button: {
-    marginTop: "1rem",
-    backgroundColor: "#122A64",
-    color: "white",
-    border: "none",
-    padding: "10px",
-    borderRadius: "4px",
-    cursor: "pointer",
-    width: "100%",
-  },
-  footerText: {
-    marginTop: "1.5rem",
-    textAlign: "center",
-    fontSize: "0.9rem",
-    color: "white",
-  },
-  link: {
-    color: "#122A64",
-    cursor: "pointer",
-    fontWeight: "bold",
-    textDecoration: "underline",
-  },
-  text: { color: "white", textAlign: "center" },
-};
 
 export default Login;

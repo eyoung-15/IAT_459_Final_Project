@@ -3,21 +3,22 @@ import { AuthProvider } from "./context/AuthContext";
 import Dashboard from "./Dashboard";
 import Login from "./Login";
 import ProtectedRoute from "./ProtectedRoute";
-import Register from "./pages/Register";
+import Register from "./pages/Register"; // Fixed: now points to pages folder
 import Item from "./Item";
+import Home from "./Home";
 
 function App() {
   return (
-    //wraps app in AuthProvider so components can access token
     <AuthProvider>
       <Router>
         <Routes>
-          {/*PUBLIC ROUTES - doesn't need token*/}
+          {/* PUBLIC ROUTES */}
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
 
-          {/* PROTECTED ROUTE - needs token!*/}
+          {/* PROTECTED ROUTE */}
           <Route
             path="/Item"
             element={
@@ -33,4 +34,3 @@ function App() {
 }
 
 export default App;
-
