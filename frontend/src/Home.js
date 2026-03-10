@@ -53,6 +53,9 @@ function Home() {
               <Link to="/" className="nav-link">
                 Curated Lists
               </Link>
+              <Link to="/Dashboard" className="nav-link">
+                Manage
+              </Link>
             </div>
           </div>
 
