@@ -9,8 +9,8 @@ function ProtectedRoute({ children }) {
 
   // if the tokens null
   if (!token) {
-    //redirect to home
-    return <Navigate to="/dashboard" />;
+    //redirect to login
+    return <Navigate to="/login" />;
   }
   // Otherwise, return children components
   return children;
