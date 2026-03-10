@@ -1,0 +1,164 @@
+import { useContext, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { AuthContext } from "./context/AuthContext";
+import "./HeritageHub.css";
+
+function Home() {
+  const { token, user, logout } = useContext(AuthContext);
+  const [facilities, setFacilities] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/facility")
+      .then((res) => res.json())
+      .then((data) => setFacilities(data))
+      .catch((err) => console.error("Error fetching facilities:", err));
+  }, []);
+
+  // Get unique categories for filter
+  const categories = [
+    "All",
+    ...new Set(facilities.map((f) => f.Category).filter(Boolean)),
+  ];
+
+  const filteredFacilities = facilities.filter((facility) => {
+    const matchesSearch = (facility.Name || "")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || facility.Category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Take only first 6 for homepage
+  const featuredFacilities = filteredFacilities.slice(0, 6);
+
+  return (
+    <div className="heritage-hub">
+      {/* Navigation Bar */}
+      <nav className="navbar">
+        <div className="nav-container">
+          <div className="nav-left">
+            <Link to="/" className="logo">
+              Heritage<span>Hub</span>
+            </Link>
+            <div className="nav-links">
+              <Link to="/" className="nav-link active">
+                Explore
+              </Link>
+              <Link to="/" className="nav-link">
+                Map View
+              </Link>
+              <Link to="/" className="nav-link">
+                Curated Lists
+              </Link>
+            </div>
+          </div>
+
+          <div className="nav-right">
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Q"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+            </div>
+
+            {!token ? (
+              <Link to="/login" className="sign-in-btn">
+                Sign In
+              </Link>
+            ) : (
+              <div className="user-menu">
+                <span className="user-greeting">
+                  Hi, {user?.username || "User"}
+                </span>
+                <button onClick={logout} className="logout-btn">
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="hero">
+        <div className="hero-content">
+          <h1 className="hero-title">Discover Canada's Heritage</h1>
+          <p className="hero-subtitle">
+            Explore world-class museums, galleries and historic sites from coast
+            to coast
+          </p>
+        </div>
+      </section>
+
+      {/* Featured Destination */}
+      <section className="featured">
+        <h2 className="section-title">Featured Destination</h2>
+
+        <div className="filters-row">
+          <div className="filter-buttons">
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={`filter-btn ${
+                  selectedCategory === category ? "active" : ""
+                }`}
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="facilities-grid-home">
+          {featuredFacilities.map((facility) => (
+            <div key={facility._id} className="facility-card-home">
+              <div className="card-image-container">
+                {facility.imgUrl ? (
+                  <img
+                    src={facility.imgUrl}
+                    alt={facility.Name}
+                    className="facility-image"
+                  />
+                ) : (
+                  <div className="image-placeholder">📸</div>
+                )}
+                <div className="rating-badge">★ {facility.rating || "4.8"}</div>
+              </div>
+
+              <div className="card-content">
+                <div className="location-tag">
+                  {facility.City?.toUpperCase()},{" "}
+                  {facility.Province?.toUpperCase()}
+                </div>
+                <h3 className="facility-name">{facility.Name}</h3>
+                <p className="facility-description">
+                  {facility.Description ||
+                    (facility.Category === "Museum"
+                      ? "One of the largest museums in North America and the largest museum in Canada."
+                      : "Experience the rich cultural heritage of Canada's historic sites.")}
+                </p>
+
+                <div className="category-tags">
+                  <span className="category-tag">
+                    {facility.Category || "Museum"}
+                  </span>
+                  <span className="category-tag">Art</span>
+                  <span className="category-tag">History</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export default Home;
