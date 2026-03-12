@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
-import "./HeritageHub.css";
+import "./css/HeritageHub.css";
 
 function Home() {
   const { token, user, logout } = useContext(AuthContext);

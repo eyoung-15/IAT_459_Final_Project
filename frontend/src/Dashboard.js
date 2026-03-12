@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
-import "./HeritageHub.css";
+import "./css/HeritageHub.css";
 
 function Dashboard() {
   const [facilities, setFacilities] = useState([]);
@@ -106,7 +106,7 @@ function Dashboard() {
               <Link to="/" className="nav-link">
                 Map View
               </Link>
-              <Link to="/Item" className="nav-link">
+              <Link to="/FacilityDetails" className="nav-link">
                 Page 2
               </Link>
             </div>

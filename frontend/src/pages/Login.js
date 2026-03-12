@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "./context/AuthContext";
-import "./Auth.css"; // This should work - Auth.css is in the same directory as Login.js
+import { AuthContext } from "../context/AuthContext";
+import "../css/Auth.css"; // This should work - Auth.css is in the same directory as Login.js
 
 function Login() {
   const [email, setEmail] = useState("");
