@@ -91,18 +91,21 @@ function FacilityDetails() {
         <p> <strong>Province:</strong> {facility.Province} </p>
         </div>
 
-        <Link to={`/add-review/${facility._id}`}>
+        {token && <Link to={`/add-review/${facility._id}`}>
         Add Review
-        </Link>
+        </Link>}
 
         <h4>Reviews</h4>
-        {reviews.map(r => (
+        {reviews.length === 0 ? (
+          <p>No reviews yet.</p>
+        ):(
+          reviews.map((r) => (
             <div key={r._id} className="review-card">
                 <strong>{r.username}</strong>
                 <p>{r.rating}/5</p>
                 <p>{r.comment}</p>
                 </div>
-        ))}
+        )))}
 </div>
    
              
