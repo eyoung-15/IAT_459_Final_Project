@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 function AddReview(){
@@ -10,10 +10,13 @@ function AddReview(){
     const [rating, setRating] = useState(5);
 
     const [comment, setComment] = useState("");
+    const navigate = useNavigate();
 
-    function submit(e){
+    async function submit(e){
         e.preventDefault();
-        fetch("http://localhost:5000/api/reviews", {
+
+        try{
+        const res = await fetch("http://localhost:5000/api/reviews", {
             method: "POST",
 
             headers: {
@@ -25,11 +28,21 @@ function AddReview(){
                 facility: facilityId,
                 rating,
                 comment,
-                username: user.username
+                username: user?.username
             })
-        })
-        .then(()=>alert("Review added"));
+        });
+
+        if(!res.ok){
+            throw new Error("Failed to add review");
+        }
+
+        alert("Review added");
+        navigate(`/facility/${facilityId}`);
+
+    } catch (err){
+        console.error(err);
     }
+}
 
     return(
         <form onSubmit={submit} className="page-container">
