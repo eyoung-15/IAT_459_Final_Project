@@ -11,12 +11,11 @@ function AddReview(){
 
     const [comment, setComment] = useState("");
     const navigate = useNavigate();
-
-    async function submit(e){
+    
+    function submit(e){
         e.preventDefault();
-
-        try{
-        const res = await fetch("http://localhost:5000/api/reviews", {
+        
+        fetch("http://localhost:5000/api/reviews", {
             method: "POST",
 
             headers: {
@@ -28,21 +27,11 @@ function AddReview(){
                 facility: facilityId,
                 rating,
                 comment,
-                username: user?.username
+                username: user.username
             })
-        });
-
-        if(!res.ok){
-            throw new Error("Failed to add review");
-        }
-
-        alert("Review added");
-        navigate(`/facility/${facilityId}`);
-
-    } catch (err){
-        console.error(err);
+        }).then(() => navigate(`/facility/${facilityId}`));
     }
-}
+
 
     return(
         <form onSubmit={submit} className="page-container">

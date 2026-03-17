@@ -1,22 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
 function FacilityDetails() {
     
     const { id } = useParams();
-    const navigate = useNavigate();
     // Main facilities array
     const [facility, setFacility] = useState(null);
     const [reviews, setReviews] = useState([]);
     //Get token, user, logout from AuthContext
-    const { token, logout } = useContext(AuthContext);
-
-    function handleLogout(){
-      logout();
-      navigate("/");
-    }
-
+    const { token } = useContext(AuthContext);
 
   // initial load
   useEffect(() => {
@@ -30,7 +23,7 @@ function FacilityDetails() {
       .then(data=>setReviews(data));
   }, [id]);
 
-  if (!facility) return <p>Loading...</p>;
+  if (!facility) return <p>Cannot Find Facility</p>;
 
 
   return (
@@ -63,21 +56,7 @@ function FacilityDetails() {
             >
               Home
             </Link>
-            {/* logout */}
-            <button
-              onClick={handleLogout}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#122A64",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-            >
-              Logout
-            </button>
+          
           </div>
         )}
       </header>
@@ -96,10 +75,10 @@ function FacilityDetails() {
         </Link>}
 
         <h4>Reviews</h4>
-        {reviews.length === 0 ? (
+        {reviews?.length === 0 ? (
           <p>No reviews yet.</p>
         ):(
-          reviews.map((r) => (
+          reviews?.map((r) => (
             <div key={r._id} className="review-card">
                 <strong>{r.username}</strong>
                 <p>{r.rating}/5</p>

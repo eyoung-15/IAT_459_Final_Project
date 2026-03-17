@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     // .sort({_id: -1}) reverses the id's to ensure that the newest id's are displayed first
-    const facility = await Facility.findbyId(req.params.id);
+    const facility = await Facility.findById(req.params.id);
 
     if(!facility)  {
       return res.status(404).json({message: "Facility not found"});
