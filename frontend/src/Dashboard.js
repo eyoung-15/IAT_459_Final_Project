@@ -211,6 +211,7 @@ function Dashboard() {
         {/* Facilities Grid */}
         <div className="facilities-grid-home">
           {filteredFacilities.map((facility) => (
+            <Link to = {`/facility/${facility._id}`} key={facility._id}>
             <div key={facility._id} className="facility-card-home">
               <div className="card-image-container">
                 {facility.imgUrl ? (
@@ -248,6 +249,7 @@ function Dashboard() {
                 </button>
               </div>
             </div>
+            </Link>
           ))}
         </div>
       </div>
