@@ -23,10 +23,10 @@ const FacilitySchema = new mongoose.Schema({
     type: String,
   },
   Latitude: {
-    type: String,
+    type: Number,
   },
   Longitude: {
-    type: String,
+    type: Number, //changed from string to number
   },
   PostalCode:{
     type: String,
