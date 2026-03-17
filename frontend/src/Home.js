@@ -133,7 +133,7 @@ function Home() {
                 ) : (
                   <div className="image-placeholder">📸</div>
                 )}
-                <div className="rating-badge">★ {facility.rating || "4.8"}</div>
+                <div className="rating-badge">★ {facility.rating || "N/A"}</div>
               </div>
 
               <div className="card-content">
@@ -150,9 +150,10 @@ function Home() {
                 </p>
 
                 <div className="category-tags">
-                  <span className="category-tag">
+                  {/* <span className="category-tag">
                     {facility.Category || "Museum"}
-                  </span>
+                  </span> */}
+                  <span className="category-tag">Museum</span>
                   <span className="category-tag">Art</span>
                   <span className="category-tag">History</span>
                 </div>
