@@ -8,7 +8,8 @@ router.get("/:facility", async (req, res) => {
   try {
     const reviews = await Review.find({
         facility: req.params.facility,
-    }).populate("user", "username");
+    }).populate("user", "username")
+    .sort({_id: -1});
     res.json(reviews);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -27,7 +28,8 @@ router.post("/", verifyToken, async (req, res) => {
         
     });
     await review.save();
-    res.status(201).json(review);
+    const populateReview = await review.populate("user", "username");
+    res.status(201).json(populateReview);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

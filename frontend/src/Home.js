@@ -1,28 +1,28 @@
 import { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
-import "./HeritageHub.css";
+import "./css/HeritageHub.css";
 
 function Home() {
   const { token, user, logout } = useContext(AuthContext);
-  const [facilities, setFacilities] = useState([]);
+  const [facility, setFacility] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
     fetch("http://localhost:5000/api/facility")
       .then((res) => res.json())
-      .then((data) => setFacilities(data))
+      .then((data) => setFacility(data))
       .catch((err) => console.error("Error fetching facilities:", err));
   }, []);
 
   // Get unique categories for filter
   const categories = [
     "All",
-    ...new Set(facilities.map((f) => f.Category).filter(Boolean)),
+    ...new Set(facility.map((f) => f.Category).filter(Boolean)),
   ];
 
-  const filteredFacilities = facilities.filter((facility) => {
+  const filteredFacilities = facility.filter((facility) => {
     const matchesSearch = (facility.Name || "")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -53,7 +53,7 @@ function Home() {
               <Link to="/" className="nav-link">
                 Curated Lists
               </Link>
-              <Link to="/Dashboard" className="nav-link">
+              <Link to="/dashboard" className="nav-link">
                 Manage
               </Link>
             </div>
@@ -121,7 +121,8 @@ function Home() {
 
         <div className="facilities-grid-home">
           {featuredFacilities.map((facility) => (
-            <div key={facility._id} className="facility-card-home">
+            <Link to = {`/facility/${facility._id}`} key={facility._id}>
+            <div className="facility-card-home">
               <div className="card-image-container">
                 {facility.imgUrl ? (
                   <img
@@ -132,7 +133,7 @@ function Home() {
                 ) : (
                   <div className="image-placeholder">📸</div>
                 )}
-                <div className="rating-badge">★ {facility.rating || "4.8"}</div>
+                <div className="rating-badge">★ {facility.rating || "N/A"}</div>
               </div>
 
               <div className="card-content">
@@ -149,14 +150,16 @@ function Home() {
                 </p>
 
                 <div className="category-tags">
-                  <span className="category-tag">
+                  {/* <span className="category-tag">
                     {facility.Category || "Museum"}
-                  </span>
+                  </span> */}
+                  <span className="category-tag">Museum</span>
                   <span className="category-tag">Art</span>
                   <span className="category-tag">History</span>
                 </div>
               </div>
             </div>
+            </Link>
           ))}
         </div>
       </section>

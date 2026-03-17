@@ -1,17 +1,17 @@
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
-import "./HeritageHub.css";
+import "./css/HeritageHub.css";
 
 function Dashboard() {
-  const [facilities, setFacilities] = useState([]);
+  const [facility, setFacility] = useState([]);
   const { token, user, logout } = useContext(AuthContext);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:5000/api/facility")
       .then((res) => res.json())
-      .then((data) => setFacilities(data))
+      .then((data) => setFacility(data))
       .catch((err) => console.error("Error fetching facilities:", err));
   }, []);
 
@@ -49,7 +49,7 @@ function Dashboard() {
         throw new Error("Failed to add facility. Are you authorized?");
       }
       const newFacility = await response.json();
-      setFacilities([newFacility, ...facilities]);
+      setFacility([newFacility, ...facility]);
       setFormData({
         Name: "",
         Category: "",
@@ -78,14 +78,14 @@ function Dashboard() {
       if (!response.ok) {
         throw new Error("Failed to delete. Are you authorized?");
       }
-      setFacilities(facilities.filter((facility) => facility._id !== id));
+      setFacility(facility.filter((facility) => facility._id !== id));
     } catch (err) {
       console.error(err);
       alert(err.message);
     }
   };
 
-  const filteredFacilities = facilities.filter((facility) => {
+  const filteredFacilities = facility.filter((facility) => {
     return (facility.Name || "")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -106,7 +106,7 @@ function Dashboard() {
               <Link to="/" className="nav-link">
                 Map View
               </Link>
-              <Link to="/Item" className="nav-link">
+              <Link to="/FacilityDetails" className="nav-link">
                 Page 2
               </Link>
             </div>
@@ -211,6 +211,7 @@ function Dashboard() {
         {/* Facilities Grid */}
         <div className="facilities-grid-home">
           {filteredFacilities.map((facility) => (
+            <Link to = {`/facility/${facility._id}`} key={facility._id}>
             <div key={facility._id} className="facility-card-home">
               <div className="card-image-container">
                 {facility.imgUrl ? (
@@ -248,6 +249,7 @@ function Dashboard() {
                 </button>
               </div>
             </div>
+            </Link>
           ))}
         </div>
       </div>
