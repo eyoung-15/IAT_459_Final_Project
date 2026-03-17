@@ -28,7 +28,8 @@ router.post("/", verifyToken, async (req, res) => {
         
     });
     await review.save();
-    res.status(201).json(review);
+    const populateReview = await review.populate("user", "username");
+    res.status(201).json(populateReview);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

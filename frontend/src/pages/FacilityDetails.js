@@ -75,12 +75,12 @@ function FacilityDetails() {
         </Link>}
 
         <h4>Reviews</h4>
-        {reviews?.length === 0 ? (
+        {reviews.length === 0 ? (
           <p>No reviews yet.</p>
         ):(
-          reviews?.map((r) => (
+          reviews.map((r) => (
             <div key={r._id} className="review-card">
-                <strong>{r.username}</strong>
+                <strong>{r.user.username}</strong>
                 <p>{r.rating}/5</p>
                 <p>{r.comment}</p>
                 </div>

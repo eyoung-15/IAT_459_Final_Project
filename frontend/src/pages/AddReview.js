@@ -12,7 +12,7 @@ function AddReview(){
     const [comment, setComment] = useState("");
     const navigate = useNavigate();
     
-    function submit(e){
+    function handleSubmit(e){
         e.preventDefault();
         
         fetch("http://localhost:5000/api/reviews", {
@@ -34,7 +34,7 @@ function AddReview(){
 
 
     return(
-        <form onSubmit={submit} className="page-container">
+        <form onSubmit={handleSubmit} className="page-container">
             <h2>Add Review</h2>
             <input
             type="number"
