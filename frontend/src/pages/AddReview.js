@@ -5,7 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 function AddReview(){
     const {facilityId} = useParams();
 
-    const {token, user} = useContext(AuthContext);
+    const {token} = useContext(AuthContext);
 
     const [rating, setRating] = useState(5);
 
@@ -27,7 +27,7 @@ function AddReview(){
                 facility: facilityId,
                 rating,
                 comment,
-                username: user.username
+                // username: user.username
             })
         }).then(() => navigate(`/facility/${facilityId}`));
     }

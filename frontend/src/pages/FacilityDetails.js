@@ -11,6 +11,12 @@ function FacilityDetails() {
     //Get token, user, logout from AuthContext
     const { token } = useContext(AuthContext);
 
+    //bucket list + visited
+    const [inBucket, setInBucket] = useState(false);
+    const [isVisited, setIsVisited] = useState(false);
+    const [imageUrl, setImageUrl] = useState("");
+
+
   // initial load
   useEffect(() => {
     fetch(`http://localhost:5000/api/facility/${id}`)
@@ -23,7 +29,62 @@ function FacilityDetails() {
       .then(data=>setReviews(data));
   }, [id]);
 
-  if (!facility) return <p>Cannot Find Facility</p>;
+  useEffect(() => {
+    if (!token) return;
+
+    fetch("http://localhost:5000/api/users/me", {
+
+          headers: {
+                "Content-Type": "application/json",
+                Authorization: token
+            },
+    }).then( res => res.json())
+    .then(data => {
+      const user = data.user;
+
+      setInBucket(
+        user.bucketList.some(f => f._id === id)
+      );
+
+      setIsVisited(
+        user.visited.some(v => v.facility._id === id)
+      );
+    });
+  }, [token, id]);
+
+  //toggle bucket list
+  function toggleBucket(){
+    const method = inBucket ? "DELETE" : "POST";
+
+    fetch(`http://localhost:5000/api/users/bucket/${id}`,{
+      method,
+      headers: {
+         "Content-Type": "application/json",
+         Authorization: token
+        }
+
+    }).then(() => {
+      setInBucket(!inBucket);
+    });
+  }
+
+  //mark places visited
+  function markVisited() {
+    fetch(`http://localhost:5000/api/users/visited/${id}`,{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify({image: imageUrl})
+
+  }).then(() => {
+    setIsVisited(true);
+    setInBucket(false);
+  });
+}
+
+if (!facility) return <p>No facility found...</p>
 
 
   return (
@@ -69,6 +130,34 @@ function FacilityDetails() {
         <p> <strong>City:</strong> {facility.City} </p>
         <p> <strong>Province:</strong> {facility.Province} </p>
         </div>
+
+        {token && (
+          <div>
+          <button
+          onClick={toggleBucket}
+          disabled={isVisited}
+          >
+            {inBucket
+            ? "Remove from Bucket List"
+            : "Add to Bucket List" }
+          </button>
+          
+          <input
+          type="text"
+          placeholder="Optional image URL"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          />
+
+          <button
+          onClick={markVisited}
+          disabled={isVisited}
+          >
+            {isVisited ? "Visited" : "Mark as Visited"}
+          </button>
+          </div>
+    
+        )}
 
         {token && <Link to={`/add-review/${facility._id}`}>
         Add Review

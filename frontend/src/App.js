@@ -8,6 +8,8 @@ import Register from "./pages/Register"; // Fixed: now points to pages folder
 import Home from "./Home";
 import AddReview from "./pages/AddReview";
 import FacilityDetails from "./pages/FacilityDetails";
+import BucketList from "./pages/BucketList";
+import TravelJournal from "./pages/TravelJournal";
 
 function App() {
   return (
@@ -35,6 +37,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/travel-journal"
+            element={
+              <ProtectedRoute>
+                <TravelJournal />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bucket-list"
+            element={
+              <ProtectedRoute>
+                <BucketList />
               </ProtectedRoute>
             }
           />

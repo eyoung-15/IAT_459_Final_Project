@@ -1,5 +1,12 @@
 const mongoose = require("mongoose");
 
+const visitedSchema = new mongoose.Schema({
+  facility: {
+    type: mongoose.Schema.Types.ObjectId, ref: "Facility" },
+    visitedAt: {type: Date, default: Date.now},
+    image: String,
+  });
+
 const UserSchema = new mongoose.Schema({
   username: { 
     type: String, 
@@ -21,8 +28,8 @@ const UserSchema = new mongoose.Schema({
     default: "member"
 
   },
-  // visited: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}],
-  // bucketList: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}]
+  visited: [visitedSchema],
+  bucketList: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}],
 });
 
 module.exports = mongoose.model("User", UserSchema);
