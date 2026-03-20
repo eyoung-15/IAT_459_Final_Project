@@ -7,6 +7,18 @@ html {
   height: 100%;
 }
 
+/* Container for map display */
+.leaflet-container {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+}
+
+.detailsMap {
+  max-width: 40rem;
+  max-height: 30rem;
+}
+
 .page-container {
   max-width: none;
 
