@@ -111,16 +111,16 @@ function Map() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
 
-        {/* Display facility Markers */}
+        {/* Disply facility markers to indicate where facilities are located on map based on lat/lng values */}
         {filteredFacilities.map((facility) =>
           // Display only if Lat/Lng are present
           facility.Latitude && facility.Longitude ? (
             <Marker
               key={facility.id}
-              // NOTE LAT/LNG not working yet. USING RANDOM PLACEHOLDERS FOR NOW!
-              position={[Math.random() * 50, Math.random() * -100]}
+              position={[facility.Latitude, facility.Longitude]}
               icon={markerIcon}
             >
+              {/* On clicking a marker, display name that links to details pg */}
               <Popup>
                 <Link
                   to={`/facility/${facility._id}`}
