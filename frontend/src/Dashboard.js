@@ -100,14 +100,17 @@ function Dashboard() {
               Heritage<span>Hub</span>
             </Link>
             <div className="nav-links">
-              <Link to="/" className="nav-link">
+              <Link to="/" className="nav-link active">
                 Explore
               </Link>
-              <Link to="/" className="nav-link">
+              <Link to="/Map" className="nav-link">
                 Map View
               </Link>
-              <Link to="/FacilityDetails" className="nav-link">
-                Page 2
+              <Link to="/" className="nav-link">
+                Curated Lists
+              </Link>
+              <Link to="/dashboard" className="nav-link">
+                Manage
               </Link>
             </div>
           </div>
@@ -211,44 +214,44 @@ function Dashboard() {
         {/* Facilities Grid */}
         <div className="facilities-grid-home">
           {filteredFacilities.map((facility) => (
-            <Link to = {`/facility/${facility._id}`} key={facility._id}>
-            <div key={facility._id} className="facility-card-home">
-              <div className="card-image-container">
-                {facility.imgUrl ? (
-                  <img
-                    src={facility.imgUrl}
-                    alt={facility.Name}
-                    className="facility-image"
-                  />
-                ) : (
-                  <div className="image-placeholder">🏛️</div>
-                )}
-              </div>
-              <div className="card-content">
-                <div className="location-tag">
-                  {facility.City?.toUpperCase()},{" "}
-                  {facility.Province?.toUpperCase()}
+            <Link to={`/facility/${facility._id}`} key={facility._id}>
+              <div key={facility._id} className="facility-card-home">
+                <div className="card-image-container">
+                  {facility.imgUrl ? (
+                    <img
+                      src={facility.imgUrl}
+                      alt={facility.Name}
+                      className="facility-image"
+                    />
+                  ) : (
+                    <div className="image-placeholder">🏛️</div>
+                  )}
                 </div>
-                <h3 className="facility-name">{facility.Name}</h3>
-                <p className="facility-description">
-                  <strong>Category:</strong> {facility.Category}
-                  <br />
-                  <strong>Address:</strong> {facility.Address}
-                </p>
-                <button
-                  onClick={() => handleDelete(facility._id)}
-                  className="filter-btn"
-                  style={{
-                    background: "#fee",
-                    color: "#c00",
-                    borderColor: "#fcc",
-                    width: "100%",
-                  }}
-                >
-                  Delete
-                </button>
+                <div className="card-content">
+                  <div className="location-tag">
+                    {facility.City?.toUpperCase()},{" "}
+                    {facility.Province?.toUpperCase()}
+                  </div>
+                  <h3 className="facility-name">{facility.Name}</h3>
+                  <p className="facility-description">
+                    <strong>Category:</strong> {facility.Category}
+                    <br />
+                    <strong>Address:</strong> {facility.Address}
+                  </p>
+                  <button
+                    onClick={() => handleDelete(facility._id)}
+                    className="filter-btn"
+                    style={{
+                      background: "#fee",
+                      color: "#c00",
+                      borderColor: "#fcc",
+                      width: "100%",
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-            </div>
             </Link>
           ))}
         </div>

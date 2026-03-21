@@ -47,7 +47,7 @@ function Home() {
               <Link to="/" className="nav-link active">
                 Explore
               </Link>
-              <Link to="/" className="nav-link">
+              <Link to="/Map" className="nav-link">
                 Map View
               </Link>
               <Link to="/" className="nav-link">
@@ -121,44 +121,46 @@ function Home() {
 
         <div className="facilities-grid-home">
           {featuredFacilities.map((facility) => (
-            <Link to = {`/facility/${facility._id}`} key={facility._id}>
-            <div className="facility-card-home">
-              <div className="card-image-container">
-                {facility.imgUrl ? (
-                  <img
-                    src={facility.imgUrl}
-                    alt={facility.Name}
-                    className="facility-image"
-                  />
-                ) : (
-                  <div className="image-placeholder">📸</div>
-                )}
-                <div className="rating-badge">★ {facility.rating || "N/A"}</div>
-              </div>
-
-              <div className="card-content">
-                <div className="location-tag">
-                  {facility.City?.toUpperCase()},{" "}
-                  {facility.Province?.toUpperCase()}
+            <Link to={`/facility/${facility._id}`} key={facility._id}>
+              <div className="facility-card-home">
+                <div className="card-image-container">
+                  {facility.imgUrl ? (
+                    <img
+                      src={facility.imgUrl}
+                      alt={facility.Name}
+                      className="facility-image"
+                    />
+                  ) : (
+                    <div className="image-placeholder">📸</div>
+                  )}
+                  <div className="rating-badge">
+                    ★ {facility.rating || "N/A"}
+                  </div>
                 </div>
-                <h3 className="facility-name">{facility.Name}</h3>
-                <p className="facility-description">
-                  {facility.Description ||
-                    (facility.Category === "Museum"
-                      ? "One of the largest museums in North America and the largest museum in Canada."
-                      : "Experience the rich cultural heritage of Canada's historic sites.")}
-                </p>
 
-                <div className="category-tags">
-                  {/* <span className="category-tag">
+                <div className="card-content">
+                  <div className="location-tag">
+                    {facility.City?.toUpperCase()},{" "}
+                    {facility.Province?.toUpperCase()}
+                  </div>
+                  <h3 className="facility-name">{facility.Name}</h3>
+                  <p className="facility-description">
+                    {facility.Description ||
+                      (facility.Category === "Museum"
+                        ? "One of the largest museums in North America and the largest museum in Canada."
+                        : "Experience the rich cultural heritage of Canada's historic sites.")}
+                  </p>
+
+                  <div className="category-tags">
+                    {/* <span className="category-tag">
                     {facility.Category || "Museum"}
                   </span> */}
-                  <span className="category-tag">Museum</span>
-                  <span className="category-tag">Art</span>
-                  <span className="category-tag">History</span>
+                    <span className="category-tag">Museum</span>
+                    <span className="category-tag">Art</span>
+                    <span className="category-tag">History</span>
+                  </div>
                 </div>
               </div>
-            </div>
             </Link>
           ))}
         </div>
