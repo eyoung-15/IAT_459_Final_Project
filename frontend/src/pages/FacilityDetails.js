@@ -147,10 +147,6 @@ function FacilityDetails() {
           {" "}
           <strong>Province:</strong> {facility.Province}{" "}
         </p>
-        <p>
-          {" "}
-          <strong>Latitude:</strong> {facility.Latitude}{" "}
-        </p>
       </div>
 
       {token && (
@@ -206,7 +202,7 @@ function FacilityDetails() {
             <b>{facility.Name}</b>
           </Popup>
         </Marker> */}
-        {/* USING RANDOM HARDCODED LAT/LONG VALUE FOR NOW */}
+        {/* USING RANDOM HARDCODED LAT/LNG VALUE FOR NOW */}
         <Marker position={[60, -100]} icon={markerIcon}>
           <Popup>
             <b>{facility.Name}</b>
