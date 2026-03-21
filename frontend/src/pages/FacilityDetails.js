@@ -185,27 +185,23 @@ function FacilityDetails() {
 
       {/* MAP */}
       <MapContainer
-        center={[57, -100]}
-        zoom={3}
+        center={[facility.Latitude, facility.Longitude]}
+        zoom={7}
         className="leaflet-container detailsMap"
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        {/* COMMENTED OUT DUE TO ISSUE WITH RETRIEVING LATITUDE/LOONGITUDE NUMBER VALUES */}
-        {/* <Marker
+        {/* Marker to indicate where facility is located on map based on lat/lng values */}
+        <Marker
           position={[facility.Latitude, facility.Longitude]}
           icon={markerIcon}
         >
+          {/* On clicking the marker, display name and address */}
           <Popup>
             <b>{facility.Name}</b>
-          </Popup>
-        </Marker> */}
-        {/* USING RANDOM HARDCODED LAT/LNG VALUE FOR NOW */}
-        <Marker position={[60, -100]} icon={markerIcon}>
-          <Popup>
-            <b>{facility.Name}</b>
+            <p>{facility.Address}</p>
           </Popup>
         </Marker>
       </MapContainer>
