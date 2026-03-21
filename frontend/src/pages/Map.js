@@ -112,24 +112,29 @@ function Map() {
         />
 
         {/* Display facility Markers */}
-        {filteredFacilities.map((facility) => (
-          <Marker
-            key={facility.id}
-            // NOTE LAT/LNG not working yet. USING RANDOM PLACEHOLDERS FOR NOW!
-            position={[Math.random() * 50, Math.random() * -100]}
-            icon={markerIcon}
-          >
-            <Popup>
-              <Link
-                to={`/facility/${facility._id}`}
-                key={facility._id}
-                className="nav-link"
-              >
-                {facility.Name}
-              </Link>
-            </Popup>
-          </Marker>
-        ))}
+        {filteredFacilities.map((facility) =>
+          // Display only if Lat/Lng are present
+          facility.Latitude && facility.Longitude ? (
+            <Marker
+              key={facility.id}
+              // NOTE LAT/LNG not working yet. USING RANDOM PLACEHOLDERS FOR NOW!
+              position={[Math.random() * 50, Math.random() * -100]}
+              icon={markerIcon}
+            >
+              <Popup>
+                <Link
+                  to={`/facility/${facility._id}`}
+                  key={facility._id}
+                  className="nav-link"
+                >
+                  {facility.Name}
+                </Link>
+              </Popup>
+            </Marker>
+          ) : (
+            ""
+          ),
+        )}
       </MapContainer>
     </div>
   );
