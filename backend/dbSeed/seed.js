@@ -61,7 +61,7 @@ async function seedDatabase() {
               .replace(/["']/g, "")
               .replace(/[^\x20-\x7E]/g, "")
               .trim(),
-            //   .toLowerCase(),
+          //   .toLowerCase(),
         }),
       )
       .on("data", (row) => {
@@ -97,15 +97,30 @@ async function seedDatabase() {
           firstRowLogged = true;
         }
 
+        // Enusre that Lat/Lng values are numbers
+        const lat = Number(data.Latitude);
+        const lng = Number(data.Longitude);
+
+        // skip invalid rows if they are not a number
+        if (isNaN(lat) || isNaN(lng)) {
+          console.log(
+            "⚠️ Skipping invalid row:",
+            data.Name,
+            data.Latitude,
+            data.Longitude,
+          );
+          return;
+        }
+
         facilitiesToInsert.push({
           owner: SYSTEM_USER_ID,
-          Name: data.Name || data.Name || "Unknown Facility",
-          Category: data.Category ||  data.Category||  "N/A",
+          Name: data.Name || "Unknown Facility",
+          Category: data.Category || "N/A",
           Province: data.Province || "N/A",
           City: data.City || "N/A",
           Address: data.Address || "N/A",
-          Latitude: data.Latitude || "N/A",
-          Longitude: data.Longitude || "N/A",
+          Latitude: lat,
+          Longitude: lng,
           PostalCode: data.PostalCode || "N/A",
         });
       })
@@ -117,9 +132,9 @@ async function seedDatabase() {
 
         try {
           const result = await Facility.insertMany(facilitiesToInsert);
-        //   console.log(
-        //     `✅ Success! Seeded ${result.length} plants with cleaned image URLs.`,
-        //   );
+          //   console.log(
+          //     `✅ Success! Seeded ${result.length} plants with cleaned image URLs.`,
+          //   );
           mongoose.connection.close();
           process.exit(0);
         } catch (err) {
