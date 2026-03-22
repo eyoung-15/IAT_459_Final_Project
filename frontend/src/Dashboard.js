@@ -160,12 +160,24 @@ function Dashboard() {
               value={formData.Category}
               onChange={handleChange}
             />
-            <input
+            <select
               name="Province"
-              placeholder="Province"
               value={formData.Province}
               onChange={handleChange}
-            />
+            >
+              <option value={"on"}>Ontario</option>
+              <option value={"qc"}>Quebec</option>
+              <option value={"bc"}>British Columbia</option>
+              <option value={"ab"}>Alberta</option>
+              <option value={"ns"}>Nova Scotia</option>
+              <option value={"nb"}>New Brunswick</option>
+              <option value={"nl"}>Newfoundland and Labrador</option>
+              <option value={"sk"}>Saskatchewan</option>
+              <option value={"mb"}>Manitoba</option>
+              <option value={"nu"}>Nunavut</option>
+              <option value={"yt"}>Yukon</option>
+              <option value={"nt"}>Northwest Territories</option>
+            </select>
             <input
               name="City"
               placeholder="City"
@@ -213,47 +225,53 @@ function Dashboard() {
 
         {/* Facilities Grid */}
         <div className="facilities-grid-home">
-          {filteredFacilities.map((facility) => (
-            <Link to={`/facility/${facility._id}`} key={facility._id}>
-              <div key={facility._id} className="facility-card-home">
-                <div className="card-image-container">
-                  {facility.imgUrl ? (
-                    <img
-                      src={facility.imgUrl}
-                      alt={facility.Name}
-                      className="facility-image"
-                    />
-                  ) : (
-                    <div className="image-placeholder">🏛️</div>
-                  )}
-                </div>
-                <div className="card-content">
-                  <div className="location-tag">
-                    {facility.City?.toUpperCase()},{" "}
-                    {facility.Province?.toUpperCase()}
+          {filteredFacilities.length > 0 ? (
+            filteredFacilities.map((facility) => (
+              <Link to={`/facility/${facility._id}`} key={facility._id}>
+                <div key={facility._id} className="facility-card-home">
+                  <div className="card-image-container">
+                    {facility.imgUrl ? (
+                      <img
+                        src={facility.imgUrl}
+                        alt={facility.Name}
+                        className="facility-image"
+                      />
+                    ) : (
+                      <div className="image-placeholder">🏛️</div>
+                    )}
                   </div>
-                  <h3 className="facility-name">{facility.Name}</h3>
-                  <p className="facility-description">
-                    <strong>Category:</strong> {facility.Category}
-                    <br />
-                    <strong>Address:</strong> {facility.Address}
-                  </p>
-                  <button
-                    onClick={() => handleDelete(facility._id)}
-                    className="filter-btn"
-                    style={{
-                      background: "#fee",
-                      color: "#c00",
-                      borderColor: "#fcc",
-                      width: "100%",
-                    }}
-                  >
-                    Delete
-                  </button>
+                  <div className="card-content">
+                    <div className="location-tag">
+                      {facility.City?.toUpperCase()},{" "}
+                      {facility.Province?.toUpperCase()}
+                    </div>
+                    <h3 className="facility-name">{facility.Name}</h3>
+                    <p className="facility-description">
+                      <strong>Category:</strong> {facility.Category}
+                      <br />
+                      <strong>Address:</strong> {facility.Address}
+                    </p>
+                    <button
+                      onClick={() => handleDelete(facility._id)}
+                      className="filter-btn"
+                      style={{
+                        background: "#fee",
+                        color: "#c00",
+                        borderColor: "#fcc",
+                        width: "100%",
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))
+          ) : (
+            <div>
+              <p>No facilities found. Try adjusting your search terms</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
