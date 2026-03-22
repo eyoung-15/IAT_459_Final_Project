@@ -8,6 +8,8 @@ function Home() {
   const [facility, setFacility] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:5000/api/facility")
@@ -28,7 +30,12 @@ function Home() {
       .includes(searchTerm.toLowerCase());
     const matchesCategory =
       selectedCategory === "All" || facility.Category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesCity = (facility.City || "")
+      .toLowerCase()
+      .includes(selectedCity.toLowerCase());
+    const matchesProvince =
+      selectedProvince === "" || facility.Province === selectedProvince;
+    return matchesSearch && matchesCategory && matchesCity && matchesProvince;
   });
 
   // Take only first 6 for homepage
@@ -105,6 +112,7 @@ function Home() {
 
         <div className="filters-row">
           <div className="filter-buttons">
+            <h3>Category</h3>
             {categories.map((category) => (
               <button
                 key={category}
@@ -116,53 +124,94 @@ function Home() {
                 {category}
               </button>
             ))}
+
+            <h3>City</h3>
+            {
+              <input
+                type="text"
+                placeholder="City"
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+              />
+            }
+
+            <h3>Province/Territory</h3>
+            {
+              <select
+                name="province"
+                value={selectedProvince}
+                onChange={(e) => setSelectedProvince(e.target.value)}
+              >
+                <option value=""></option>
+                <option value={"on"}>Ontario</option>
+                <option value={"qc"}>Quebec</option>
+                <option value={"bc"}>British Columbia</option>
+                <option value={"ab"}>Alberta</option>
+                <option value={"ns"}>Nova Scotia</option>
+                <option value={"nb"}>New Brunswick</option>
+                <option value={"nl"}>Newfoundland and Labrador</option>
+                <option value={"sk"}>Saskatchewan</option>
+                <option value={"mb"}>Manitoba</option>
+                <option value={"nu"}>Nunavut</option>
+                <option value={"yt"}>Yukon</option>
+                <option value={"nt"}>Northwest Territories</option>
+              </select>
+            }
           </div>
         </div>
 
         <div className="facilities-grid-home">
-          {featuredFacilities.map((facility) => (
-            <Link to={`/facility/${facility._id}`} key={facility._id}>
-              <div className="facility-card-home">
-                <div className="card-image-container">
-                  {facility.imgUrl ? (
-                    <img
-                      src={facility.imgUrl}
-                      alt={facility.Name}
-                      className="facility-image"
-                    />
-                  ) : (
-                    <div className="image-placeholder">📸</div>
-                  )}
-                  <div className="rating-badge">
-                    ★ {facility.rating || "N/A"}
+          {featuredFacilities.length > 0 ? (
+            featuredFacilities.map((facility) => (
+              <Link to={`/facility/${facility._id}`} key={facility._id}>
+                <div className="facility-card-home">
+                  <div className="card-image-container">
+                    {facility.imgUrl ? (
+                      <img
+                        src={facility.imgUrl}
+                        alt={facility.Name}
+                        className="facility-image"
+                      />
+                    ) : (
+                      <div className="image-placeholder">📸</div>
+                    )}
+                    <div className="rating-badge">
+                      ★ {facility.rating || "N/A"}
+                    </div>
                   </div>
-                </div>
 
-                <div className="card-content">
-                  <div className="location-tag">
-                    {facility.City?.toUpperCase()},{" "}
-                    {facility.Province?.toUpperCase()}
-                  </div>
-                  <h3 className="facility-name">{facility.Name}</h3>
-                  <p className="facility-description">
-                    {facility.Description ||
-                      (facility.Category === "Museum"
-                        ? "One of the largest museums in North America and the largest museum in Canada."
-                        : "Experience the rich cultural heritage of Canada's historic sites.")}
-                  </p>
+                  <div className="card-content">
+                    <div className="location-tag">
+                      {facility.City?.toUpperCase()},{" "}
+                      {facility.Province?.toUpperCase()}
+                    </div>
+                    <h3 className="facility-name">{facility.Name}</h3>
+                    <p className="facility-description">
+                      {facility.Description ||
+                        (facility.Category === "Museum"
+                          ? "One of the largest museums in North America and the largest museum in Canada."
+                          : "Experience the rich cultural heritage of Canada's historic sites.")}
+                    </p>
 
-                  <div className="category-tags">
-                    {/* <span className="category-tag">
+                    <div className="category-tags">
+                      {/* <span className="category-tag">
                     {facility.Category || "Museum"}
                   </span> */}
-                    <span className="category-tag">Museum</span>
-                    <span className="category-tag">Art</span>
-                    <span className="category-tag">History</span>
+                      <span className="category-tag">Museum</span>
+                      <span className="category-tag">Art</span>
+                      <span className="category-tag">History</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))
+          ) : (
+            <div>
+              <p>
+                No facilities found. Try adjusting your filters or search terms
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </div>
