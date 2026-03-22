@@ -10,12 +10,10 @@ import "../css/App.css";
 // https://ujjwaltiwari2.medium.com/a-guide-to-using-openstreetmap-with-react-70932389b8b1
 // https://medevel.com/react-and-leaflet-js-tutorial/
 
-// Marker PNG by Vecteezy.com https://www.vecteezy.com/png/17178337-location-map-marker-icon-symbol-on-transparent-background
-
 const markerIcon = new L.Icon({
-  iconUrl: require("../../src/images/placeholderMarker.png"),
-  iconSize: [20, 20],
-  iconAnchor: [10, 20], //[left/right, top/bottom]
+  iconUrl: require("../../src/images/marker.png"),
+  iconSize: [24, 24],
+  iconAnchor: [12, 24], //[left/right, top/bottom]
   popupAnchor: [0, -26], //[left/right, top/bottom]
 });
 
