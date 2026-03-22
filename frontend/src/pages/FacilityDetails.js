@@ -184,27 +184,32 @@ function FacilityDetails() {
       )}
 
       {/* MAP */}
-      <MapContainer
-        center={[facility.Latitude, facility.Longitude]}
-        zoom={7}
-        className="leaflet-container detailsMap"
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {/* Marker to indicate where facility is located on map based on lat/lng values */}
-        <Marker
-          position={[facility.Latitude, facility.Longitude]}
-          icon={markerIcon}
+      {/* Avoid throwing error if theres no lat/lng values by only generating map if they exist */}
+      {facility.Latitude && facility.Longitude ? (
+        <MapContainer
+          center={[facility.Latitude, facility.Longitude]}
+          zoom={7}
+          className="leaflet-container detailsMap"
         >
-          {/* On clicking the marker, display name and address */}
-          <Popup>
-            <b>{facility.Name}</b>
-            <p>{facility.Address}</p>
-          </Popup>
-        </Marker>
-      </MapContainer>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {/* Marker to indicate where facility is located on map based on lat/lng values */}
+          <Marker
+            position={[facility.Latitude, facility.Longitude]}
+            icon={markerIcon}
+          >
+            {/* On clicking the marker, display name and address */}
+            <Popup>
+              <b>{facility.Name}</b>
+              <p>{facility.Address}</p>
+            </Popup>
+          </Marker>
+        </MapContainer>
+      ) : (
+        ""
+      )}
     </div>
   );
 }
