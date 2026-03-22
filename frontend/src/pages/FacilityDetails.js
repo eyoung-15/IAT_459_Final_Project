@@ -89,9 +89,9 @@ function FacilityDetails() {
 
   // Map markers
   const markerIcon = new L.Icon({
-    iconUrl: require("../../src/images/placeholderMarker.png"),
-    iconSize: [20, 20],
-    iconAnchor: [10, 20], //[left/right, top/bottom]
+    iconUrl: require("../../src/images/marker.png"),
+    iconSize: [24, 24],
+    iconAnchor: [12, 24], //[left/right, top/bottom]
     popupAnchor: [0, -26], //[left/right, top/bottom]
   });
 
