@@ -67,6 +67,11 @@ function Home() {
           </div>
 
           <div className="nav-right">
+            {/* Nav link to admin panel. Only visible if user is present and role is admin */}
+            {user && user.role === "admin" && (
+              <Link to="/admin-dashboard">Admin Panel</Link>
+            )}
+
             <div className="search-container">
               <input
                 type="text"
