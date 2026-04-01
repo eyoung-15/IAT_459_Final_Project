@@ -3,13 +3,15 @@ import { AuthProvider } from "./context/AuthContext";
 import Dashboard from "./Dashboard";
 import Login from "./pages/Login";
 import ProtectedRoute from "./ProtectedRoute";
-import Register from "./pages/Register"; // Fixed: now points to pages folder
+import ProtectedRouteAdmin from "./ProtectedRouteAdmin";
+import Register from "./pages/Register";
 import Home from "./Home";
 import AddReview from "./pages/AddReview";
 import FacilityDetails from "./pages/FacilityDetails";
 import BucketList from "./pages/BucketList";
 import TravelJournal from "./pages/TravelJournal";
 import Map from "./pages/Map";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -54,6 +56,14 @@ function App() {
               <ProtectedRoute>
                 <BucketList />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRouteAdmin>
+                <AdminDashboard />
+              </ProtectedRouteAdmin>
             }
           />
         </Routes>
