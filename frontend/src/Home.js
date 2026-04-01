@@ -54,7 +54,7 @@ function Home() {
               <Link to="/" className="nav-link active">
                 Explore
               </Link>
-              <Link to="/Map" className="nav-link">
+              <Link to="/map" className="nav-link">
                 Map View
               </Link>
               <Link to="/" className="nav-link">
@@ -67,6 +67,11 @@ function Home() {
           </div>
 
           <div className="nav-right">
+            {/* Nav link to admin panel. Only visible if user is present and role is admin */}
+            {user && user.role === "admin" && (
+              <Link to="/admin-dashboard">Admin Panel</Link>
+            )}
+
             <div className="search-container">
               <input
                 type="text"
