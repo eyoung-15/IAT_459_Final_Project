@@ -49,7 +49,7 @@ function FacilityDetails() {
       .then((data) => {
         const user = data.user;
 
-        setInBucket(user.bucketList.some((f) => f._id === id));
+        setInBucket(user.bucketList.some((f) => f._id.toString() === id));
 
         setIsVisited(user.visited.some((v) => v.facility._id === id));
       });

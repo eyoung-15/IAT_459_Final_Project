@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Facility = require("../models/Facility");
+const Review = require ("../models/Reviews");
 const verifyToken = require("../middleware/auth");
 
 // // GET ALL ROUTE
@@ -8,7 +9,22 @@ router.get("/", async (req, res) => {
   try {
     // .sort({_id: -1}) reverses the id's to ensure that the newest id's are displayed first
     const facility = await Facility.find().sort({ _id: -1 }).limit(100);
-    res.json(facility);
+
+    const facilitiesWithRatings = await Promise.all(
+      facility.map(async (facility) => {
+        const reviews = await Review.find({ facility: facility._id });
+
+        const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
+
+        return{
+          ...facility.toObject(),
+          avgRating: Number(avgRating.toFixed(1)),
+          reviewCount: reviews.length
+        };
+
+      })
+    );
+    res.json(facilitiesWithRatings);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -24,8 +40,18 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({message: "Facility not found"});
     }
 
+    const reviews = await Review.find({facility: facility._id});
 
-    res.json(facility);
+    const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
+
+    res.json({
+      ...facility.toObject(),
+      avgRating: Number(avgRating.toFixed(1)),
+      reviewCount: reviews.length
+    });
+
+
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

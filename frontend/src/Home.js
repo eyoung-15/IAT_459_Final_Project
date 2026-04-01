@@ -176,7 +176,7 @@ function Home() {
                       <div className="image-placeholder">📸</div>
                     )}
                     <div className="rating-badge">
-                      ★ {facility.rating || "N/A"}
+                      ★ {facility.avgRating || "N/A"}
                     </div>
                   </div>
 
