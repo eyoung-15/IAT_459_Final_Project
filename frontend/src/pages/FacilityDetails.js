@@ -17,7 +17,7 @@ function FacilityDetails() {
   const [facility, setFacility] = useState(null);
   const [reviews, setReviews] = useState([]);
   //Get token, user, logout from AuthContext
-  const { token } = useContext(AuthContext);
+  const { token, user, logout } = useContext(AuthContext);
 
   //bucket list + visited
   const [inBucket, setInBucket] = useState(false);
@@ -96,38 +96,39 @@ function FacilityDetails() {
   });
 
   return (
-    <div className="page-container">
-      <header
-        className="main-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <h1 style={{ margin: 0 }}>
-            Canada Museums, Galleries, & Cultural Sites
-          </h1>
-        </div>
-
-        {/* Conditionaly display login/logout buttons based on if user has token */}
-        {!token ? (
-          <Link to="/login" style={{ color: "#122A64", fontWeight: "bold" }}>
-            Login
-          </Link>
-        ) : (
-          <div>
-            {/* To Home page */}
-            <Link
-              to="/"
-              style={{ padding: "4rem", color: "#122A64", fontWeight: "bold" }}
-            >
-              Home
+    <div className="heritage-hub">
+      <nav className="navbar">
+        <div className="nav-container">
+          <div className="nav-left">
+            <Link to="/" className="logo">
+              Heritage<span>Hub</span>
             </Link>
+            <div className="nav-links">
+              <Link to="/" className="nav-link active">
+                Explore
+              </Link>
+              <Link to="/Map" className="nav-link">
+                Map View
+              </Link>
+              <Link to="/" className="nav-link">
+                Curated Lists
+              </Link>
+              <Link to="/dashboard" className="nav-link">
+                Manage
+              </Link>
+            </div>
           </div>
-        )}
-      </header>
+
+          <div className="nav-right">
+            {user && (
+              <span className="user-greeting">Welcome, {user.username}!</span>
+            )}
+            <button onClick={logout} className="logout-btn">
+              Logout
+            </button>
+          </div>
+        </div>
+      </nav>
 
       <div className="card-details">
         <h3>{facility.Name}</h3>
