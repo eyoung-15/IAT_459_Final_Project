@@ -73,6 +73,7 @@ function BucketList(){
         <p> You have {stats.bucketCount || 0} saved places</p>
 
         {bucket.map(f => (
+          <Link to={`/facility/${f._id}`} key={f._id}>
             <div key={f._id} className="facility-card-home">
                 <h3>{f.Name}</h3>
                 <p>{f.City}, {f.Province}</p>
@@ -82,6 +83,7 @@ function BucketList(){
                 </button>
 
             </div>
+        </Link>
         ))}
 </div>
    

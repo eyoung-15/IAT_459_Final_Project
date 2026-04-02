@@ -60,6 +60,7 @@ return (
         <p> You have visited {stats.visitedCount || 0} places</p>
 
         {visited.map(v => (
+          <Link to={`/facility/${v._id}`} key={v._id}>
             <div key={v._id} className="facility-card-home">
                 <h3>{v.facility.Name}</h3>
                 <p>{v.facility.City}, {v.facility.Province}</p>
@@ -75,6 +76,7 @@ return (
                 />
             )}
             </div>
+            </Link>
         ))}
 </div>
    
