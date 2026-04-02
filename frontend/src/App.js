@@ -11,6 +11,7 @@ import BucketList from "./pages/BucketList";
 import TravelJournal from "./pages/TravelJournal";
 import Map from "./pages/Map";
 
+
 function App() {
   return (
     <AuthProvider>

@@ -6,13 +6,17 @@ const authRoutes = require("./routes/auth");
 const reviewRoutes = require("./routes/reviews");
 const facilityRoutes = require("./routes/facility")
 const userRoutes = require("./routes/user");
+const path = require("path");
 
 
 const app = express();
 const PORT = 5000;
 
 app.use(cors({ origin: "http://localhost:3000" }));
-app.use(express.json());
+// app.use(express.json());
+
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // database connection
 const uri = process.env.MONGO_URI;

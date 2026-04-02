@@ -31,6 +31,9 @@ const FacilitySchema = new mongoose.Schema({
   PostalCode:{
     type: String,
   },
+  lastReviewImage: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("Facility", FacilitySchema);

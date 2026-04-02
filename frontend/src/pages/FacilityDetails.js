@@ -56,10 +56,10 @@ function FacilityDetails() {
   }, [token, id]);
 
   //toggle bucket list
-  function toggleBucket() {
+  const toggleBucket = async () => {
     const method = inBucket ? "DELETE" : "POST";
 
-    fetch(`http://localhost:5000/api/users/bucket/${id}`, {
+    await fetch(`http://localhost:5000/api/users/bucket/${id}`, {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -71,8 +71,8 @@ function FacilityDetails() {
   }
 
   //mark places visited
-  function markVisited() {
-    fetch(`http://localhost:5000/api/users/visited/${id}`, {
+  const markVisited = async () => {
+    await fetch(`http://localhost:5000/api/users/visited/${id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -203,7 +203,7 @@ function FacilityDetails() {
             <p>{r.rating}/5</p>
             <p>{r.comment}</p>
             <button
-            onClick={() => deleteReview(reviews._id)}>
+            onClick={() => deleteReview(r._id)}>
             Delete
             </button>
           </div>

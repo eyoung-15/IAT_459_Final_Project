@@ -1,7 +1,39 @@
 const express = require("express");
 const router = express.Router();
 const Review = require("../models/Reviews");
+const Facility = require("../models/Facility");
 const verifyToken = require("../middleware/auth");
+
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+const uploadDir = "uploads/";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024,
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are accepted"));
+    }
+    cb(null, true);
+  },
+});
 
 // // GET ROUTE (Public anyone can see reviews)
 router.get("/:facility", async (req, res) => {
@@ -17,7 +49,7 @@ router.get("/:facility", async (req, res) => {
 });
 
 // POST ROUTE (create review - protected for only logged in users)
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, upload.single("image"), async (req, res) => {
 
   try {
     const review = new Review({
@@ -25,10 +57,17 @@ router.post("/", verifyToken, async (req, res) => {
         rating: req.body.rating,
         comment: req.body.comment,
         user: req.user.id,
+        image: req.file ? `/uploads/${req.file.filename}` : null,
         
     });
     await review.save();
     const populateReview = await review.populate("user", "username");
+
+    if (req.file) {
+      await Facility.findByIdAndUpdate(req.body.facility, {
+        lastReviewImage: `/${uploadDir}/${req.file.filename}`,
+      });
+    }
     res.status(201).json(populateReview);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -49,11 +88,18 @@ router.delete("/:id", verifyToken, async (req, res) => {
            message: "Forbidden: You do not have permission to delete this review.",
          });
        }
+
+       if (review.image) {
+        const imagePath = path.join(__dirname, "..", review.image);
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+       }
    
        await Review.findByIdAndDelete(req.params.id);
        res.json({ message: "Review successfully deleted" });
      } catch (err) {
-       res.status(500).json({ message: "Server error", error: err.message });
+       res.status(500).json({ message: err.message });
      }
    });
 
