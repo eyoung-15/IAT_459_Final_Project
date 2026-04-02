@@ -95,6 +95,25 @@ function FacilityDetails() {
     popupAnchor: [0, -26], //[left/right, top/bottom]
   });
 
+
+  const deleteReview = async (id) => {
+    try{
+      const res = await fetch(`http://localhost:5000/api/reviews/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (!res.ok) {
+        throw new Error("Failed to delete. Are you authorized?");
+      }
+      setReviews(reviews.filter((reviews) => reviews._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
+
   return (
     <div className="heritage-hub">
       <nav className="navbar">
@@ -183,6 +202,10 @@ function FacilityDetails() {
             <strong>{r.user.username}</strong>
             <p>{r.rating}/5</p>
             <p>{r.comment}</p>
+            <button
+            onClick={() => deleteReview(reviews._id)}>
+            Delete
+            </button>
           </div>
         ))
       )}
