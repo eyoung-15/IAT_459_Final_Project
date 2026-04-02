@@ -38,12 +38,20 @@ function AdminDashboard() {
           </div>
 
           <div className="nav-right">
-            {user && (
-              <span className="user-greeting">Welcome, {user.username}!</span>
+            {!token ? (
+              <Link to="/login" className="sign-in-btn">
+                Sign In
+              </Link>
+            ) : (
+              <div className="user-menu">
+                <span className="user-greeting">
+                  Hi, {user?.username || "User"}
+                </span>
+                <button onClick={logout} className="logout-btn">
+                  Logout
+                </button>
+              </div>
             )}
-            <button onClick={logout} className="logout-btn">
-              Logout
-            </button>
           </div>
         </div>
       </nav>
