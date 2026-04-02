@@ -106,8 +106,11 @@ function Dashboard() {
               <Link to="/Map" className="nav-link">
                 Map View
               </Link>
-              <Link to="/" className="nav-link">
-                Curated Lists
+              <Link to="/bucket-list" className="nav-link">
+                Bucket List
+              </Link>
+              <Link to="/travel-journal" className="nav-link">
+                Travel Journal
               </Link>
               <Link to="/dashboard" className="nav-link">
                 Manage

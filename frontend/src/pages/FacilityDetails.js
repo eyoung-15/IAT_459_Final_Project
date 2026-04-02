@@ -49,7 +49,7 @@ function FacilityDetails() {
       .then((data) => {
         const user = data.user;
 
-        setInBucket(user.bucketList.some((f) => f._id === id));
+        setInBucket(user.bucketList.some((f) => f._id.toString() === id));
 
         setIsVisited(user.visited.some((v) => v.facility._id === id));
       });
@@ -110,8 +110,11 @@ function FacilityDetails() {
               <Link to="/Map" className="nav-link">
                 Map View
               </Link>
-              <Link to="/" className="nav-link">
-                Curated Lists
+              <Link to="/bucket-list" className="nav-link">
+                Bucket List
+              </Link>
+              <Link to="/travel-journal" className="nav-link">
+                Travel Journal
               </Link>
               <Link to="/dashboard" className="nav-link">
                 Manage

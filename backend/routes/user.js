@@ -5,60 +5,123 @@ const verifyToken = require("../middleware/auth");
 
 //Add to bucket list
 router.post("/bucket/:facilityId", verifyToken, async (req, res) => {
-    const user = await User.findById(req.user.id);
 
-    if (!user.bucketList.includes(req.params.facilityId)) {
-        user.bucketList.push(req.params.facilityId);
-        await user.save();
+    try{
+        const user = await User.findById(req.user.id);
+        
+        if(!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        //prevent duplicates
+        const exists = user.bucketList.some(
+            id => id.toString() === req.params.facilityId
+        );
+        
+        if (!exists) {
+            user.bucketList.push(req.params.facilityId);
+            await user.save();
+        }
+        
+        res.json({message: "Added to Bucket List", bucketList: user.bucketList});
+    
+    }catch(err){
+        res.status(500).json({message: err.message});
     }
-
-    res.json({message: "Added to Bucket List"});
 });
 
 //Remove from bucket list
 router.delete("/bucket/:facilityId", verifyToken, async (req, res) => {
-    const user = await User.findById(req.user.id);
+    try{
+        const user = await User.findById(req.user.id);
 
-    user.bucketList = user.bucketList.filter(
-        id => id.toString() !== req.params.facilityId
-    );
+        if (!user) {
+            return res.status(404).json({message: "User not found"});
+        }
 
-    await user.save();
+        user.bucketList = user.bucketList.filter(
+            id => id.toString() !== req.params.facilityId
+        );
 
-    res.json({message: "Removed from Bucket List"});
+        await user.save();
+        
+        res.json({message: "Removed from Bucket List", bucketList: user.bucketList});
+
+    } catch (err) {
+        res.status(500).json({message: err.message});
+    }
 });
 
 // Add visited (with image)
 router.post("/visited/:facilityId", verifyToken, async (req, res) => {
-    const {image} = req.body;
+    try{
+        const {image} = req.body;
+        const user = await User.findById(req.user.id);
 
-    const user = await User.findById(req.user.id);
-
-    const exists = user.visited.find(
-        v => v.facility.toString() === req.params.facilityId
-    );
-
-    if (!exists){
-        user.visited.push({
-            facility: req.params.facilityId,
-            image
+        if (!user){
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        const exists = user.visited.find(
+            v => v.facility.toString() === req.params.facilityId
+        );
+        
+        if (!exists){
+            user.visited.push({
+                facility: req.params.facilityId,
+                image,
+                visitedAt: new Date()
         });
         await user.save();
     }
-    res.json({message: "Marked as Visited"});
+
+    res.json({message: "Marked as Visited", visited: user.visited});
+
+} catch (err){
+    res.status(500).json({message: err.message});
+}
+
+});
+
+//remove from visited
+router.delete("/visited/:facilityId", verifyToken, async(req, res) => {
+    try{
+        const user = await User.findById(req.user.id);
+
+        user.visited = user.visited.filter(
+            v => v.facility.toString() !== req.params.facilityId
+        );
+
+        await user.save();
+
+        res.json({message: "Removed from Visited", visited: user.visited});
+    } catch (err) {
+        res.status(500).json({message: err.message});
+    }
 });
 
 //get user data and stats
 router.get("/me", verifyToken, async (req, res) => {
-    const user = await User.findById(req.user.id)
-    .populate("bucketList")
-    .populate("visited.facility");
+    try{
+        const user = await User.findById(req.user.id)
+        .populate("bucketList")
+        .populate("visited.facility");
 
-    const stats = {
-        visitedCount: user.visited.length,
-        bucketCount: user.bucketList.length
-    };
-    res.json({user, stats});
+        if(!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        const stats = {
+            visitedCount: user.visited.length,
+            bucketCount: user.bucketList.length
+        };
+
+        res.json({user, stats});
+
+    } catch (err) {
+        res.status(500).json({message: err.message});
+    }
+
 });
 
 module.exports = router;

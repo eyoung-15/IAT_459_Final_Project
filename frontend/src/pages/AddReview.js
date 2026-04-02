@@ -41,7 +41,7 @@ function AddReview(){
             min="1"
             max="5"
             value={rating}
-            onChange={(e)=> setRating(e.target.value)}
+            onChange={(e)=> setRating(Number(e.target.value))}
             />
             <textarea
             value={comment}
