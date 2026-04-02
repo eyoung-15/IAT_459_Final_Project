@@ -174,9 +174,9 @@ function Home() {
               <Link to={`/facility/${facility._id}`} key={facility._id}>
                 <div className="facility-card-home">
                   <div className="card-image-container">
-                    {facility.imgUrl ? (
+                    {facility.lastReviewImage ? (
                       <img
-                        src={facility.imgUrl}
+                        src={`http://localhost:5000${facility.lastReviewImage}`}
                         alt={facility.Name}
                         className="facility-image"
                       />

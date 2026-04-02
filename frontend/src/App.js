@@ -13,6 +13,7 @@ import TravelJournal from "./pages/TravelJournal";
 import Map from "./pages/Map";
 import AdminDashboard from "./pages/AdminDashboard";
 
+
 function App() {
   return (
     <AuthProvider>

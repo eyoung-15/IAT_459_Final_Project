@@ -56,10 +56,10 @@ function FacilityDetails() {
   }, [token, id]);
 
   //toggle bucket list
-  function toggleBucket() {
+  const toggleBucket = async () => {
     const method = inBucket ? "DELETE" : "POST";
 
-    fetch(`http://localhost:5000/api/users/bucket/${id}`, {
+    await fetch(`http://localhost:5000/api/users/bucket/${id}`, {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -71,8 +71,8 @@ function FacilityDetails() {
   }
 
   //mark places visited
-  function markVisited() {
-    fetch(`http://localhost:5000/api/users/visited/${id}`, {
+  const markVisited = async () => {
+    await fetch(`http://localhost:5000/api/users/visited/${id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -94,6 +94,25 @@ function FacilityDetails() {
     iconAnchor: [12, 24], //[left/right, top/bottom]
     popupAnchor: [0, -26], //[left/right, top/bottom]
   });
+
+
+  const deleteReview = async (id) => {
+    try{
+      const res = await fetch(`http://localhost:5000/api/reviews/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (!res.ok) {
+        throw new Error("Failed to delete. Are you authorized?");
+      }
+      setReviews(reviews.filter((reviews) => reviews._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
 
   return (
     <div className="heritage-hub">
@@ -183,6 +202,10 @@ function FacilityDetails() {
             <strong>{r.user.username}</strong>
             <p>{r.rating}/5</p>
             <p>{r.comment}</p>
+            <button
+            onClick={() => deleteReview(r._id)}>
+            Delete
+            </button>
           </div>
         ))
       )}

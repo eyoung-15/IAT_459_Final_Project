@@ -15,6 +15,9 @@ const ReviewSchema = new mongoose.Schema({
   comment: {
     type: String,
   },
+  image: {
+    type: String,
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

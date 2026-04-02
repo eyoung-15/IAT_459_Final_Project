@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
+import "../css/HeritageHub.css";
 
 function BucketList(){
     const { token } = useContext(AuthContext);
@@ -15,12 +16,12 @@ function BucketList(){
             }
         }).then(res => res.json())
         .then(data => {
-            setBucket(data.user.bucketList);
+            setBucket(data.user.bucketList.sort((a, b) => new Date(b._id) - new Date(a._id)));
             setStats(data.stats);
         });
     }, [token]);
 
-    function remove(id) {
+    const remove = (id) => {
          fetch(`http://localhost:5000/api/users/bucket/${id}`, {
             method: "DELETE",
             headers: {
@@ -32,7 +33,10 @@ function BucketList(){
             setBucket(bucket.filter(f => f._id !== id));
          });
 
-    }
+    };
+
+    const provinces = [...new Set(bucket.map((f) => f.Province))];
+
     return (
     <div className="page-container">
       <header
@@ -72,22 +76,26 @@ function BucketList(){
       <h2>My Bucket List</h2>
         <p> You have {stats.bucketCount || 0} saved places</p>
 
-        {bucket.map(f => (
-            <div key={f._id} className="facility-card-home">
+        {provinces.map((prov) => (
+          <div key={prov}>
+            <h3>{prov}</h3>
+            {bucket
+            .filter((f) => f.Province === prov)
+            .map((f) => (
+              <Link to={`/facility/${f._id}`} key={f._id}>
+              <div className="facility-card-home">
                 <h3>{f.Name}</h3>
                 <p>{f.City}, {f.Province}</p>
-
-                <button onClick={() => remove(f._id)}>
+                        <button onClick={() => remove(f._id)}>
                     Remove
                 </button>
-
+                </div>
+                </Link>
+              
+            ))}
             </div>
         ))}
-</div>
-   
-             
-    
-    
+        </div>   
   );
 }
 
