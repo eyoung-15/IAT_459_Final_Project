@@ -293,6 +293,18 @@ function Dashboard() {
             value={formData.Address}
             onChange={handleChange}
           />
+          <input
+            name="Latitude"
+            placeholder="Latitude"
+            value={formData.Latitude}
+            onChange={handleChange}
+          />
+          <input
+            name="Longitude"
+            placeholder="Longitude"
+            value={formData.Longitude}
+            onChange={handleChange}
+          />
           <button
             type="submit"
             className="auth-button"

@@ -96,7 +96,7 @@ router.post("/", verifyToken, async (req, res) => {
 // DELETE ROUTE
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
-    const facility = await Facility.findById(req.params.id);
+    const facility = await Facility.findByIdAndDelete(req.params.id);
 
     // check if facility exists
     if (!facility) {

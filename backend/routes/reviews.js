@@ -64,7 +64,7 @@ router.post("/", verifyToken, upload.single("image"), async (req, res) => {
 
     if (req.file) {
       await Facility.findByIdAndUpdate(req.body.facility, {
-        lastReviewImage: `/${uploadDir}/${req.file.filename}`,
+        lastReviewImage: `/uploads/${req.file.filename}`,
       });
     }
     res.status(201).json(populateReview);
