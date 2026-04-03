@@ -72,7 +72,7 @@ function Home() {
           <div className="nav-right">
             {/* Nav link to admin panel. Only visible if user is present and role is admin */}
             {user && user.role === "admin" && (
-              <Link to="/admin-dashboard">Admin Panel</Link>
+              <Link to="/admin-dashboard" className="nav-link">Admin</Link>
             )}
 
             <div className="search-container">
