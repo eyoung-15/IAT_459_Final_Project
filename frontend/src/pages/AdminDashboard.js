@@ -282,11 +282,6 @@ function AdminDashboard() {
                           {facility.Province?.toUpperCase()}
                         </div>
                         <h3 className="facility-name">{facility.Name}</h3>
-                        <p className="facility-description">
-                          <strong>Category:</strong> {facility.Category}
-                          <br />
-                          <strong>Address:</strong> {facility.Address}
-                        </p>
                       </div>
                     </div>
                   </Link>
