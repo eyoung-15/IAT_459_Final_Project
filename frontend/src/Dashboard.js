@@ -4,16 +4,23 @@ import { AuthContext } from "./context/AuthContext";
 import "./css/HeritageHub.css";
 
 function Dashboard() {
-  const [facility, setFacility] = useState([]);
+  const [myFacilities, setMyFacilities] = useState([]);
   const { token, user, logout } = useContext(AuthContext);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/facility")
-      .then((res) => res.json())
-      .then((data) => setFacility(data))
+    fetch("http://localhost:5000/api/facility/my-facilities", {
+      headers: {
+        Authorization: token,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error fetching facilities.");
+        return res.json();
+      })
+      .then((data) => setMyFacilities(data))
       .catch((err) => console.error("Error fetching facilities:", err));
-  }, []);
+  }, [token]);
 
   const [formData, setFormData] = useState({
     Name: "",
@@ -49,7 +56,7 @@ function Dashboard() {
         throw new Error("Failed to add facility. Are you authorized?");
       }
       const newFacility = await response.json();
-      setFacility([newFacility, ...facility]);
+      setMyFacilities([newFacility, ...myFacilities]);
       setFormData({
         Name: "",
         Category: "",
@@ -78,14 +85,14 @@ function Dashboard() {
       if (!response.ok) {
         throw new Error("Failed to delete. Are you authorized?");
       }
-      setFacility(facility.filter((facility) => facility._id !== id));
+      setMyFacilities(myFacilities.filter((facility) => facility._id !== id));
     } catch (err) {
       console.error(err);
       alert(err.message);
     }
   };
 
-  const filteredFacilities = facility.filter((facility) => {
+  const filteredFacilities = myFacilities.filter((facility) => {
     return (facility.Name || "")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -115,7 +122,7 @@ function Dashboard() {
               <Link to="/dashboard" className="nav-link">
                 Manage
               </Link>
-                  {/* Nav link to admin panel. Only visible if user is present and role is admin */}
+              {/* Nav link to admin panel. Only visible if user is present and role is admin */}
               {user && user.role === "admin" && (
                 <Link to="/admin-dashboard" className="nav-link">
                   Admin
@@ -144,84 +151,13 @@ function Dashboard() {
       </nav>
 
       <div className="featured" style={{ marginTop: "2rem" }}>
-        <h2 className="section-title">Manage Facilities</h2>
-
-        {/* Add Form */}
-        <div
-          style={{
-            marginBottom: "3rem",
-            background: "white",
-            padding: "2rem",
-            borderRadius: "16px",
-          }}
-        >
-          <h3 style={{ marginBottom: "1.5rem" }}>Add New Facility</h3>
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-              gap: "1rem",
-            }}
-          >
-            <input
-              name="Name"
-              placeholder="Name"
-              value={formData.Name}
-              onChange={handleChange}
-              required
-            />
-            <input
-              name="Category"
-              placeholder="Category"
-              value={formData.Category}
-              onChange={handleChange}
-            />
-            <select
-              name="Province"
-              value={formData.Province}
-              onChange={handleChange}
-            >
-              <option value={"on"}>Ontario</option>
-              <option value={"qc"}>Quebec</option>
-              <option value={"bc"}>British Columbia</option>
-              <option value={"ab"}>Alberta</option>
-              <option value={"ns"}>Nova Scotia</option>
-              <option value={"nb"}>New Brunswick</option>
-              <option value={"nl"}>Newfoundland and Labrador</option>
-              <option value={"sk"}>Saskatchewan</option>
-              <option value={"mb"}>Manitoba</option>
-              <option value={"nu"}>Nunavut</option>
-              <option value={"yt"}>Yukon</option>
-              <option value={"nt"}>Northwest Territories</option>
-            </select>
-            <input
-              name="City"
-              placeholder="City"
-              value={formData.City}
-              onChange={handleChange}
-            />
-            <input
-              name="Address"
-              placeholder="Address"
-              value={formData.Address}
-              onChange={handleChange}
-            />
-            <button
-              type="submit"
-              className="auth-button"
-              style={{ gridColumn: "span 2" }}
-            >
-              Add Facility
-            </button>
-          </form>
-        </div>
+        <h2 className="section-title">Manage My Facilities</h2>
 
         {/* Search */}
         <div style={{ marginBottom: "2rem" }}>
           <input
             type="text"
-            placeholder="Search facilities..."
+            placeholder="Search my facilities..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -290,11 +226,85 @@ function Dashboard() {
             ))
           ) : (
             <div>
-              <p>No facilities found. Try adjusting your search terms</p>
+              <p>No facilities found.</p>
             </div>
           )}
         </div>
       </div>
+
+      {/* Add Form */}
+      <div
+        style={{
+          marginBottom: "3rem",
+          background: "white",
+          padding: "2rem",
+          borderRadius: "16px",
+        }}
+      >
+        <h3 style={{ marginBottom: "1.5rem" }}>Add a New Facility</h3>
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+            gap: "1rem",
+          }}
+        >
+          <input
+            name="Name"
+            placeholder="Name"
+            value={formData.Name}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="Category"
+            placeholder="Category"
+            value={formData.Category}
+            onChange={handleChange}
+          />
+          <select
+            name="Province"
+            value={formData.Province}
+            onChange={handleChange}
+          >
+            <option value={"on"}>Ontario</option>
+            <option value={"qc"}>Quebec</option>
+            <option value={"bc"}>British Columbia</option>
+            <option value={"ab"}>Alberta</option>
+            <option value={"ns"}>Nova Scotia</option>
+            <option value={"nb"}>New Brunswick</option>
+            <option value={"nl"}>Newfoundland and Labrador</option>
+            <option value={"sk"}>Saskatchewan</option>
+            <option value={"mb"}>Manitoba</option>
+            <option value={"nu"}>Nunavut</option>
+            <option value={"yt"}>Yukon</option>
+            <option value={"nt"}>Northwest Territories</option>
+          </select>
+          <input
+            name="City"
+            placeholder="City"
+            value={formData.City}
+            onChange={handleChange}
+          />
+          <input
+            name="Address"
+            placeholder="Address"
+            value={formData.Address}
+            onChange={handleChange}
+          />
+          <button
+            type="submit"
+            className="auth-button"
+            style={{ gridColumn: "span 2" }}
+          >
+            Add Facility
+          </button>
+        </form>
+      </div>
+
+      <h2 className="section-title">Manage My Account</h2>
+
     </div>
   );
 }
