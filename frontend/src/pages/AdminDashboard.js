@@ -93,6 +93,31 @@ function AdminDashboard() {
     }
   };
 
+  const handleRole = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/users/${id}/role`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: token,
+          },
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update role");
+      }
+      const data = await response.json();
+      // Update the UI right away
+      setUsers(
+        users.map((u) => (u._id === id ? { ...u, role: data.user.role } : u)),
+      );
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
+
   return (
     <div className="heritage-hub">
       <nav className="navbar">
@@ -108,13 +133,16 @@ function AdminDashboard() {
               <Link to="/Map" className="nav-link">
                 Map View
               </Link>
-              <Link to="/" className="nav-link">
-                Curated Lists
+              <Link to="/bucket-list" className="nav-link">
+                Bucket List
+              </Link>
+              <Link to="/travel-journal" className="nav-link">
+                Travel Journal
               </Link>
               <Link to="/dashboard" className="nav-link">
                 Manage
               </Link>
-                  {/* Nav link to admin panel. Only visible if user is present and role is admin */}
+              {/* Nav link to admin panel. Only visible if user is present and role is admin */}
               {user && user.role === "admin" && (
                 <Link to="/admin-dashboard" className="nav-link">
                   Admin
@@ -279,10 +307,24 @@ function AdminDashboard() {
                       background: "#fee",
                       color: "#c00",
                       borderColor: "#fcc",
-                      width: "100%",
+                      width: "59%",
                     }}
                   >
                     Delete
+                  </button>
+                  <button
+                    onClick={() => handleRole(user._id)}
+                    className="filter-btn"
+                    style={{
+                      marginTop: "7px",
+                      marginLeft: "1%",
+                      background: "#eef",
+                      color: "#00c",
+                      borderColor: "#ccf",
+                      width: "40%",
+                    }}
+                  >
+                    Make {user.role === "admin" ? "Member" : "Admin"}
                   </button>
                 </div>
               ))
