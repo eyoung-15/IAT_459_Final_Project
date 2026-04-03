@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Facility = require("../models/Facility");
-const Review = require ("../models/Reviews");
+const Review = require("../models/Reviews");
 const verifyToken = require("../middleware/auth");
 
 // // GET ALL ROUTE
@@ -14,15 +14,17 @@ router.get("/", async (req, res) => {
       facility.map(async (facility) => {
         const reviews = await Review.find({ facility: facility._id });
 
-        const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
+        const avgRating =
+          reviews.length > 0
+            ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+            : 0;
 
-        return{
+        return {
           ...facility.toObject(),
           avgRating: Number(avgRating.toFixed(1)),
-          reviewCount: reviews.length
+          reviewCount: reviews.length,
         };
-
-      })
+      }),
     );
     res.json(facilitiesWithRatings);
   } catch (err) {
@@ -36,51 +38,50 @@ router.get("/:id", async (req, res) => {
     // .sort({_id: -1}) reverses the id's to ensure that the newest id's are displayed first
     const facility = await Facility.findById(req.params.id);
 
-    if(!facility)  {
-      return res.status(404).json({message: "Facility not found"});
+    if (!facility) {
+      return res.status(404).json({ message: "Facility not found" });
     }
 
-    const reviews = await Review.find({facility: facility._id});
+    const reviews = await Review.find({ facility: facility._id });
 
-    const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
+    const avgRating =
+      reviews.length > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+        : 0;
 
     res.json({
       ...facility.toObject(),
       avgRating: Number(avgRating.toFixed(1)),
-      reviewCount: reviews.length
+      reviewCount: reviews.length,
     });
-
-
-
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-
 // // POST ROUTE
 
-router.post("/", verifyToken, async (req,res) => {
-      try {
-        // const facility = await Facility.create(req.body);
-        const facility = new Facility({
-          Name: req.body.Name,
-          Category: req.body.Category,
-          Province: req.body.Province,
-          City: req.body.City,
-          Address: req.body.Address,
-          Latitude: req.body.Latitude,
-          Longitude: req.body.Longitude,
-          PostalCode: req.body.PostalCode,
-          owner: req.user.id,
+router.post("/", verifyToken, async (req, res) => {
+  try {
+    // const facility = await Facility.create(req.body);
+    const facility = new Facility({
+      Name: req.body.Name,
+      Category: req.body.Category,
+      Province: req.body.Province,
+      City: req.body.City,
+      Address: req.body.Address,
+      Latitude: req.body.Latitude,
+      Longitude: req.body.Longitude,
+      PostalCode: req.body.PostalCode,
+      owner: req.user.id,
     });
 
     await facility.save();
-        res.status(201).json(facility);
-      } catch (err) {
-        res.status(500).json({ message: err.message });
-      }
-    });
+    res.status(201).json(facility);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // DELETE ROUTE
 router.delete("/:id", verifyToken, async (req, res) => {
@@ -92,10 +93,15 @@ router.delete("/:id", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "Facility not found" });
     }
 
-    // authorization check: compare document owner ID to requester's ID
-    if (facility.owner.toString() !== req.user.id) {
+    // authorization check: compare document owner ID to requester's ID AND assess if their admin
+    const owner = facility.owner.toString() === req.user.id;
+    const admin = req.user.role === "admin";
+
+    // If neither matches, reject deletion
+    if (!(owner || admin)) {
       return res.status(403).json({
-        message: "Forbidden: You do not have permission to delete this facility.",
+        message:
+          "Forbidden: You do not have permission to delete this facility.",
       });
     }
 
@@ -107,3 +113,4 @@ router.delete("/:id", verifyToken, async (req, res) => {
 });
 
 module.exports = router;
+
