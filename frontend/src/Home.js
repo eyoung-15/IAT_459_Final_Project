@@ -11,35 +11,57 @@ function Home() {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchFacilities = async (page = 1) => {
+    try{
+      const query = new URLSearchParams({
+        page,
+        limit: 6,
+        searchTerm: searchTerm,
+        Category: selectedCategory === "All" ? "" : selectedCategory,
+        City: selectedCity,
+        Province: selectedProvince,
+      });
+
+      const res = await fetch(
+        `http://localhost:5000/api/facility?${query.toString()}`
+      );
+
+      const data = await res.json();
+
+      setFacility(data.data);
+      setTotalPages(data.totalPages);
+      setCurrentPage(data.currentPage);
+    } catch (err) {
+      console.error("Error fetching facilities:", err);
+    }
+  };
+
+  //fetch when page changes
   useEffect(() => {
-    fetch("http://localhost:5000/api/facility")
-      .then((res) => res.json())
-      .then((data) => setFacility(data))
-      .catch((err) => console.error("Error fetching facilities:", err));
-  }, []);
+    fetchFacilities(currentPage);
+  }, [currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchFacilities(1);
+  }, [selectedCategory, selectedCity, selectedProvince]);
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setCurrentPage(1);
+      fetchFacilities(1);
+    }, 400);
+    return() => clearTimeout(delay);
+  }, [searchTerm]);
 
   // Get unique categories for filter
   const categories = [
     "All",
     ...new Set(facility.map((f) => f.Category).filter(Boolean)),
   ];
-
-  const filteredFacilities = facility.filter((facility) => {
-    const matchesSearch = (facility.Name || "")
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "All" || facility.Category === selectedCategory;
-    const matchesCity = (facility.City || "")
-      .toLowerCase()
-      .includes(selectedCity.toLowerCase());
-    const matchesProvince =
-      selectedProvince === "" || facility.Province === selectedProvince;
-    return matchesSearch && matchesCategory && matchesCity && matchesProvince;
-  });
-
-  // Take only first 6 for homepage
-  const featuredFacilities = filteredFacilities.slice(0, 6);
 
   return (
     <div className="heritage-hub">
@@ -170,8 +192,8 @@ function Home() {
         </div>
 
         <div className="facilities-grid-home">
-          {featuredFacilities.length > 0 ? (
-            featuredFacilities.map((facility) => (
+          {facility.length > 0 ? (
+            facility.map((facility) => (
               <Link to={`/facility/${facility._id}`} key={facility._id}>
                 <div className="facility-card-home">
                   <div className="card-image-container">
@@ -221,6 +243,25 @@ function Home() {
               </p>
             </div>
           )}
+        </div>
+        <div className="pagination">
+          <button
+          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+          disabled={currentPage === 1}
+          >
+            ⬅
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+          onClick={() =>
+            setCurrentPage((p) => Math.min(p + 1, totalPages))
+          }
+          disabled = {currentPage === totalPages}
+          >
+          ⮕
+          </button>
         </div>
       </section>
     </div>
