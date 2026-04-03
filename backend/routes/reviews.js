@@ -39,9 +39,10 @@ const upload = multer({
 router.get("/:facility", async (req, res) => {
   try {
     const reviews = await Review.find({
-        facility: req.params.facility,
-    }).populate("user", "username")
-    .sort({_id: -1});
+      facility: req.params.facility,
+    })
+      .populate("user", "username")
+      .sort({ _id: -1 });
     res.json(reviews);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -50,15 +51,13 @@ router.get("/:facility", async (req, res) => {
 
 // POST ROUTE (create review - protected for only logged in users)
 router.post("/", verifyToken, upload.single("image"), async (req, res) => {
-
   try {
     const review = new Review({
-        facility: req.body.facility,
-        rating: req.body.rating,
-        comment: req.body.comment,
-        user: req.user.id,
-        image: req.file ? `/uploads/${req.file.filename}` : null,
-        
+      facility: req.body.facility,
+      rating: req.body.rating,
+      comment: req.body.comment,
+      user: req.user.id,
+      image: req.file ? `/uploads/${req.file.filename}` : null,
     });
     await review.save();
     const populateReview = await review.populate("user", "username");
@@ -77,30 +76,51 @@ router.post("/", verifyToken, upload.single("image"), async (req, res) => {
 // DELETE ROUTE
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
-    const review =  await Review.findById(req.params.id);
+    const review = await Review.findById(req.params.id);
 
     if (!review) {
-      return res.status(404).json({message: "Review not found"});
+      return res.status(404).json({ message: "Review not found" });
     }
 
-   if (review.user.toString() !== req.user.id) {
-         return res.status(403).json({
-           message: "Forbidden: You do not have permission to delete this review.",
-         });
-       }
+    // authorization check: compare document user ID to requester's ID AND assess if their admin
+    const user = review.user.toString() === req.user.id;
+    const admin = req.user.role === "admin";
 
-       if (review.image) {
-        const imagePath = path.join(__dirname, "..", review.image);
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
-        }
-       }
-   
-       await Review.findByIdAndDelete(req.params.id);
-       res.json({ message: "Review successfully deleted" });
-     } catch (err) {
-       res.status(500).json({ message: err.message });
-     }
-   });
+    // If neither matches, reject deletion
+    if (!(user || admin)) {
+      return res.status(403).json({
+        message:
+          "Forbidden: You do not have permission to delete this facility.",
+      });
+    }
+
+    if (review.image) {
+      const imagePath = path.join(__dirname, "..", review.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
+    await Review.findByIdAndDelete(req.params.id);
+    res.json({ message: "Review successfully deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// get all reviews (for admin dashboard)
+router.get("/", async (req, res) => {
+  try {
+    const review = await Review.find().sort({ _id: -1 }).populate("facility");
+
+    if (!review) {
+      return res.status(404).json({ message: "Reviews not found" });
+    }
+
+    res.json({ review });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;
