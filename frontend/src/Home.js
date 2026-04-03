@@ -63,23 +63,6 @@ function Home() {
     ...new Set(facility.map((f) => f.Category).filter(Boolean)),
   ];
 
-  // const filteredFacilities = facility.filter((facility) => {
-  //   const matchesSearch = (facility.Name || "")
-  //     .toLowerCase()
-  //     .includes(searchTerm.toLowerCase());
-  //   const matchesCategory =
-  //     selectedCategory === "All" || facility.Category === selectedCategory;
-  //   const matchesCity = (facility.City || "")
-  //     .toLowerCase()
-  //     .includes(selectedCity.toLowerCase());
-  //   const matchesProvince =
-  //     selectedProvince === "" || facility.Province === selectedProvince;
-  //   return matchesSearch && matchesCategory && matchesCity && matchesProvince;
-  // });
-
-  // // Take only first 6 for homepage
-  // const featuredFacilities = filteredFacilities.slice(0, 6);
-
   return (
     <div className="heritage-hub">
       {/* Navigation Bar */}
