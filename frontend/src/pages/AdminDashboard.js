@@ -10,6 +10,19 @@ function AdminDashboard() {
   const [reviews, setReviews] = useState([]);
   // Initialize useState for dashboard navigation
   const [currentView, setCurrentView] = useState("facilities");
+  const [editMenu, setEditMenu] = useState();
+  // Initialize facilityData and specify attributes/inputs that can be filled under it
+  const [facilityData, setFacilityData] = useState({
+    //Empty until user inputs new data
+    Name: "",
+    Category: "",
+    Province: "",
+    City: "",
+    Address: "",
+    Latitude: "",
+    Longitude: "",
+    PostalCode: "",
+  });
 
   //   Backup security - redirect user out if they aren't admin
   useEffect(() => {
@@ -116,6 +129,22 @@ function AdminDashboard() {
       console.error(err);
       alert(err.message);
     }
+  };
+
+  // onSubmit, applies this function. Prevents reload behaviour, applies facilityData
+  function handleFacilitySubmit(e) {
+    e.preventDefault();
+    // setIsSubmitted(true);
+    // props.onAddNewItem(facilityData);
+  }
+
+  // When user interacts with edit facility inputs, set the facilityData attribute to match the value
+  const handleEditFacility = (e) => {
+    const { name, value } = e.target;
+    setFacilityData({
+      ...facilityData,
+      [name]: value,
+    });
   };
 
   return (
@@ -270,11 +299,106 @@ function AdminDashboard() {
                       background: "#fee",
                       color: "#c00",
                       borderColor: "#fcc",
-                      width: "100%",
+                      width: "59%",
                     }}
                   >
                     Delete
                   </button>
+                  <button
+                    onClick={() => {
+                      // Open the edit menu based on which id has been clicked
+                      setEditMenu(
+                        editMenu === facility._id ? null : facility._id,
+                      );
+                      // Fill values with existing facility data
+                      setFacilityData(facility);
+                    }}
+                    className="filter-btn"
+                    style={{
+                      marginTop: "7px",
+                      marginLeft: "1%",
+                      background: "#eef",
+                      color: "#00c",
+                      borderColor: "#ccf",
+                      width: "40%",
+                    }}
+                  >
+                    Edit
+                  </button>
+                  {editMenu === facility._id ? (
+                    <div>
+                      <h3>Edit Attributes:</h3>
+                      <form onSubmit={handleFacilitySubmit}>
+                        <label>Facility Name:</label>
+                        <input
+                          name="Name"
+                          value={facilityData.Name}
+                          onChange={handleEditFacility}
+                        />
+                        <label>Category:</label>
+                        <input
+                          name="Category"
+                          value={facilityData.Category}
+                          onChange={handleEditFacility}
+                        />
+                        <label>Province/Territory:</label>
+                        <select
+                          name="Province"
+                          value={facilityData.Province}
+                          onChange={handleEditFacility}
+                        >
+                          <option value={"on"}>Ontario</option>
+                          <option value={"qc"}>Quebec</option>
+                          <option value={"bc"}>British Columbia</option>
+                          <option value={"ab"}>Alberta</option>
+                          <option value={"ns"}>Nova Scotia</option>
+                          <option value={"nb"}>New Brunswick</option>
+                          <option value={"nl"}>
+                            Newfoundland and Labrador
+                          </option>
+                          <option value={"sk"}>Saskatchewan</option>
+                          <option value={"mb"}>Manitoba</option>
+                          <option value={"nu"}>Nunavut</option>
+                          <option value={"yt"}>Yukon</option>
+                          <option value={"nt"}>Northwest Territories</option>
+                        </select>
+                        <label>City:</label>
+                        <input
+                          name="City"
+                          value={facilityData.City}
+                          onChange={handleEditFacility}
+                        />
+                        <label>Address:</label>
+                        <input
+                          name="Address"
+                          value={facilityData.Address}
+                          onChange={handleEditFacility}
+                        />
+                        <label>Latitude:</label>
+                        <input
+                          name="Latitude"
+                          value={facilityData.Latitude}
+                          onChange={handleEditFacility}
+                        />
+                        <label>Longitude:</label>
+                        <input
+                          name="Longitude"
+                          value={facilityData.Longitude}
+                          onChange={handleEditFacility}
+                        />
+                        <label>Postal Code:</label>
+                        <input
+                          name="Postal Code"
+                          value={facilityData.PostalCode}
+                          onChange={handleEditFacility}
+                        />
+                        <button type="submit">Submit Changes</button>
+                        <p>NOTE: FORM NOT WORKING YET..</p>
+                      </form>
+                    </div>
+                  ) : (
+                    ""
+                  )}
                 </div>
               ))
             ) : (
