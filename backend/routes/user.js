@@ -162,4 +162,27 @@ router.delete("/:id", verifyToken, async (req, res) => {
   }
 });
 
+// PUT ROUTE for changing roles between admin/member
+router.put("/:id/role", verifyToken, async (req, res) => {
+  try {
+    // Ensure they are admin first before changing
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Change role depending on which role user is currently
+    user.role = user.role === "admin" ? "member" : "admin";
+
+    await user.save();
+
+    res.json({ message: "Role updated", user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 module.exports = router;
