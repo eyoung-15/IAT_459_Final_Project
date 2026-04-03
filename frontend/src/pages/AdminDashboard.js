@@ -383,7 +383,7 @@ function AdminDashboard() {
                         />
                         <label>Postal Code:</label>
                         <input
-                          name="Postal Code"
+                          name="PostalCode"
                           value={facilityData.PostalCode}
                           onChange={handleEditFacility}
                         />
