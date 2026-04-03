@@ -4,7 +4,18 @@ const Facility = require("../models/Facility");
 const Review = require("../models/Reviews");
 const verifyToken = require("../middleware/auth");
 
-// // GET ALL ROUTE
+// Get my own added facilities
+router.get("/my-facilities", verifyToken, async (req, res) => {
+  try {
+    // filter database search by owner ID
+    const facility = await Facility.find({ owner: req.user.id });
+    res.json(facility);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// GET ALL ROUTE
 router.get("/", async (req, res) => {
   try {
     // .sort({_id: -1}) reverses the id's to ensure that the newest id's are displayed first
@@ -59,8 +70,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// // POST ROUTE
-
+// POST ROUTE
 router.post("/", verifyToken, async (req, res) => {
   try {
     // const facility = await Facility.create(req.body);
@@ -113,4 +123,3 @@ router.delete("/:id", verifyToken, async (req, res) => {
 });
 
 module.exports = router;
-
