@@ -36,7 +36,10 @@ router.get("/", async (req, res) => {
 
     if (Category) matchStage.Category = Category;
     if (Province) matchStage.Province = Province;
-    if (City) matchStage.City = City;
+    if (City) {
+      matchStage.City = { $regex: City, $options: "i"};
+
+    } 
 
     if (searchTerm) {
       matchStage.Name = { $regex: searchTerm, $options: "i"};
