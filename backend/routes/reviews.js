@@ -109,8 +109,9 @@ router.delete("/:id", verifyToken, async (req, res) => {
 });
 
 // get all reviews (for admin dashboard)
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
+    if (req.user.role !== "admin") return res.status(403).json({message: "Forbidden"});
     const review = await Review.find().sort({ _id: -1 }).populate("facility");
 
     if (!review) {

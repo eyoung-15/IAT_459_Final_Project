@@ -87,7 +87,7 @@ function FacilityDetails() {
       const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
 
       await fetch(`http://localhost:5000/api/users/visited/${id}`, {
-        method: "DELETE",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: token,
@@ -273,10 +273,10 @@ function getProvinceName(code) {
               alt = "Review"
                 />
               )}
-            <button
-            onClick={() => deleteReview(r._id)}>
-            Delete
-            </button>
+              {(user?.role === "admin" || user?.id === r.user._id) && (
+                <button onClick={() => deleteReview(r._id)}>Delete Review</button>
+              )}
+    
           </div>
         ))
       )}

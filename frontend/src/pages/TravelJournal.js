@@ -20,7 +20,7 @@ function TravelJournal(){
         });
     }, [token]);
 
-    const grouped = visited.reduce((acc, v) => {
+    const grouped = (visited || []).reduce((acc, v) => {
       const date = new Date(v.visitedAt);
       const key = `${date.toLocaleString("default", {month: "long"})} ${date.getFullYear()}`;
       if (!acc[key]) acc[key] = [];
@@ -95,7 +95,11 @@ return (
                   <h3>{v.facility.Name}</h3>
                   <p>{v.facility.City}, {v.facility.Province}</p>
                   <p>Visited on: {new Date(v.visitedAt).toLocaleDateString()}</p>
-                  <button onClick={() => removeVisited(v.facility._id)}>
+                  <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    removeVisited(v.facility._id);
+                  }}>
                     Remove
                 </button>
                   
