@@ -463,7 +463,7 @@ function Dashboard() {
         <form onSubmit={handleSubmit} style={styles.form}>
           <input
             name="Name"
-            placeholder="Name"
+            placeholder="Name*"
             value={formData.Name}
             onChange={handleChange}
             required

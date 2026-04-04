@@ -41,12 +41,11 @@ router.get("/", async (req, res) => {
     if (Category) matchStage.Category = Category;
     if (Province) matchStage.Province = Province;
     if (City) {
-      matchStage.City = { $regex: City, $options: "i"};
-
-    } 
+      matchStage.City = { $regex: City, $options: "i" };
+    }
 
     if (searchTerm) {
-      matchStage.Name = { $regex: searchTerm, $options: "i"};
+      matchStage.Name = { $regex: searchTerm, $options: "i" };
     }
 
     //combine facilities with review data
@@ -62,14 +61,12 @@ router.get("/", async (req, res) => {
           as: "reviews", //output array
         },
       },
-      
       //calculate average rating + review count
       {
         $addFields: {
           avgRating: { $avg: "$reviews.rating" },
-          reviewCount: { $size: "$reviews"},
+          reviewCount: { $size: "$reviews" },
         },
-
       },
 
       //exclude review array from output
@@ -83,10 +80,8 @@ router.get("/", async (req, res) => {
       { $sort: {_id: -1}},
 
       //pagination
-      {$skip: skip},
-      {$limit: limitNum},
-
-
+      { $skip: skip },
+      { $limit: limitNum },
     ]);
     
     //get total documents for UI
@@ -178,6 +173,9 @@ router.delete("/:id", verifyToken, async (req, res) => {
     await Facility.findByIdAndDelete(req.params.id);
 
     //remove deleted facility from all user bucketList and visited arrays
+    // Delete all reviews associated with the facility as well
+    await Review.deleteMany({ facility: req.params.id });
+
     await User.updateMany(
       {},
       {
@@ -185,7 +183,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
           bucketList: req.params.id,
           visited: { facility: req.params.id },
         },
-      }
+      },
     );
     res.json({ message: "Facility successfully deleted" });
   } catch (err) {
