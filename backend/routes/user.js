@@ -52,7 +52,7 @@ router.delete("/bucket/:facilityId", verifyToken, async (req, res) => {
   }
 });
 
-// Add visited 
+// Add to travel journal  
 router.post("/visited/:facilityId", verifyToken, async (req, res) => {
   try {
     const { visitedAt } = req.body;
@@ -82,7 +82,7 @@ router.post("/visited/:facilityId", verifyToken, async (req, res) => {
   }
 });
 
-//remove from visited
+//remove from travel journal
 router.delete("/visited/:facilityId", verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -110,6 +110,7 @@ router.get("/me", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    //user stats
     const stats = {
       visitedCount: user.visited.length,
       bucketCount: user.bucketList.length,

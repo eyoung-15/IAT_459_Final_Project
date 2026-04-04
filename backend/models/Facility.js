@@ -26,7 +26,7 @@ const FacilitySchema = new mongoose.Schema({
     type: Number,
   },
   Longitude: {
-    type: Number, //changed from string to number
+    type: Number, 
   },
   PostalCode:{
     type: String,

@@ -19,6 +19,7 @@ router.get("/my-facilities", verifyToken, async (req, res) => {
 // GET ALL ROUTE
 router.get("/", async (req, res) => {
   try {
+    //destructure query parameters from req
     const {
       Category,
       Province,
@@ -27,13 +28,16 @@ router.get("/", async (req, res) => {
       page = 1,
       limit = 20,
     } = req.query;
-
+    
+    //convert page and limit to numbers and calculate skip for pagination
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
-
+    
+    //use MongoDB match filter
     let matchStage = {};
 
+    //add filters to matchStage
     if (Category) matchStage.Category = Category;
     if (Province) matchStage.Province = Province;
     if (City) {
@@ -45,19 +49,21 @@ router.get("/", async (req, res) => {
       matchStage.Name = { $regex: searchTerm, $options: "i"};
     }
 
+    //combine facilities with review data
     const facility = await Facility.aggregate([
-      { $match: matchStage },
+      { $match: matchStage }, //filter based on matchStage
 
+      //join review collection to get all reviews for each facility
       {
         $lookup: {
-          from: "reviews",
-          localField: "_id",
-          foreignField: "facility",
-          as: "reviews",
+          from: "reviews", //collection to join
+          localField: "_id", //field from facility
+          foreignField: "facility", //field from review
+          as: "reviews", //output array
         },
       },
       
-      //calculate rating + count
+      //calculate average rating + review count
       {
         $addFields: {
           avgRating: { $avg: "$reviews.rating" },
@@ -66,13 +72,14 @@ router.get("/", async (req, res) => {
 
       },
 
+      //exclude review array from output
       {
         $project: {
           reviews: 0,
         },
       },
 
-      //sort newest first
+      //sort facilities newest first
       { $sort: {_id: -1}},
 
       //pagination
@@ -82,7 +89,7 @@ router.get("/", async (req, res) => {
 
     ]);
     
-    //get total for UI
+    //get total documents for UI
     const total = await Facility.countDocuments(matchStage);
 
     res.json({
@@ -99,7 +106,6 @@ router.get("/", async (req, res) => {
 //Get by ID
 router.get("/:id", async (req, res) => {
   try {
-    // .sort({_id: -1}) reverses the id's to ensure that the newest id's are displayed first
     const facility = await Facility.findById(req.params.id);
 
     if (!facility) {
@@ -108,6 +114,7 @@ router.get("/:id", async (req, res) => {
 
     const reviews = await Review.find({ facility: facility._id });
 
+    //calculate average rating
     const avgRating =
       reviews.length > 0
         ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
@@ -127,7 +134,6 @@ router.get("/:id", async (req, res) => {
 // POST ROUTE
 router.post("/", verifyToken, async (req, res) => {
   try {
-    // const facility = await Facility.create(req.body);
     const facility = new Facility({
       Name: req.body.Name,
       Category: req.body.Category,
@@ -138,7 +144,6 @@ router.post("/", verifyToken, async (req, res) => {
       Longitude: req.body.Longitude,
       PostalCode: req.body.PostalCode,
       owner: req.user.id,
-      // lastReviewImage: null,
     });
 
     await facility.save();
@@ -172,6 +177,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
 
     await Facility.findByIdAndDelete(req.params.id);
 
+    //remove deleted facility from all user bucketList and visited arrays
     await User.updateMany(
       {},
       {
