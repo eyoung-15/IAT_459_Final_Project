@@ -73,24 +73,62 @@ function FacilityDetails() {
   }
 
   //mark places visited
-  const markVisited = async () => {
-    const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
+  // const markVisited = async () => {
+  //   const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
 
-    await fetch(`http://localhost:5000/api/users/visited/${id}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
+  //   await fetch(`http://localhost:5000/api/users/visited/${id}`, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: token,
+  //     },
+  //     body: JSON.stringify({ 
+  //       image: imageUrl, 
+  //       visitedAt: dateToSend, 
+  //     }),
+  //   }).then(() => {
+  //     setIsVisited(true);
+  //     setInBucket(false);
+  //   });
+  // }
+
+  const toggleVisited = async () => {
+    try{
+      if (isVisited){
+        await fetch(`http://localhost:5000/api/users/visited/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
       },
-      body: JSON.stringify({ 
-        image: imageUrl, 
-        visitedAt: dateToSend, 
+        
+      });
+      setIsVisited(false);
+    } else {
+      const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
+
+      await fetch(`http://localhost:5000/api/users/visited/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+      },
+      body: JSON.stringify({
+        image: imageUrl,
+        visitedAt: dateToSend,
+
       }),
-    }).then(() => {
-      setIsVisited(true);
-      setInBucket(false);
     });
+    setIsVisited(true);
+    setInBucket(false);
+
+    setImageUrl("");
+    setVisitedDate("");
   }
+} catch (err) {
+  console.error("Toggle visited failed:", err);
+} 
+};
 
   if (!facility) return <p>No facility found...</p>;
 
@@ -241,10 +279,9 @@ function getProvinceName(code) {
           onChange={(e) => setVisitedDate(e.target.value)}
           />
         </label>
-
-          <button onClick={markVisited} disabled={isVisited}>
-            {isVisited ? "Visited" : "Mark as Visited"}
-          </button>
+        <button onClick={toggleVisited}>
+          {isVisited ? "Remove from Visited" : "Visited"}
+        </button>
         </div>
       )}
 
