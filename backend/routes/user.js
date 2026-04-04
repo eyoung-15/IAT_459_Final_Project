@@ -55,7 +55,7 @@ router.delete("/bucket/:facilityId", verifyToken, async (req, res) => {
 // Add visited (with image)
 router.post("/visited/:facilityId", verifyToken, async (req, res) => {
   try {
-    const { image } = req.body;
+    const { image, visitedAt } = req.body;
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -70,7 +70,7 @@ router.post("/visited/:facilityId", verifyToken, async (req, res) => {
       user.visited.push({
         facility: req.params.facilityId,
         image,
-        visitedAt: new Date(),
+        visitedAt: visitedAt ? new Date(visitedAt): new Date(), //use provided date or default
       });
       await user.save();
     }

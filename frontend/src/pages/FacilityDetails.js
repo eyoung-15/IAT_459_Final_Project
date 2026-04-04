@@ -24,6 +24,8 @@ function FacilityDetails() {
   const [isVisited, setIsVisited] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
 
+  const [visitedDate, setVisitedDate] = useState("");
+
   // initial load
   useEffect(() => {
     fetch(`http://localhost:5000/api/facility/${id}`)
@@ -72,13 +74,18 @@ function FacilityDetails() {
 
   //mark places visited
   const markVisited = async () => {
+    const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
+
     await fetch(`http://localhost:5000/api/users/visited/${id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: token,
       },
-      body: JSON.stringify({ image: imageUrl }),
+      body: JSON.stringify({ 
+        image: imageUrl, 
+        visitedAt: dateToSend, 
+      }),
     }).then(() => {
       setIsVisited(true);
       setInBucket(false);
@@ -198,6 +205,14 @@ function FacilityDetails() {
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
           />
+          <label>
+            Visited Date: {" "}
+          <input
+          type="date"
+          value={visitedDate}
+          onChange={(e) => setVisitedDate(e.target.value)}
+          />
+        </label>
 
           <button onClick={markVisited} disabled={isVisited}>
             {isVisited ? "Visited" : "Mark as Visited"}
@@ -216,6 +231,12 @@ function FacilityDetails() {
             <strong>{r.user.username}</strong>
             <p>{r.rating}/5</p>
             <p>{r.comment}</p>
+            {r.image && (
+              <img
+              src={`http://localhost:5000${r.image}`}
+              alt = "Review"
+                />
+              )}
             <button
             onClick={() => deleteReview(r._id)}>
             Delete
