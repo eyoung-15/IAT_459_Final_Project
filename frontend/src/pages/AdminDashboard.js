@@ -64,6 +64,8 @@ function AdminDashboard() {
         throw new Error("Failed to delete. Are you authorized?");
       }
       setFacilities(facilities.filter((facility) => facility._id !== id));
+      // Update reviews in case there were some under that facility that deleted too
+      setReviews(reviews.filter((review) => review.facility?._id !== id));
     } catch (err) {
       console.error(err);
       alert(err.message);
