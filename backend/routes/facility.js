@@ -185,4 +185,23 @@ router.delete("/:id", verifyToken, async (req, res) => {
   }
 });
 
+// PUT ROUTE for editing facility data after they have been created
+router.put("/:id", verifyToken, async (req, res) => {
+  try {
+    const updatedFacility = await Facility.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      // Enable the new facility, not old one
+      { new: true },
+    );
+    if (!updatedFacility) {
+      return res.status(404).json({ error: "Facility not found" });
+    }
+    res.json(updatedFacility);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 module.exports = router;
