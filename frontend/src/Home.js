@@ -198,6 +198,7 @@ function Home() {
               <Link to={`/facility/${facility._id}`} key={facility._id}>
                 <div className="facility-card-home">
                   <div className="card-image-container">
+                  {/* show the last posted image from reviews */}
                     {facility.lastReviewImage ? (
                       <img
                         src={facility.lastReviewImage}

@@ -27,7 +27,6 @@ function AddReview(){
                 method: "POST",
                 
                 headers: {
-                    // "Content-Type": "application/json",
                     Authorization: token
                 },
                 body: formData,
