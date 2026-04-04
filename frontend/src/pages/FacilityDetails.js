@@ -22,7 +22,6 @@ function FacilityDetails() {
   //bucket list + visited
   const [inBucket, setInBucket] = useState(false);
   const [isVisited, setIsVisited] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
 
   const [visitedDate, setVisitedDate] = useState("");
 
@@ -94,7 +93,6 @@ function FacilityDetails() {
           Authorization: token,
       },
       body: JSON.stringify({
-        image: imageUrl,
         visitedAt: dateToSend,
 
       }),
@@ -102,7 +100,6 @@ function FacilityDetails() {
     setIsVisited(true);
     setInBucket(false);
 
-    setImageUrl("");
     setVisitedDate("");
   }
 } catch (err) {
@@ -245,12 +242,6 @@ function getProvinceName(code) {
             {inBucket ? "Remove from Bucket List" : "Add to Bucket List"}
           </button>
 
-          <input
-            type="text"
-            placeholder="Optional image URL"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-          />
           <label>
             Visited Date: {" "}
           <input
