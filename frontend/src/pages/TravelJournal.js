@@ -71,7 +71,7 @@ return (
           <div key={month}>
             <h3>{month}</h3>
             {grouped[month].map((v) => (
-              <Link to={`/facility/${v._id}`} key={v._id}>
+              <Link to={`/facility/${v.facility._id}`} key={v.facility._id}>
                 <div className="facility-card-home">
                   <h3>{v.facility.Name}</h3>
                   <p>{v.facility.City}, {v.facility.Province}</p>
