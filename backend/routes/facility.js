@@ -26,14 +26,18 @@ router.get("/", async (req, res) => {
       City,
       searchTerm,
       page = 1,
-      limit = 20,
+      limit = 80,
+      north,
+      south,
+      east,
+      west,
     } = req.query;
-    
+
     //convert page and limit to numbers and calculate skip for pagination
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
-    
+
     //use MongoDB match filter
     let matchStage = {};
 
@@ -46,6 +50,19 @@ router.get("/", async (req, res) => {
 
     if (searchTerm) {
       matchStage.Name = { $regex: searchTerm, $options: "i" };
+    }
+
+    // Boundary box definition for viewable map display markers
+    if (north && south && east && west) {
+      matchStage.Latitude = {
+        $gte: parseFloat(south),
+        $lte: parseFloat(north),
+      };
+
+      matchStage.Longitude = {
+        $gte: parseFloat(west),
+        $lte: parseFloat(east),
+      };
     }
 
     //combine facilities with review data
@@ -77,13 +94,13 @@ router.get("/", async (req, res) => {
       },
 
       //sort facilities newest first
-      { $sort: {_id: -1}},
+      { $sort: { _id: -1 } },
 
       //pagination
       { $skip: skip },
       { $limit: limitNum },
     ]);
-    
+
     //get total documents for UI
     const total = await Facility.countDocuments(matchStage);
 
@@ -114,7 +131,6 @@ router.get("/:id", async (req, res) => {
       reviews.length > 0
         ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
         : 0;
-
 
     res.json({
       ...facility.toObject(),
