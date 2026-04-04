@@ -216,6 +216,12 @@ function FacilityDetails() {
             <strong>{r.user.username}</strong>
             <p>{r.rating}/5</p>
             <p>{r.comment}</p>
+            {r.image && (
+              <img
+              src={`http://localhost:5000${r.image}`}
+              alt = "Review"
+                />
+              )}
             <button
             onClick={() => deleteReview(r._id)}>
             Delete
