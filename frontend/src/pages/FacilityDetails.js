@@ -129,6 +129,26 @@ function FacilityDetails() {
     .join(" ");
 }
 
+const provinceMap = {
+  ab: "Alberta",
+  bc: "British Columbia",
+  mb: "Manitoba",
+  nb: "New Brunswick",
+  nl: "Newfoundland and Labrador",
+  ns: "Nova Scotia",
+  nt: "Northwest Territories",
+  nu: "Nunavut",
+  on: "Ontario",
+  pe: "Prince Edward Island",
+  qc: "Quebec",
+  sk: "Saskatchewan",
+  yt: "Yukon",
+};
+
+function getProvinceName(code) {
+  return provinceMap[code] || code;
+}
+
   return (
     <div className="heritage-hub">
       <nav className="navbar">
@@ -197,7 +217,7 @@ function FacilityDetails() {
         </p>
         <p>
           {" "}
-          <strong>Province:</strong> {capitalizeWords(facility.Province)}{" "}
+          <strong>Province:</strong> {getProvinceName(facility.Province)}{" "}
         </p>
       </div>
 
