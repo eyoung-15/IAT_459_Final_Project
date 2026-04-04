@@ -72,26 +72,6 @@ function FacilityDetails() {
     });
   }
 
-  //mark places visited
-  // const markVisited = async () => {
-  //   const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
-
-  //   await fetch(`http://localhost:5000/api/users/visited/${id}`, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: token,
-  //     },
-  //     body: JSON.stringify({ 
-  //       image: imageUrl, 
-  //       visitedAt: dateToSend, 
-  //     }),
-  //   }).then(() => {
-  //     setIsVisited(true);
-  //     setInBucket(false);
-  //   });
-  // }
-
   const toggleVisited = async () => {
     try{
       if (isVisited){
@@ -280,7 +260,7 @@ function getProvinceName(code) {
           />
         </label>
         <button onClick={toggleVisited}>
-          {isVisited ? "Remove from Visited" : "Visited"}
+          {isVisited ? "Remove from Travel Journal" : "Visited"}
         </button>
         </div>
       )}
