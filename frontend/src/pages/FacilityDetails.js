@@ -120,6 +120,14 @@ function FacilityDetails() {
       alert(err.message);
     }
   };
+  
+  function capitalizeWords(str) {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
   return (
     <div className="heritage-hub">
@@ -177,19 +185,19 @@ function FacilityDetails() {
         <h3>{facility.Name}</h3>
         <p>
           {" "}
-          <strong>Category:</strong> {facility.Category}{" "}
+          <strong>Category:</strong> {capitalizeWords(facility.Category)}{" "}
         </p>
         <p>
           {" "}
-          <strong>Address:</strong> {facility.Address}{" "}
+          <strong>Address:</strong> {capitalizeWords(facility.Address)}{" "}
         </p>
         <p>
           {" "}
-          <strong>City:</strong> {facility.City}{" "}
+          <strong>City:</strong> {capitalizeWords(facility.City)}{" "}
         </p>
         <p>
           {" "}
-          <strong>Province:</strong> {facility.Province}{" "}
+          <strong>Province:</strong> {capitalizeWords(facility.Province)}{" "}
         </p>
       </div>
 
