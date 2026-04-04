@@ -17,6 +17,7 @@ const ReviewSchema = new mongoose.Schema({
   },
   image: {
     type: String,
+    default: null,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,

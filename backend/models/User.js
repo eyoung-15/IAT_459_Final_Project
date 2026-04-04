@@ -28,8 +28,8 @@ const UserSchema = new mongoose.Schema({
     default: "member"
 
   },
-  visited: [visitedSchema],
-  bucketList: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}],
+  visited: [visitedSchema], // for travel journal
+  bucketList: [{ type: mongoose.Schema.Types.ObjectId, ref: "Facility"}], //for bucket list
 });
 
 module.exports = mongoose.model("User", UserSchema);

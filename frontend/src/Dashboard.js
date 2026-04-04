@@ -294,9 +294,10 @@ function Dashboard() {
                 >
                   <div key={facility._id} className="facility-card-home">
                     <div className="card-image-container">
+                      {/* show the last posted image from reviews */}
                       {facility.lastReviewImage ? (
                         <img
-                          src={`http://localhost:5000${facility.lastReviewImage}`}
+                          src={facility.lastReviewImage}
                           alt={facility.Name}
                           className="facility-image"
                         />

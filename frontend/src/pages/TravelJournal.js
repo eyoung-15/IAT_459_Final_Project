@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
+//display facilities users have visited
 function TravelJournal(){
     const { token } = useContext(AuthContext);
     const [visited, setVisited] = useState([]);
@@ -15,16 +16,18 @@ function TravelJournal(){
             }
         }).then(res => res.json())
         .then(data => {
+          //sort visited by newest first
             setVisited(data.user.visited.sort((a, b) => new Date(b.visitedAt) - new Date(a.visitedAt)));
             setStats(data.stats);
         });
     }, [token]);
 
+    //group visited places by month and year for UI
     const grouped = (visited || []).reduce((acc, v) => {
       const date = new Date(v.visitedAt);
-      const key = `${date.toLocaleString("default", {month: "long"})} ${date.getFullYear()}`;
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(v);
+      const key = `${date.toLocaleString("default", {month: "long"})} ${date.getFullYear()}`; //generate string key for grouping (month and year)
+      if (!acc[key]) acc[key] = []; //check if accumulator already has an array for this month/year key, if not create an empty array to hold visits for that month
+      acc[key].push(v); //push facility into correct month
       return acc;
     }, {});
 
@@ -86,9 +89,11 @@ return (
       <h2>My Travel Journal</h2>
         <p> You have visited {stats.visitedCount || 0} places</p>
 
+        {/* group visited places by month */}
         {Object.keys(grouped).map((month) => (
           <div key={month}>
             <h3>{month}</h3>
+            {/* list facilities visited in this month */}
             {grouped[month].map((v) => (
               <Link to={`/facility/${v.facility._id}`} key={v.facility._id}>
                 <div className="facility-card-home">

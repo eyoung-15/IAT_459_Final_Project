@@ -23,9 +23,9 @@ function FacilityDetails() {
   const [inBucket, setInBucket] = useState(false);
   const [isVisited, setIsVisited] = useState(false);
 
-  const [visitedDate, setVisitedDate] = useState("");
+  const [visitedDate, setVisitedDate] = useState(""); //for setting date visited
 
-  // initial load
+//fetch reviews and facility details
   useEffect(() => {
     fetch(`http://localhost:5000/api/facility/${id}`)
       .then((res) => res.json())
@@ -37,6 +37,7 @@ function FacilityDetails() {
       .then((data) => setReviews(data));
   }, [id]);
 
+  // fetch bucket list and visited status if logged in
   useEffect(() => {
     if (!token) return;
 
@@ -50,8 +51,10 @@ function FacilityDetails() {
       .then((data) => {
         const user = data.user;
 
+        //check if facility is in bucket list
         setInBucket(user.bucketList.some((f) => f._id.toString() === id));
 
+        //check if facility is in travel journal
         setIsVisited(user.visited.some((v) => v.facility._id === id));
       });
   }, [token, id]);
@@ -71,6 +74,7 @@ function FacilityDetails() {
     });
   }
 
+  //toggle visited status
   const toggleVisited = async () => {
     try{
       if (isVisited){
@@ -84,6 +88,7 @@ function FacilityDetails() {
       });
       setIsVisited(false);
     } else {
+      //add to visited, default to todays date if no date provided
       const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
 
       await fetch(`http://localhost:5000/api/users/visited/${id}`, {
@@ -98,9 +103,8 @@ function FacilityDetails() {
       }),
     });
     setIsVisited(true);
-    setInBucket(false);
-
-    setVisitedDate("");
+    setInBucket(false); //remove from bucket list if in travel journal
+    setVisitedDate(""); //reset date input
   }
 } catch (err) {
   console.error("Toggle visited failed:", err);
@@ -136,6 +140,7 @@ function FacilityDetails() {
     }
   };
   
+  //capitalize the first letter of each word
   function capitalizeWords(str) {
   return str
     .toLowerCase()
@@ -144,6 +149,7 @@ function FacilityDetails() {
     .join(" ");
 }
 
+//province shorthand to full name
 const provinceMap = {
   ab: "Alberta",
   bc: "British Columbia",
@@ -269,7 +275,7 @@ function getProvinceName(code) {
             <p>{r.comment}</p>
             {r.image && (
               <img
-              src={`http://localhost:5000${r.image}`}
+              src={r.image}
               alt = "Review"
                 />
               )}

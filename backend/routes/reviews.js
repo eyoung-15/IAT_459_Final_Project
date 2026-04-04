@@ -3,35 +3,20 @@ const router = express.Router();
 const Review = require("../models/Reviews");
 const Facility = require("../models/Facility");
 const verifyToken = require("../middleware/auth");
-
 const multer = require("multer");
-const path = require("path");
 const fs = require("fs");
 
-const uploadDir = "uploads/";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
+const storage = multer.memoryStorage(); //store uploaded files in memory as buffer
 
 const upload = multer({
   storage,
-  limits: {
-    fileSize: 50 * 1024 * 1024,
-  },
+  limits: {fileSize: 50 * 1024 * 1024}, //max file size = 50MB
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith("image/")) {
+    //only allow image files
+    if (!file.mimetype.startsWith("image/")){
       return cb(new Error("Only image files are accepted"));
     }
-    cb(null, true);
+    cb(null, true); //accept the file
   },
 });
 
@@ -52,19 +37,30 @@ router.get("/:facility", async (req, res) => {
 // POST ROUTE (create review - protected for only logged in users)
 router.post("/", verifyToken, upload.single("image"), async (req, res) => {
   try {
+    let imageBase64 = null;
+
+    //if an image file was uploaded, convert it to base64 for MongoDB storage
+    if (req.file) {
+      const mimeType = req.file.mimetype; //get mime type (ex. png, jpeg)
+      const base64Data = req.file.buffer.toString("base64"); //convert buffer to base 64 string
+      imageBase64 = `data:${mimeType};base64,${base64Data}`; //format as data URI
+    }
+
+
     const review = new Review({
       facility: req.body.facility,
       rating: req.body.rating,
       comment: req.body.comment,
       user: req.user.id,
-      image: req.file ? `/uploads/${req.file.filename}` : null,
+      image: imageBase64,
     });
     await review.save();
     const populateReview = await review.populate("user", "username");
 
-    if (req.file) {
+    //if an image exists, update facility's lastReviewImage
+    if (imageBase64) {
       await Facility.findByIdAndUpdate(req.body.facility, {
-        lastReviewImage: `/uploads/${req.file.filename}`,
+        lastReviewImage: imageBase64,
       });
     }
     res.status(201).json(populateReview);
@@ -93,15 +89,13 @@ router.delete("/:id", verifyToken, async (req, res) => {
           "Forbidden: You do not have permission to delete this facility.",
       });
     }
-
-    if (review.image) {
-      const imagePath = path.join(__dirname, "..", review.image);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
-    }
-
     await Review.findByIdAndDelete(req.params.id);
+
+    //update facility's lastReviewImage if it matches the deleted review's image
+    const facility = await Facility.findById(review.facility);
+    if (facility?.lastReviewImage === review.image){
+      await Facility.findByIdAndUpdate(review.facility, {lastReviewImage: null });
+    }
     res.json({ message: "Review successfully deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
