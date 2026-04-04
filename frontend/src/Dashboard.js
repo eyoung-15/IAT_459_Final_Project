@@ -7,6 +7,19 @@ function Dashboard() {
   const [myFacilities, setMyFacilities] = useState([]);
   const { token, user, logout } = useContext(AuthContext);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editMenu, setEditMenu] = useState();
+  // Initialize facilityData and specify attributes/inputs that can be filled under it
+  const [facilityEditData, setFacilityEditData] = useState({
+    //Empty until user inputs new data
+    Name: "",
+    Category: "",
+    Province: "",
+    City: "",
+    Address: "",
+    Latitude: "",
+    Longitude: "",
+    PostalCode: "",
+  });
 
   useEffect(() => {
     fetch("http://localhost:5000/api/facility/my-facilities", {
@@ -98,6 +111,99 @@ function Dashboard() {
       .includes(searchTerm.toLowerCase());
   });
 
+  // onSubmit, applies this function. Prevents reload behaviour, applies facilityData. EditMenu holds the id of the facility with the editMenu currently open
+  async function handleFacilityEditSubmit(e) {
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/facility/${editMenu}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          // Ensure lat/lng values are numbers
+          body: JSON.stringify({
+            ...facilityEditData,
+            Latitude: Number(facilityEditData.Latitude),
+            Longitude: Number(facilityEditData.Longitude),
+          }),
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update facility");
+      }
+      const updatedFacility = await response.json();
+      // Update the UI right away
+      setMyFacilities(
+        myFacilities.map((facility) =>
+          facility._id === editMenu ? updatedFacility : facility,
+        ),
+      );
+      // Close editMenu
+      setEditMenu(null);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  }
+
+  // When user interacts with edit facility inputs, set the facilityData attribute to match the value
+  const handleEditFacility = (e) => {
+    const { name, value } = e.target;
+    setFacilityEditData({
+      ...facilityEditData,
+      [name]: value,
+    });
+  };
+
+  const styles = {
+    mainBtn: {
+      background: "none",
+      border: "1px solid #eaeef2",
+      padding: "0.4rem 1rem",
+      margin: "2rem 0.5rem",
+      borderRadius: "20px",
+      color: "#5b6778",
+      cursor: "pointer",
+      transition: "all 0.2s",
+    },
+    active: {
+      background: "#0d7451",
+      color: "white",
+    },
+    form: {
+      display: "flex",
+      flexDirection: "column",
+      marginTop: "0.8rem",
+    },
+    label: {
+      fontSize: "0.7rem",
+      fontWeight: "500",
+      marginBottom: "0.17rem",
+      color: "#0d7451",
+    },
+    input: {
+      padding: "0.25rem 0.65rem",
+      borderRadius: "20px",
+      border: "1px solid #d6dde5",
+      fontSize: "0.85rem",
+      marginBottom: "0.35rem",
+      color: "rgb(92, 92, 92)",
+    },
+    submit: {
+      marginTop: "0.5rem",
+      padding: "0.5rem",
+      borderRadius: "20px",
+      border: "none",
+      background: "#0d7451",
+      color: "white",
+      fontWeight: "600",
+      cursor: "pointer",
+    },
+  };
+
   return (
     <div className="heritage-hub">
       <nav className="navbar">
@@ -181,7 +287,11 @@ function Dashboard() {
           {filteredFacilities.length > 0 ? (
             filteredFacilities.map((facility) => (
               <div>
-                <Link to={`/facility/${facility._id}`} key={facility._id}>
+                <Link
+                  to={`/facility/${facility._id}`}
+                  key={facility._id}
+                  style={{ textDecoration: "none" }}
+                >
                   <div key={facility._id} className="facility-card-home">
                     <div className="card-image-container">
                       {facility.lastReviewImage ? (
@@ -217,11 +327,116 @@ function Dashboard() {
                     background: "#fee",
                     color: "#c00",
                     borderColor: "#fcc",
-                    width: "100%",
+                    width: "59%",
                   }}
                 >
                   Delete
                 </button>
+                <button
+                  onClick={() => {
+                    // Open the edit menu based on which id has been clicked
+                    setEditMenu(
+                      editMenu === facility._id ? null : facility._id,
+                    );
+                    // Fill values with existing facility data
+                    setFacilityEditData(facility);
+                  }}
+                  className="filter-btn"
+                  style={{
+                    marginTop: "7px",
+                    marginLeft: "1%",
+                    background: "rgb(237, 249, 246)",
+                    color: "#0d7451",
+                    borderColor: "rgb(163, 220, 205)",
+                    width: "40%",
+                  }}
+                >
+                  Edit
+                </button>
+                {editMenu === facility._id ? (
+                  <div styles={styles.formContainer}>
+                    <form
+                      onSubmit={handleFacilityEditSubmit}
+                      style={styles.form}
+                    >
+                      <label style={styles.label}>Facility Name</label>
+                      <input
+                        name="Name"
+                        value={facilityEditData.Name}
+                        onChange={handleEditFacility}
+                        style={styles.input}
+                        required
+                      />
+                      <label style={styles.label}>Category</label>
+                      <input
+                        name="Category"
+                        value={facilityEditData.Category}
+                        onChange={handleEditFacility}
+                        style={styles.input}
+                      />
+                      <label style={styles.label}>Province/Territory</label>
+                      <select
+                        name="Province"
+                        value={facilityEditData.Province}
+                        onChange={handleEditFacility}
+                        style={styles.input}
+                      >
+                        <option value={"on"}>Ontario</option>
+                        <option value={"qc"}>Quebec</option>
+                        <option value={"bc"}>British Columbia</option>
+                        <option value={"ab"}>Alberta</option>
+                        <option value={"ns"}>Nova Scotia</option>
+                        <option value={"nb"}>New Brunswick</option>
+                        <option value={"nl"}>Newfoundland and Labrador</option>
+                        <option value={"sk"}>Saskatchewan</option>
+                        <option value={"mb"}>Manitoba</option>
+                        <option value={"nu"}>Nunavut</option>
+                        <option value={"yt"}>Yukon</option>
+                        <option value={"nt"}>Northwest Territories</option>
+                      </select>
+                      <label style={styles.label}>City</label>
+                      <input
+                        name="City"
+                        value={facilityEditData.City}
+                        onChange={handleEditFacility}
+                        style={styles.input}
+                      />
+                      <label style={styles.label}>Address</label>
+                      <input
+                        name="Address"
+                        value={facilityEditData.Address}
+                        onChange={handleEditFacility}
+                        style={styles.input}
+                      />
+                      <label style={styles.label}>Latitude</label>
+                      <input
+                        name="Latitude"
+                        value={facilityEditData.Latitude}
+                        onChange={handleEditFacility}
+                        style={styles.input}
+                      />
+                      <label style={styles.label}>Longitude</label>
+                      <input
+                        name="Longitude"
+                        value={facilityEditData.Longitude}
+                        onChange={handleEditFacility}
+                        style={styles.input}
+                      />
+                      <label style={styles.label}>Postal Code</label>
+                      <input
+                        name="PostalCode"
+                        value={facilityEditData.PostalCode}
+                        onChange={handleEditFacility}
+                        style={styles.input}
+                      />
+                      <button type="submit" style={styles.submit}>
+                        Submit Changes
+                      </button>
+                    </form>
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
             ))
           ) : (
@@ -236,37 +451,35 @@ function Dashboard() {
       <div
         style={{
           marginBottom: "3rem",
-          background: "white",
-          padding: "2rem",
+          padding: "2rem 5rem",
           borderRadius: "16px",
+          maxWidth: "35rem",
+          margin: "0 auto",
+          border: "1px solid #eaeef2",
         }}
       >
         <h3 style={{ marginBottom: "1.5rem" }}>Add a New Facility</h3>
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-            gap: "1rem",
-          }}
-        >
+        <form onSubmit={handleSubmit} style={styles.form}>
           <input
             name="Name"
             placeholder="Name"
             value={formData.Name}
             onChange={handleChange}
             required
+            style={styles.input}
           />
           <input
             name="Category"
             placeholder="Category"
             value={formData.Category}
             onChange={handleChange}
+            style={styles.input}
           />
           <select
             name="Province"
             value={formData.Province}
             onChange={handleChange}
+            style={styles.input}
           >
             <option value={"on"}>Ontario</option>
             <option value={"qc"}>Quebec</option>
@@ -286,37 +499,36 @@ function Dashboard() {
             placeholder="City"
             value={formData.City}
             onChange={handleChange}
+            style={styles.input}
           />
           <input
             name="Address"
             placeholder="Address"
             value={formData.Address}
             onChange={handleChange}
+            style={styles.input}
           />
           <input
             name="Latitude"
             placeholder="Latitude"
             value={formData.Latitude}
             onChange={handleChange}
+            style={styles.input}
           />
           <input
             name="Longitude"
             placeholder="Longitude"
             value={formData.Longitude}
             onChange={handleChange}
+            style={styles.input}
           />
-          <button
-            type="submit"
-            className="auth-button"
-            style={{ gridColumn: "span 2" }}
-          >
+          <button type="submit" className="auth-button" style={styles.submit}>
             Add Facility
           </button>
         </form>
       </div>
 
-      <h2 className="section-title">Manage My Account</h2>
-
+      {/* <h2 className="section-title">Manage My Account</h2> */}
     </div>
   );
 }
