@@ -32,25 +32,37 @@ function AdminDashboard() {
   }, [user, navigate]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/facility")
+    fetch("http://localhost:5000/api/facility", {
+      headers: {
+        Authorization: token,
+      },
+    })
       .then((res) => res.json())
       .then((data) => setFacilities(data.data))
       .catch((err) => console.error("Error fetching facilities:", err));
-  }, []);
+  }, [token]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/users")
+    fetch("http://localhost:5000/api/users", {
+      headers: {
+        Authorization: token,
+      },
+    })
       .then((res) => res.json())
       .then((data) => setUsers(data.user))
       .catch((err) => console.error("Error fetching users:", err));
-  }, []);
+  }, [token]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/reviews")
+    fetch("http://localhost:5000/api/reviews", {
+      headers: {
+        Authorization: token,
+      },
+    })
       .then((res) => res.json())
       .then((data) => setReviews(data.review))
       .catch((err) => console.error("Error fetching reviews:", err));
-  }, []);
+  }, [token]);
 
   const handleDeleteFacility = async (id) => {
     try {
