@@ -106,7 +106,12 @@ function BucketList(){
               <div className="facility-card-home">
                 <h3>{facility.Name}</h3>
                 <p>{facility.City}, {facility.Province}</p>
-                        <button onClick={() => remove(facility._id)}>
+                        <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          remove(facility._id);
+                        }}
+                          >
                     Remove
                 </button>
                 </div>

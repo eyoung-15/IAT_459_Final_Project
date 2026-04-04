@@ -52,10 +52,10 @@ router.delete("/bucket/:facilityId", verifyToken, async (req, res) => {
   }
 });
 
-// Add visited (with image)
+// Add visited 
 router.post("/visited/:facilityId", verifyToken, async (req, res) => {
   try {
-    const { image, visitedAt } = req.body;
+    const { visitedAt } = req.body;
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -69,9 +69,10 @@ router.post("/visited/:facilityId", verifyToken, async (req, res) => {
     if (!exists) {
       user.visited.push({
         facility: req.params.facilityId,
-        image,
         visitedAt: visitedAt ? new Date(visitedAt): new Date(), //use provided date or default
       });
+
+      user.bucketList = user.bucketList.filter(id => id.toString() !== req.params.facilityId);
       await user.save();
     }
 
@@ -112,6 +113,7 @@ router.get("/me", verifyToken, async (req, res) => {
     const stats = {
       visitedCount: user.visited.length,
       bucketCount: user.bucketList.length,
+      lastVisited: user.visited.at(-1)?.visitedAt,
     };
 
     res.json({ user, stats });
@@ -121,7 +123,7 @@ router.get("/me", verifyToken, async (req, res) => {
 });
 
 // get all users (for admin dashboard)
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
     const user = await User.find().sort({ _id: -1 });
 
