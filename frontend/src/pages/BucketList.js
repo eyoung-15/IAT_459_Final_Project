@@ -37,6 +37,26 @@ function BucketList(){
 
     const provinces = [...new Set(bucket.map((facility) => facility.Province))];
 
+    const provinceMap = {
+      ab: "Alberta",
+      bc: "British Columbia",
+      mb: "Manitoba",
+      nb: "New Brunswick",
+      nl: "Newfoundland and Labrador",
+      ns: "Nova Scotia",
+      nt: "Northwest Territories",
+      nu: "Nunavut",
+      on: "Ontario",
+      pe: "Prince Edward Island",
+      qc: "Quebec",
+      sk: "Saskatchewan",
+      yt: "Yukon",
+    };
+    
+    function getProvinceName(code) {
+      return provinceMap[code] || code;
+    }
+
     return (
     <div className="page-container">
       <header
@@ -78,7 +98,7 @@ function BucketList(){
 
         {provinces.map((prov) => (
           <div key={prov}>
-            <h3>{prov}</h3>
+            <h3>{getProvinceName(prov)}</h3>
             {bucket
             .filter((facility) => facility.Province === prov)
             .map((facility) => (

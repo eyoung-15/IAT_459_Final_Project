@@ -22,7 +22,6 @@ function FacilityDetails() {
   //bucket list + visited
   const [inBucket, setInBucket] = useState(false);
   const [isVisited, setIsVisited] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
 
   const [visitedDate, setVisitedDate] = useState("");
 
@@ -72,25 +71,41 @@ function FacilityDetails() {
     });
   }
 
-  //mark places visited
-  const markVisited = async () => {
-    const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
-
-    await fetch(`http://localhost:5000/api/users/visited/${id}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
+  const toggleVisited = async () => {
+    try{
+      if (isVisited){
+        await fetch(`http://localhost:5000/api/users/visited/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
       },
-      body: JSON.stringify({ 
-        image: imageUrl, 
-        visitedAt: dateToSend, 
+        
+      });
+      setIsVisited(false);
+    } else {
+      const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
+
+      await fetch(`http://localhost:5000/api/users/visited/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+      },
+      body: JSON.stringify({
+        visitedAt: dateToSend,
+
       }),
-    }).then(() => {
-      setIsVisited(true);
-      setInBucket(false);
     });
+    setIsVisited(true);
+    setInBucket(false);
+
+    setVisitedDate("");
   }
+} catch (err) {
+  console.error("Toggle visited failed:", err);
+} 
+};
 
   if (!facility) return <p>No facility found...</p>;
 
@@ -120,6 +135,34 @@ function FacilityDetails() {
       alert(err.message);
     }
   };
+  
+  function capitalizeWords(str) {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+const provinceMap = {
+  ab: "Alberta",
+  bc: "British Columbia",
+  mb: "Manitoba",
+  nb: "New Brunswick",
+  nl: "Newfoundland and Labrador",
+  ns: "Nova Scotia",
+  nt: "Northwest Territories",
+  nu: "Nunavut",
+  on: "Ontario",
+  pe: "Prince Edward Island",
+  qc: "Quebec",
+  sk: "Saskatchewan",
+  yt: "Yukon",
+};
+
+function getProvinceName(code) {
+  return provinceMap[code] || code;
+}
 
   return (
     <div className="heritage-hub">
@@ -177,19 +220,19 @@ function FacilityDetails() {
         <h3>{facility.Name}</h3>
         <p>
           {" "}
-          <strong>Category:</strong> {facility.Category}{" "}
+          <strong>Category:</strong> {capitalizeWords(facility.Category)}{" "}
         </p>
         <p>
           {" "}
-          <strong>Address:</strong> {facility.Address}{" "}
+          <strong>Address:</strong> {capitalizeWords(facility.Address)}{" "}
         </p>
         <p>
           {" "}
-          <strong>City:</strong> {facility.City}{" "}
+          <strong>City:</strong> {capitalizeWords(facility.City)}{" "}
         </p>
         <p>
           {" "}
-          <strong>Province:</strong> {facility.Province}{" "}
+          <strong>Province:</strong> {getProvinceName(facility.Province)}{" "}
         </p>
       </div>
 
@@ -199,12 +242,6 @@ function FacilityDetails() {
             {inBucket ? "Remove from Bucket List" : "Add to Bucket List"}
           </button>
 
-          <input
-            type="text"
-            placeholder="Optional image URL"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-          />
           <label>
             Visited Date: {" "}
           <input
@@ -213,10 +250,9 @@ function FacilityDetails() {
           onChange={(e) => setVisitedDate(e.target.value)}
           />
         </label>
-
-          <button onClick={markVisited} disabled={isVisited}>
-            {isVisited ? "Visited" : "Mark as Visited"}
-          </button>
+        <button onClick={toggleVisited}>
+          {isVisited ? "Remove from Travel Journal" : "Visited"}
+        </button>
         </div>
       )}
 
