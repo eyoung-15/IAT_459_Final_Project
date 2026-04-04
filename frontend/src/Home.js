@@ -2,6 +2,7 @@ import { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import "./css/HeritageHub.css";
+import { useCallback } from "react";
 
 function Home() {
   const { token, user, logout } = useContext(AuthContext);
@@ -14,7 +15,7 @@ function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchFacilities = async (page = 1) => {
+  const fetchFacilities = useCallback(async (page = 1) => {
     try{
       const query = new URLSearchParams({
         page,
@@ -37,24 +38,24 @@ function Home() {
     } catch (err) {
       console.error("Error fetching facilities:", err);
     }
-  };
+  }, [searchTerm, selectedCategory, selectedCity, selectedProvince]);
 
   //fetch when page changes
   useEffect(() => {
     fetchFacilities(currentPage);
-  }, [currentPage]);
+  }, [currentPage, fetchFacilities]);
 
+  //reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-    fetchFacilities(1);
   }, [selectedCategory, selectedCity, selectedProvince]);
 
+  //search reset
   useEffect(() => {
     const delay = setTimeout(() => {
       setCurrentPage(1);
-      fetchFacilities(1);
     }, 400);
-    return() => clearTimeout(delay);
+    return () => clearTimeout(delay);
   }, [searchTerm]);
 
   // Get unique categories for filter
