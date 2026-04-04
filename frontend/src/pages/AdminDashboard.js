@@ -131,11 +131,42 @@ function AdminDashboard() {
     }
   };
 
-  // onSubmit, applies this function. Prevents reload behaviour, applies facilityData
-  function handleFacilitySubmit(e) {
+  // onSubmit, applies this function. Prevents reload behaviour, applies facilityData. EditMenu holds the id of the facility with the editMenu currently open
+  async function handleFacilitySubmit(e) {
     e.preventDefault();
-    // setIsSubmitted(true);
-    // props.onAddNewItem(facilityData);
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/facility/${editMenu}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          // Ensure lat/lng values are numbers
+          body: JSON.stringify({
+            ...facilityData,
+            Latitude: Number(facilityData.Latitude),
+            Longitude: Number(facilityData.Longitude),
+          }),
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update facility");
+      }
+      const updatedFacility = await response.json();
+      // Update the UI right away
+      setFacilities(
+        facilities.map((facility) =>
+          facility._id === editMenu ? updatedFacility : facility,
+        ),
+      );
+      // Close editMenu
+      setEditMenu(null);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
   }
 
   // When user interacts with edit facility inputs, set the facilityData attribute to match the value
@@ -145,6 +176,52 @@ function AdminDashboard() {
       ...facilityData,
       [name]: value,
     });
+  };
+
+  const styles = {
+    mainBtn: {
+      background: "none",
+      border: "1px solid #eaeef2",
+      padding: "0.4rem 1rem",
+      margin: "2rem 0.5rem",
+      borderRadius: "20px",
+      color: "#5b6778",
+      cursor: "pointer",
+      transition: "all 0.2s",
+    },
+    active: {
+      background: "#0d7451",
+      color: "white",
+    },
+    form: {
+      display: "flex",
+      flexDirection: "column",
+      marginTop: "0.8rem",
+    },
+    label: {
+      fontSize: "0.7rem",
+      fontWeight: "500",
+      marginBottom: "0.17rem",
+      color: "#0d7451",
+    },
+    input: {
+      padding: "0.25rem 0.65rem",
+      borderRadius: "20px",
+      border: "1px solid #d6dde5",
+      fontSize: "0.85rem",
+      marginBottom: "0.35rem",
+      color: "rgb(92, 92, 92)",
+    },
+    submit: {
+      marginTop: "0.5rem",
+      padding: "0.5rem",
+      borderRadius: "20px",
+      border: "none",
+      background: "#0d7451",
+      color: "white",
+      fontWeight: "600",
+      cursor: "pointer",
+    },
   };
 
   return (
@@ -203,16 +280,10 @@ function AdminDashboard() {
 
         {/* Conditional Rendering Buttons */}
         <button
-          // className={currentView === "facilities" ? "active" : " "}
+          // spread all styles but override some if state is active
           style={{
-            background: "none",
-            border: "1px solid #eaeef2",
-            padding: "0.4rem 1rem",
-            margin: "2rem 0.5rem",
-            borderRadius: "20px",
-            color: "#5b6778",
-            cursor: "pointer",
-            transition: "all 0.2s",
+            ...styles.mainBtn,
+            ...(currentView === "facilities" ? styles.active : ""),
           }}
           onClick={() => {
             setCurrentView("facilities");
@@ -221,16 +292,9 @@ function AdminDashboard() {
           View Facilities
         </button>
         <button
-          // className={currentView === "users" ? "active" : " "}
           style={{
-            background: "none",
-            border: "1px solid #eaeef2",
-            padding: "0.4rem 1rem",
-            margin: "2rem 0.5rem",
-            borderRadius: "20px",
-            color: "#5b6778",
-            cursor: "pointer",
-            transition: "all 0.2s",
+            ...styles.mainBtn,
+            ...(currentView === "users" ? styles.active : ""),
           }}
           onClick={() => {
             setCurrentView("users");
@@ -239,16 +303,9 @@ function AdminDashboard() {
           View Users
         </button>
         <button
-          // className={currentView === "reviews" ? "active" : " "}
           style={{
-            background: "none",
-            border: "1px solid #eaeef2",
-            padding: "0.4rem 1rem",
-            margin: "2rem 0.5rem",
-            borderRadius: "20px",
-            color: "#5b6778",
-            cursor: "pointer",
-            transition: "all 0.2s",
+            ...styles.mainBtn,
+            ...(currentView === "reviews" ? styles.active : ""),
           }}
           onClick={() => {
             setCurrentView("reviews");
@@ -263,7 +320,11 @@ function AdminDashboard() {
             {facilities.length > 0 ? (
               facilities.map((facility) => (
                 <div>
-                  <Link to={`/facility/${facility._id}`} key={facility._id}>
+                  <Link
+                    to={`/facility/${facility._id}`}
+                    key={facility._id}
+                    style={{ textDecoration: "none" }}
+                  >
                     <div key={facility._id} className="facility-card-home">
                       <div className="card-image-container">
                         {facility.lastReviewImage ? (
@@ -312,35 +373,38 @@ function AdminDashboard() {
                     style={{
                       marginTop: "7px",
                       marginLeft: "1%",
-                      background: "#eef",
-                      color: "#00c",
-                      borderColor: "#ccf",
+                      background: "rgb(237, 249, 246)",
+                      color: "#0d7451",
+                      borderColor: "rgb(163, 220, 205)",
                       width: "40%",
                     }}
                   >
                     Edit
                   </button>
                   {editMenu === facility._id ? (
-                    <div>
-                      <h3>Edit Attributes:</h3>
-                      <form onSubmit={handleFacilitySubmit}>
-                        <label>Facility Name:</label>
+                    <div styles={styles.formContainer}>
+                      <form onSubmit={handleFacilitySubmit} style={styles.form}>
+                        <label style={styles.label}>Facility Name</label>
                         <input
                           name="Name"
                           value={facilityData.Name}
                           onChange={handleEditFacility}
+                          style={styles.input}
+                          required
                         />
-                        <label>Category:</label>
+                        <label style={styles.label}>Category</label>
                         <input
                           name="Category"
                           value={facilityData.Category}
                           onChange={handleEditFacility}
+                          style={styles.input}
                         />
-                        <label>Province/Territory:</label>
+                        <label style={styles.label}>Province/Territory</label>
                         <select
                           name="Province"
                           value={facilityData.Province}
                           onChange={handleEditFacility}
+                          style={styles.input}
                         >
                           <option value={"on"}>Ontario</option>
                           <option value={"qc"}>Quebec</option>
@@ -357,38 +421,44 @@ function AdminDashboard() {
                           <option value={"yt"}>Yukon</option>
                           <option value={"nt"}>Northwest Territories</option>
                         </select>
-                        <label>City:</label>
+                        <label style={styles.label}>City</label>
                         <input
                           name="City"
                           value={facilityData.City}
                           onChange={handleEditFacility}
+                          style={styles.input}
                         />
-                        <label>Address:</label>
+                        <label style={styles.label}>Address</label>
                         <input
                           name="Address"
                           value={facilityData.Address}
                           onChange={handleEditFacility}
+                          style={styles.input}
                         />
-                        <label>Latitude:</label>
+                        <label style={styles.label}>Latitude</label>
                         <input
                           name="Latitude"
                           value={facilityData.Latitude}
                           onChange={handleEditFacility}
+                          style={styles.input}
                         />
-                        <label>Longitude:</label>
+                        <label style={styles.label}>Longitude</label>
                         <input
                           name="Longitude"
                           value={facilityData.Longitude}
                           onChange={handleEditFacility}
+                          style={styles.input}
                         />
-                        <label>Postal Code:</label>
+                        <label style={styles.label}>Postal Code</label>
                         <input
                           name="PostalCode"
                           value={facilityData.PostalCode}
                           onChange={handleEditFacility}
+                          style={styles.input}
                         />
-                        <button type="submit">Submit Changes</button>
-                        <p>NOTE: FORM NOT WORKING YET..</p>
+                        <button type="submit" style={styles.submit}>
+                          Submit Changes
+                        </button>
                       </form>
                     </div>
                   ) : (
@@ -437,9 +507,9 @@ function AdminDashboard() {
                     style={{
                       marginTop: "7px",
                       marginLeft: "1%",
-                      background: "#eef",
-                      color: "#00c",
-                      borderColor: "#ccf",
+                      background: "rgb(237, 249, 246)",
+                      color: "#0d7451",
+                      borderColor: "rgb(163, 220, 205)",
                       width: "40%",
                     }}
                   >
@@ -465,17 +535,23 @@ function AdminDashboard() {
                         : ""
                     }
                     key={review._id}
+                    style={{ textDecoration: "none" }}
                   >
                     <div key={review._id} className="facility-card-home">
                       <div className="card-content">
-                        <h3 className="facility-name">{review.comment}</h3>
+                        <p
+                          className="facility-description"
+                          style={{ color: "black" }}
+                        >
+                          {review.comment}
+                        </p>
                         <p className="facility-description">
-                          <strong>Rating:</strong> {review.rating}
-                          <br />
                           <strong>Facility:</strong>{" "}
                           {review.facility?.Name
                             ? review.facility?.Name
                             : "Deleted Facility"}
+                          <br />
+                          <strong>Rating:</strong> {review.rating}
                         </p>
                       </div>
                     </div>
