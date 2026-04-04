@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import { useCallback } from "react";
 
 function AdminDashboard() {
   const { token, user, logout } = useContext(AuthContext);
@@ -8,9 +9,15 @@ function AdminDashboard() {
   const [facilities, setFacilities] = useState([]);
   const [users, setUsers] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("");
   // Initialize useState for dashboard navigation
   const [currentView, setCurrentView] = useState("facilities");
   const [editMenu, setEditMenu] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   // Initialize facilityData and specify attributes/inputs that can be filled under it
   const [facilityData, setFacilityData] = useState({
     //Empty until user inputs new data
@@ -31,16 +38,52 @@ function AdminDashboard() {
     }
   }, [user, navigate]);
 
+  const fetchFacilities = useCallback(
+    async (page = 1) => {
+      try {
+        const query = new URLSearchParams({
+          page,
+          limit: 6, //number of facilities per page
+          searchTerm: searchTerm,
+          Category: selectedCategory === "All" ? "" : selectedCategory,
+          City: selectedCity,
+          Province: selectedProvince,
+        });
+
+        const res = await fetch(
+          `http://localhost:5000/api/facility?${query.toString()}`,
+        );
+
+        const data = await res.json();
+
+        setFacilities(data.data);
+        setTotalPages(data.totalPages);
+        setCurrentPage(data.currentPage);
+      } catch (err) {
+        console.error("Error fetching facilities:", err);
+      }
+    },
+    [searchTerm, selectedCategory, selectedCity, selectedProvince],
+  ); //refetch if a filter changes
+
+  //fetch when page changes
   useEffect(() => {
-    fetch("http://localhost:5000/api/facility", {
-      headers: {
-        Authorization: token,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setFacilities(data.data))
-      .catch((err) => console.error("Error fetching facilities:", err));
-  }, [token]);
+    fetchFacilities(currentPage);
+  }, [currentPage, fetchFacilities]);
+
+  //reset to first page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedCity, selectedProvince]);
+
+  //search reset
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setCurrentPage(1);
+      //reset to first page after user stops typing in search
+    }, 400);
+    return () => clearTimeout(delay);
+  }, [searchTerm]);
 
   useEffect(() => {
     fetch("http://localhost:5000/api/users", {
@@ -192,6 +235,12 @@ function AdminDashboard() {
     });
   };
 
+  // Get unique categories for filter
+  const categories = [
+    "All",
+    ...new Set(facilities.map((f) => f.Category).filter(Boolean)),
+  ];
+
   const styles = {
     mainBtn: {
       background: "none",
@@ -330,161 +379,236 @@ function AdminDashboard() {
 
         {/* Facilities Grid */}
         {currentView === "facilities" ? (
-          <div className="facilities-grid-home">
-            {facilities.length > 0 ? (
-              facilities.map((facility) => (
-                <div>
-                  <Link
-                    to={`/facility/${facility._id}`}
-                    key={facility._id}
-                    style={{ textDecoration: "none" }}
+          <div>
+            {/* Filters */}
+            <div className="filters-row">
+              <div className="filter-buttons">
+                <h3>Category</h3>
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    className={`filter-btn ${
+                      selectedCategory === category ? "active" : ""
+                    }`}
+                    onClick={() => setSelectedCategory(category)}
                   >
-                    <div key={facility._id} className="facility-card-home">
-                      <div className="card-image-container">
-                        {facility.lastReviewImage ? (
-                          <img
-                            src={`http://localhost:5000${facility.lastReviewImage}`}
-                            alt={facility.Name}
-                            className="facility-image"
-                          />
-                        ) : (
-                          <div className="image-placeholder">🏛️</div>
-                        )}
-                      </div>
-                      <div className="card-content">
-                        <div className="location-tag">
-                          {facility.City?.toUpperCase()},{" "}
-                          {facility.Province?.toUpperCase()}
-                        </div>
-                        <h3 className="facility-name">{facility.Name}</h3>
-                      </div>
-                    </div>
-                  </Link>
+                    {category}
+                  </button>
+                ))}
 
-                  <button
-                    onClick={() => handleDeleteFacility(facility._id)}
-                    className="filter-btn"
-                    style={{
-                      marginTop: "7px",
-                      background: "#fee",
-                      color: "#c00",
-                      borderColor: "#fcc",
-                      width: "59%",
-                    }}
+                <h3>City</h3>
+                {
+                  <input
+                    type="text"
+                    placeholder="City"
+                    value={selectedCity}
+                    onChange={(e) => setSelectedCity(e.target.value)}
+                  />
+                }
+
+                <h3>Province/Territory</h3>
+                {
+                  <select
+                    name="province"
+                    value={selectedProvince}
+                    onChange={(e) => setSelectedProvince(e.target.value)}
                   >
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => {
-                      // Open the edit menu based on which id has been clicked
-                      setEditMenu(
-                        editMenu === facility._id ? null : facility._id,
-                      );
-                      // Fill values with existing facility data
-                      setFacilityData(facility);
-                    }}
-                    className="filter-btn"
-                    style={{
-                      marginTop: "7px",
-                      marginLeft: "1%",
-                      background: "rgb(237, 249, 246)",
-                      color: "#0d7451",
-                      borderColor: "rgb(163, 220, 205)",
-                      width: "40%",
-                    }}
-                  >
-                    Edit
-                  </button>
-                  {editMenu === facility._id ? (
-                    <div styles={styles.formContainer}>
-                      <form onSubmit={handleFacilitySubmit} style={styles.form}>
-                        <label style={styles.label}>Facility Name</label>
-                        <input
-                          name="Name"
-                          value={facilityData.Name}
-                          onChange={handleEditFacility}
-                          style={styles.input}
-                          required
-                        />
-                        <label style={styles.label}>Category</label>
-                        <input
-                          name="Category"
-                          value={facilityData.Category}
-                          onChange={handleEditFacility}
-                          style={styles.input}
-                        />
-                        <label style={styles.label}>Province/Territory</label>
-                        <select
-                          name="Province"
-                          value={facilityData.Province}
-                          onChange={handleEditFacility}
-                          style={styles.input}
-                        >
-                          <option value={"on"}>Ontario</option>
-                          <option value={"qc"}>Quebec</option>
-                          <option value={"bc"}>British Columbia</option>
-                          <option value={"ab"}>Alberta</option>
-                          <option value={"ns"}>Nova Scotia</option>
-                          <option value={"nb"}>New Brunswick</option>
-                          <option value={"nl"}>
-                            Newfoundland and Labrador
-                          </option>
-                          <option value={"sk"}>Saskatchewan</option>
-                          <option value={"mb"}>Manitoba</option>
-                          <option value={"nu"}>Nunavut</option>
-                          <option value={"yt"}>Yukon</option>
-                          <option value={"nt"}>Northwest Territories</option>
-                        </select>
-                        <label style={styles.label}>City</label>
-                        <input
-                          name="City"
-                          value={facilityData.City}
-                          onChange={handleEditFacility}
-                          style={styles.input}
-                        />
-                        <label style={styles.label}>Address</label>
-                        <input
-                          name="Address"
-                          value={facilityData.Address}
-                          onChange={handleEditFacility}
-                          style={styles.input}
-                        />
-                        <label style={styles.label}>Latitude</label>
-                        <input
-                          name="Latitude"
-                          value={facilityData.Latitude}
-                          onChange={handleEditFacility}
-                          style={styles.input}
-                        />
-                        <label style={styles.label}>Longitude</label>
-                        <input
-                          name="Longitude"
-                          value={facilityData.Longitude}
-                          onChange={handleEditFacility}
-                          style={styles.input}
-                        />
-                        <label style={styles.label}>Postal Code</label>
-                        <input
-                          name="PostalCode"
-                          value={facilityData.PostalCode}
-                          onChange={handleEditFacility}
-                          style={styles.input}
-                        />
-                        <button type="submit" style={styles.submit}>
-                          Submit Changes
-                        </button>
-                      </form>
-                    </div>
-                  ) : (
-                    ""
-                  )}
-                </div>
-              ))
-            ) : (
-              <div>
-                <p>No facilities found.</p>
+                    <option value=""></option>
+                    <option value={"on"}>Ontario</option>
+                    <option value={"qc"}>Quebec</option>
+                    <option value={"bc"}>British Columbia</option>
+                    <option value={"ab"}>Alberta</option>
+                    <option value={"ns"}>Nova Scotia</option>
+                    <option value={"nb"}>New Brunswick</option>
+                    <option value={"nl"}>Newfoundland and Labrador</option>
+                    <option value={"sk"}>Saskatchewan</option>
+                    <option value={"mb"}>Manitoba</option>
+                    <option value={"nu"}>Nunavut</option>
+                    <option value={"yt"}>Yukon</option>
+                    <option value={"nt"}>Northwest Territories</option>
+                  </select>
+                }
               </div>
-            )}
+            </div>
+
+            <div className="facilities-grid-home">
+              {facilities.length > 0 ? (
+                facilities.map((facility) => (
+                  <div>
+                    <Link
+                      to={`/facility/${facility._id}`}
+                      key={facility._id}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <div key={facility._id} className="facility-card-home">
+                        <div className="card-image-container">
+                          {facility.lastReviewImage ? (
+                            <img
+                              src={`http://localhost:5000${facility.lastReviewImage}`}
+                              alt={facility.Name}
+                              className="facility-image"
+                            />
+                          ) : (
+                            <div className="image-placeholder">🏛️</div>
+                          )}
+                        </div>
+                        <div className="card-content">
+                          <div className="location-tag">
+                            {facility.City?.toUpperCase()},{" "}
+                            {facility.Province?.toUpperCase()}
+                          </div>
+                          <h3 className="facility-name">{facility.Name}</h3>
+                        </div>
+                      </div>
+                    </Link>
+
+                    <button
+                      onClick={() => handleDeleteFacility(facility._id)}
+                      className="filter-btn"
+                      style={{
+                        marginTop: "7px",
+                        background: "#fee",
+                        color: "#c00",
+                        borderColor: "#fcc",
+                        width: "59%",
+                      }}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Open the edit menu based on which id has been clicked
+                        setEditMenu(
+                          editMenu === facility._id ? null : facility._id,
+                        );
+                        // Fill values with existing facility data
+                        setFacilityData(facility);
+                      }}
+                      className="filter-btn"
+                      style={{
+                        marginTop: "7px",
+                        marginLeft: "1%",
+                        background: "rgb(237, 249, 246)",
+                        color: "#0d7451",
+                        borderColor: "rgb(163, 220, 205)",
+                        width: "40%",
+                      }}
+                    >
+                      Edit
+                    </button>
+                    {editMenu === facility._id ? (
+                      <div styles={styles.formContainer}>
+                        <form
+                          onSubmit={handleFacilitySubmit}
+                          style={styles.form}
+                        >
+                          <label style={styles.label}>Facility Name</label>
+                          <input
+                            name="Name"
+                            value={facilityData.Name}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                            required
+                          />
+                          <label style={styles.label}>Category</label>
+                          <input
+                            name="Category"
+                            value={facilityData.Category}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          />
+                          <label style={styles.label}>Province/Territory</label>
+                          <select
+                            name="Province"
+                            value={facilityData.Province}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          >
+                            <option value={"on"}>Ontario</option>
+                            <option value={"qc"}>Quebec</option>
+                            <option value={"bc"}>British Columbia</option>
+                            <option value={"ab"}>Alberta</option>
+                            <option value={"ns"}>Nova Scotia</option>
+                            <option value={"nb"}>New Brunswick</option>
+                            <option value={"nl"}>
+                              Newfoundland and Labrador
+                            </option>
+                            <option value={"sk"}>Saskatchewan</option>
+                            <option value={"mb"}>Manitoba</option>
+                            <option value={"nu"}>Nunavut</option>
+                            <option value={"yt"}>Yukon</option>
+                            <option value={"nt"}>Northwest Territories</option>
+                          </select>
+                          <label style={styles.label}>City</label>
+                          <input
+                            name="City"
+                            value={facilityData.City}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          />
+                          <label style={styles.label}>Address</label>
+                          <input
+                            name="Address"
+                            value={facilityData.Address}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          />
+                          <label style={styles.label}>Latitude</label>
+                          <input
+                            name="Latitude"
+                            value={facilityData.Latitude}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          />
+                          <label style={styles.label}>Longitude</label>
+                          <input
+                            name="Longitude"
+                            value={facilityData.Longitude}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          />
+                          <label style={styles.label}>Postal Code</label>
+                          <input
+                            name="PostalCode"
+                            value={facilityData.PostalCode}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          />
+                          <button type="submit" style={styles.submit}>
+                            Submit Changes
+                          </button>
+                        </form>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div>
+                  <p>No facilities found.</p>
+                </div>
+              )}
+            </div>
+            <div className="pagination">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                ⬅
+              </button>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+              >
+                ⮕
+              </button>
+            </div>
           </div>
         ) : currentView === "users" ? (
           <div className="facilities-grid-home">
