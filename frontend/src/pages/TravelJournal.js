@@ -28,6 +28,25 @@ function TravelJournal(){
       return acc;
     }, {});
 
+
+    const removeVisited = async (facilityId) => {
+      try{
+        await fetch(`http://localhost:5000/api/users/visited/${facilityId}`,{
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: token
+            },
+      });
+
+      setVisited((prev) => prev.filter((v) => v.facility._id !== facilityId));
+
+    }catch (err) {
+      console.error("Failed to remove visited:", err);
+    }
+  };
+
+
 return (
     <div className="page-container">
       <header
@@ -71,11 +90,14 @@ return (
           <div key={month}>
             <h3>{month}</h3>
             {grouped[month].map((v) => (
-              <Link to={`/facility/${v._id}`} key={v._id}>
+              <Link to={`/facility/${v.facility._id}`} key={v.facility._id}>
                 <div className="facility-card-home">
                   <h3>{v.facility.Name}</h3>
                   <p>{v.facility.City}, {v.facility.Province}</p>
                   <p>Visited on: {new Date(v.visitedAt).toLocaleDateString()}</p>
+                  <button onClick={() => removeVisited(v.facility._id)}>
+                    Remove
+                </button>
                   
                 </div>
                 </Link>

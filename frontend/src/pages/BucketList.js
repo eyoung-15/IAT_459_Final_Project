@@ -30,12 +30,12 @@ function BucketList(){
             }
 
          }).then(() => {
-            setBucket(bucket.filter(f => f._id !== id));
+            setBucket(bucket.filter(facility => facility._id !== id));
          });
 
     };
 
-    const provinces = [...new Set(bucket.map((f) => f.Province))];
+    const provinces = [...new Set(bucket.map((facility) => facility.Province))];
 
     return (
     <div className="page-container">
@@ -80,13 +80,13 @@ function BucketList(){
           <div key={prov}>
             <h3>{prov}</h3>
             {bucket
-            .filter((f) => f.Province === prov)
-            .map((f) => (
-              <Link to={`/facility/${f._id}`} key={f._id}>
+            .filter((facility) => facility.Province === prov)
+            .map((facility) => (
+              <Link to={`/facility/${facility._id}`} key={facility._id}>
               <div className="facility-card-home">
-                <h3>{f.Name}</h3>
-                <p>{f.City}, {f.Province}</p>
-                        <button onClick={() => remove(f._id)}>
+                <h3>{facility.Name}</h3>
+                <p>{facility.City}, {facility.Province}</p>
+                        <button onClick={() => remove(facility._id)}>
                     Remove
                 </button>
                 </div>
