@@ -34,7 +34,7 @@ function AdminDashboard() {
   useEffect(() => {
     fetch("http://localhost:5000/api/facility")
       .then((res) => res.json())
-      .then((data) => setFacilities(data))
+      .then((data) => setFacilities(data.data))
       .catch((err) => console.error("Error fetching facilities:", err));
   }, []);
 
