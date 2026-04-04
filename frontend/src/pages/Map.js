@@ -26,7 +26,7 @@ function Map() {
   useEffect(() => {
     fetch("http://localhost:5000/api/facility")
       .then((res) => res.json())
-      .then((data) => setFacility(data))
+      .then((data) => setFacility(data.data))
       .catch((err) => console.error("Error fetching facilities:", err));
   }, []);
 
