@@ -269,7 +269,7 @@ function getProvinceName(code) {
             <p>{r.comment}</p>
             {r.image && (
               <img
-              src={`http://localhost:5000${r.image}`}
+              src={r.image}
               alt = "Review"
                 />
               )}

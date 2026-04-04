@@ -113,6 +113,7 @@ router.get("/:id", async (req, res) => {
         ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
         : 0;
 
+
     res.json({
       ...facility.toObject(),
       avgRating: Number(avgRating.toFixed(1)),
@@ -137,6 +138,7 @@ router.post("/", verifyToken, async (req, res) => {
       Longitude: req.body.Longitude,
       PostalCode: req.body.PostalCode,
       owner: req.user.id,
+      // lastReviewImage: null,
     });
 
     await facility.save();

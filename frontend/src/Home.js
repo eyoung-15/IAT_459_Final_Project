@@ -200,7 +200,7 @@ function Home() {
                   <div className="card-image-container">
                     {facility.lastReviewImage ? (
                       <img
-                        src={`http://localhost:5000${facility.lastReviewImage}`}
+                        src={facility.lastReviewImage}
                         alt={facility.Name}
                         className="facility-image"
                       />

@@ -33,6 +33,7 @@ const FacilitySchema = new mongoose.Schema({
   },
   lastReviewImage: {
     type: String,
+    default: null,
   },
 });
 
