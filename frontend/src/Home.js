@@ -19,7 +19,7 @@ function Home() {
     try{
       const query = new URLSearchParams({
         page,
-        limit: 6,
+        limit: 6, //number of facilities per page
         searchTerm: searchTerm,
         Category: selectedCategory === "All" ? "" : selectedCategory,
         City: selectedCity,
@@ -38,14 +38,14 @@ function Home() {
     } catch (err) {
       console.error("Error fetching facilities:", err);
     }
-  }, [searchTerm, selectedCategory, selectedCity, selectedProvince]);
+  }, [searchTerm, selectedCategory, selectedCity, selectedProvince]); //refetch if a filter changes
 
   //fetch when page changes
   useEffect(() => {
     fetchFacilities(currentPage);
   }, [currentPage, fetchFacilities]);
 
-  //reset page when filter changes
+  //reset to first page when filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCategory, selectedCity, selectedProvince]);
@@ -54,6 +54,7 @@ function Home() {
   useEffect(() => {
     const delay = setTimeout(() => {
       setCurrentPage(1);
+      //reset to first page after user stops typing in search
     }, 400);
     return () => clearTimeout(delay);
   }, [searchTerm]);
