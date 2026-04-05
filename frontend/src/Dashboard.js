@@ -457,21 +457,33 @@ function Dashboard() {
       >
         <h3 style={{ marginBottom: "1.5rem" }}>Add a New Facility</h3>
         <form onSubmit={handleSubmit} style={styles.form}>
+          <label style={styles.label}>Facility Name*</label>
           <input
             name="Name"
-            placeholder="Name*"
+            // placeholder="Name*"
             value={formData.Name}
             onChange={handleChange}
             required
             style={styles.input}
           />
-          <input
+          <label style={styles.label}>Category</label>
+          <select
             name="Category"
-            placeholder="Category"
             value={formData.Category}
             onChange={handleChange}
             style={styles.input}
-          />
+          >
+            <option value={"museum"}>Museum</option>
+            <option value={"gallery"}>Gallery</option>
+            <option value={"heritage or historic site"}>
+              Heritage or Historic Site
+            </option>
+            <option value={"art or cultural centre"}>
+              Art or Cultural Centre
+            </option>
+            <option value={"other"}>Other</option>
+          </select>
+          <label style={styles.label}>Province</label>
           <select
             name="Province"
             value={formData.Province}
@@ -491,30 +503,34 @@ function Dashboard() {
             <option value={"yt"}>Yukon</option>
             <option value={"nt"}>Northwest Territories</option>
           </select>
+          <label style={styles.label}>City</label>
           <input
             name="City"
-            placeholder="City"
+            // placeholder="City"
             value={formData.City}
             onChange={handleChange}
             style={styles.input}
           />
+          <label style={styles.label}>Address</label>
           <input
             name="Address"
-            placeholder="Address"
+            // placeholder="Address"
             value={formData.Address}
             onChange={handleChange}
             style={styles.input}
           />
+          <label style={styles.label}>Latitude</label>
           <input
             name="Latitude"
-            placeholder="Latitude"
+            placeholder="example: 49.246292"
             value={formData.Latitude}
             onChange={handleChange}
             style={styles.input}
           />
+          <label style={styles.label}>Longitude</label>
           <input
             name="Longitude"
-            placeholder="Longitude"
+            placeholder="example: -123.116226"
             value={formData.Longitude}
             onChange={handleChange}
             style={styles.input}
@@ -525,6 +541,7 @@ function Dashboard() {
         </form>
       </div>
 
+      {/* <h2 className="section-title">Manage My Account</h2> */}
     </div>
   );
 }
