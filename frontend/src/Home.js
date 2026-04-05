@@ -15,30 +15,33 @@ function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchFacilities = useCallback(async (page = 1) => {
-    try{
-      const query = new URLSearchParams({
-        page,
-        limit: 6, //number of facilities per page
-        searchTerm: searchTerm,
-        Category: selectedCategory === "All" ? "" : selectedCategory,
-        City: selectedCity,
-        Province: selectedProvince,
-      });
+  const fetchFacilities = useCallback(
+    async (page = 1) => {
+      try {
+        const query = new URLSearchParams({
+          page,
+          limit: 6, //number of facilities per page
+          searchTerm: searchTerm,
+          Category: selectedCategory === "All" ? "" : selectedCategory,
+          City: selectedCity,
+          Province: selectedProvince,
+        });
 
-      const res = await fetch(
-        `http://localhost:5000/api/facility?${query.toString()}`
-      );
+        const res = await fetch(
+          `http://localhost:5000/api/facility?${query.toString()}`,
+        );
 
-      const data = await res.json();
+        const data = await res.json();
 
-      setFacility(data.data);
-      setTotalPages(data.totalPages);
-      setCurrentPage(data.currentPage);
-    } catch (err) {
-      console.error("Error fetching facilities:", err);
-    }
-  }, [searchTerm, selectedCategory, selectedCity, selectedProvince]); //refetch if a filter changes
+        setFacility(data.data);
+        setTotalPages(data.totalPages);
+        setCurrentPage(data.currentPage);
+      } catch (err) {
+        console.error("Error fetching facilities:", err);
+      }
+    },
+    [searchTerm, selectedCategory, selectedCity, selectedProvince],
+  ); //refetch if a filter changes
 
   //fetch when page changes
   useEffect(() => {
@@ -90,7 +93,7 @@ function Home() {
               <Link to="/dashboard" className="nav-link">
                 Manage
               </Link>
-                  {/* Nav link to admin panel. Only visible if user is present and role is admin */}
+              {/* Nav link to admin panel. Only visible if user is present and role is admin */}
               {user && user.role === "admin" && (
                 <Link to="/admin-dashboard" className="nav-link">
                   Admin
@@ -100,16 +103,6 @@ function Home() {
           </div>
 
           <div className="nav-right">
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder="Q"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-            </div>
-
             {!token ? (
               <Link to="/login" className="sign-in-btn">
                 Sign In
@@ -190,6 +183,28 @@ function Home() {
                 <option value={"nt"}>Northwest Territories</option>
               </select>
             }
+            {/* Search */}
+            <div style={{ marginBottom: "2rem" }}>
+              <input
+                type="text"
+                placeholder="Search my facilities..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  padding: "0.75rem",
+                  width: "300px",
+                  borderRadius: "8px",
+                  border: "1px solid #eaeef2",
+                }}
+              />
+              <button
+                onClick={() => setSearchTerm("")}
+                className="filter-btn"
+                style={{ marginLeft: "1rem" }}
+              >
+                Clear
+              </button>
+            </div>
           </div>
         </div>
 
@@ -199,7 +214,7 @@ function Home() {
               <Link to={`/facility/${facility._id}`} key={facility._id}>
                 <div className="facility-card-home">
                   <div className="card-image-container">
-                  {/* show the last posted image from reviews */}
+                    {/* show the last posted image from reviews */}
                     {facility.lastReviewImage ? (
                       <img
                         src={facility.lastReviewImage}
@@ -249,8 +264,8 @@ function Home() {
         </div>
         <div className="pagination">
           <button
-          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-          disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
           >
             ⬅
           </button>
@@ -258,12 +273,10 @@ function Home() {
             Page {currentPage} of {totalPages}
           </span>
           <button
-          onClick={() =>
-            setCurrentPage((p) => Math.min(p + 1, totalPages))
-          }
-          disabled = {currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            disabled={currentPage === totalPages}
           >
-          ⮕
+            ⮕
           </button>
         </div>
       </section>
