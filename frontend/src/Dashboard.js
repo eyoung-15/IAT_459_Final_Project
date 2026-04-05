@@ -525,7 +525,6 @@ function Dashboard() {
         </form>
       </div>
 
-      {/* <h2 className="section-title">Manage My Account</h2> */}
     </div>
   );
 }
