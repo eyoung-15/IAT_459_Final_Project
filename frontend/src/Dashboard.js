@@ -263,16 +263,12 @@ function Dashboard() {
         <div style={{ marginBottom: "2rem" }}>
           <input
             type="text"
+            className="filter-btn"
             placeholder="Search my facilities..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: "0.75rem",
-              width: "300px",
-              borderRadius: "8px",
-              border: "1px solid #eaeef2",
-            }}
           />
+          {/* Clear filters btn */}
           <button
             onClick={() => setSearchTerm("")}
             className="filter-btn"
