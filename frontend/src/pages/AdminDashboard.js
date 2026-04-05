@@ -235,12 +235,6 @@ function AdminDashboard() {
     });
   };
 
-  // Get unique categories for filter
-  const categories = [
-    "All",
-    ...new Set(facilities.map((f) => f.Category).filter(Boolean)),
-  ];
-
   const styles = {
     mainBtn: {
       background: "none",
@@ -383,72 +377,78 @@ function AdminDashboard() {
             {/* Filters */}
             <div className="filters-row">
               <div className="filter-buttons">
-                <h3>Category</h3>
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    className={`filter-btn ${
-                      selectedCategory === category ? "active" : ""
-                    }`}
-                    onClick={() => setSelectedCategory(category)}
-                  >
-                    {category}
-                  </button>
-                ))}
-
-                <h3>City</h3>
-                {
-                  <input
-                    type="text"
-                    placeholder="City"
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                  />
-                }
-
-                <h3>Province/Territory</h3>
-                {
-                  <select
-                    name="province"
-                    value={selectedProvince}
-                    onChange={(e) => setSelectedProvince(e.target.value)}
-                  >
-                    <option value=""></option>
-                    <option value={"on"}>Ontario</option>
-                    <option value={"qc"}>Quebec</option>
-                    <option value={"bc"}>British Columbia</option>
-                    <option value={"ab"}>Alberta</option>
-                    <option value={"ns"}>Nova Scotia</option>
-                    <option value={"nb"}>New Brunswick</option>
-                    <option value={"nl"}>Newfoundland and Labrador</option>
-                    <option value={"sk"}>Saskatchewan</option>
-                    <option value={"mb"}>Manitoba</option>
-                    <option value={"nu"}>Nunavut</option>
-                    <option value={"yt"}>Yukon</option>
-                    <option value={"nt"}>Northwest Territories</option>
-                  </select>
-                }
-              </div>
-              {/* Search */}
-              <div style={{ marginBottom: "2rem" }}>
+                {/* Search */}
                 <input
                   type="text"
+                  className="filter-btn"
                   placeholder="Search my facilities..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    padding: "0.75rem",
-                    width: "300px",
-                    borderRadius: "8px",
-                    border: "1px solid #eaeef2",
-                  }}
                 />
-                <button
-                  onClick={() => setSearchTerm("")}
+
+                <h3>Category</h3>
+                <select
+                  name="Category"
                   className="filter-btn"
-                  style={{ marginLeft: "1rem" }}
+                  value={selectedCategory}
+                  onChange={(e) =>
+                    setSelectedCategory(e.target.value.toLowerCase())
+                  }
                 >
-                  Clear
+                  <option value={""}></option>
+                  <option value={"museum"}>Museum</option>
+                  <option value={"gallery"}>Gallery</option>
+                  <option value={"heritage or historic site"}>
+                    Heritage or Historic Site
+                  </option>
+                  <option value={"art or cultural centre"}>
+                    Art or Cultural Centre
+                  </option>
+                  <option value={"other"}>Other</option>
+                </select>
+
+                <h3>City</h3>
+                <input
+                  type="text"
+                  className="filter-btn"
+                  placeholder="City"
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                />
+
+                <h3>Province/Territory</h3>
+                <select
+                  name="province"
+                  className="filter-btn"
+                  value={selectedProvince}
+                  onChange={(e) => setSelectedProvince(e.target.value)}
+                >
+                  <option value={""}></option>
+                  <option value={"on"}>Ontario</option>
+                  <option value={"qc"}>Quebec</option>
+                  <option value={"bc"}>British Columbia</option>
+                  <option value={"ab"}>Alberta</option>
+                  <option value={"ns"}>Nova Scotia</option>
+                  <option value={"nb"}>New Brunswick</option>
+                  <option value={"nl"}>Newfoundland and Labrador</option>
+                  <option value={"sk"}>Saskatchewan</option>
+                  <option value={"mb"}>Manitoba</option>
+                  <option value={"nu"}>Nunavut</option>
+                  <option value={"yt"}>Yukon</option>
+                  <option value={"nt"}>Northwest Territories</option>
+                </select>
+
+                {/* Clear filters button */}
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedCategory("");
+                    setSelectedCity("");
+                    setSelectedProvince("");
+                  }}
+                  className="filter-btn"
+                >
+                  Clear All Filters
                 </button>
               </div>
             </div>
