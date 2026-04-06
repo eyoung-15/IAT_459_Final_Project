@@ -26,7 +26,7 @@ const markerIcon = new L.Icon({
 });
 
 function Map() {
-  const { token, user, logout } = useContext(AuthContext);
+  const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const [facility, setFacility] = useState(null);
   // const [searchTerm, setSearchTerm] = useState("");
 
@@ -71,6 +71,7 @@ function Map() {
     <div>
       {/* Navigation Bar */}
       <nav className="navbar">
+    {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link to="/" className="logo">
