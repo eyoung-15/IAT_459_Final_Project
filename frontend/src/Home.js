@@ -20,7 +20,7 @@ function Home() {
       try {
         const query = new URLSearchParams({
           page,
-          limit: 6, //number of facilities per page
+          limit: 9, //number of facilities per page
           searchTerm: searchTerm,
           Category: selectedCategory === "All" ? "" : selectedCategory,
           City: selectedCity,
@@ -128,7 +128,7 @@ function Home() {
 
       {/* Featured Destination */}
       <section className="featured">
-        <h2 className="section-title">Featured Destination</h2>
+        <h2 className="section-title">Featured Destinations</h2>
 
         {/* Filters */}
         <div className="filters-row">
