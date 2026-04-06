@@ -35,6 +35,17 @@ body {
   align-items: center;
 }
 
+.timeout {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  font-size: small;
+  margin-bottom: 0.5rem;
+  color: rgb(166, 55, 55);
+}
+
 .nav-left {
   display: flex;
   align-items: center;
