@@ -17,7 +17,7 @@ function FacilityDetails() {
   const [facility, setFacility] = useState(null);
   const [reviews, setReviews] = useState([]);
   //Get token, user, logout from AuthContext
-  const { token, user, logout } = useContext(AuthContext);
+  const { token, user, logout, timeoutMsg } = useContext(AuthContext);
 
   //bucket list + visited
   const [inBucket, setInBucket] = useState(false);
@@ -173,6 +173,7 @@ function getProvinceName(code) {
   return (
     <div className="heritage-hub">
       <nav className="navbar">
+    {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link to="/" className="logo">
