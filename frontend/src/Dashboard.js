@@ -304,14 +304,23 @@ function Dashboard() {
                     </div>
                     <div className="card-content">
                       <div className="location-tag">
-                        {facility.City?.toUpperCase()},{" "}
+                        {facility.City?.toUpperCase()}
+                        {"  "}
                         {facility.Province?.toUpperCase()}
                       </div>
                       <h3 className="facility-name">{facility.Name}</h3>
+                      {/* Only display these attributes if they are filled */}
                       <p className="facility-description">
-                        <strong>Category:</strong> {facility.Category}
-                        <br />
-                        <strong>Address:</strong> {facility.Address}
+                        {facility?.Category && (
+                          <div>
+                            <strong>Category:</strong> {facility.Category}
+                          </div>
+                        )}
+                        {facility?.Address && (
+                          <div>
+                            <strong>Address:</strong> {facility.Address}
+                          </div>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -372,6 +381,7 @@ function Dashboard() {
                         onChange={handleEditFacility}
                         style={styles.input}
                       >
+                        <option value={""}></option>
                         <option value={"museum"}>Museum</option>
                         <option value={"gallery"}>Gallery</option>
                         <option value={"heritage or historic site"}>
@@ -389,6 +399,7 @@ function Dashboard() {
                         onChange={handleEditFacility}
                         style={styles.input}
                       >
+                        <option value={""}></option>
                         <option value={"on"}>Ontario</option>
                         <option value={"qc"}>Quebec</option>
                         <option value={"bc"}>British Columbia</option>
@@ -464,7 +475,6 @@ function Dashboard() {
           <label style={styles.label}>Facility Name*</label>
           <input
             name="Name"
-            // placeholder="Name*"
             value={formData.Name}
             onChange={handleChange}
             required
@@ -477,6 +487,7 @@ function Dashboard() {
             onChange={handleChange}
             style={styles.input}
           >
+            <option value={""}></option>
             <option value={"museum"}>Museum</option>
             <option value={"gallery"}>Gallery</option>
             <option value={"heritage or historic site"}>
@@ -494,6 +505,7 @@ function Dashboard() {
             onChange={handleChange}
             style={styles.input}
           >
+            <option value={""}></option>
             <option value={"on"}>Ontario</option>
             <option value={"qc"}>Quebec</option>
             <option value={"bc"}>British Columbia</option>
@@ -510,7 +522,6 @@ function Dashboard() {
           <label style={styles.label}>City</label>
           <input
             name="City"
-            // placeholder="City"
             value={formData.City}
             onChange={handleChange}
             style={styles.input}
@@ -518,7 +529,6 @@ function Dashboard() {
           <label style={styles.label}>Address</label>
           <input
             name="Address"
-            // placeholder="Address"
             value={formData.Address}
             onChange={handleChange}
             style={styles.input}
@@ -544,8 +554,6 @@ function Dashboard() {
           </button>
         </form>
       </div>
-
-      {/* <h2 className="section-title">Manage My Account</h2> */}
     </div>
   );
 }
