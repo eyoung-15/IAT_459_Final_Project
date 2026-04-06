@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "../css/Auth.css"; // This should work - Auth.css is in the same directory as Login.js
+import loginImg from "../images/login-img.jpg";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -100,7 +101,7 @@ function Login() {
           <div className="auth-quote-container">
             <div className="quote-content">
               <img
-                src="/login-img.png"
+                src={loginImg}
                 alt="HeritageHub"
                 className="quote-image"
               />
