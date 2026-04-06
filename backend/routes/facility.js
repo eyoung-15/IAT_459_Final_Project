@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
       City,
       searchTerm,
       page = 1,
-      limit = 60,
+      limit = 40,
       north,
       south,
       east,
