@@ -6,6 +6,9 @@ import { useCallback } from "react";
 function AdminDashboard() {
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [loadingFacilities, setLoadingFacilities] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingReviews, setLoadingReviews] = useState(false);
   const [facilities, setFacilities] = useState([]);
   const [users, setUsers] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -39,6 +42,7 @@ function AdminDashboard() {
 
   const fetchFacilities = useCallback(
     async (page = 1) => {
+      setLoadingFacilities(true);
       try {
         const query = new URLSearchParams({
           page,
@@ -60,6 +64,8 @@ function AdminDashboard() {
         setCurrentPage(data.currentPage);
       } catch (err) {
         console.error("Error fetching facilities:", err);
+      } finally {
+        setLoadingFacilities(false);
       }
     },
     [searchTerm, selectedCategory, selectedCity, selectedProvince],
@@ -85,6 +91,8 @@ function AdminDashboard() {
   }, [searchTerm]);
 
   useEffect(() => {
+    if (!token) return;
+    setLoadingUsers(true);
     fetch("http://localhost:5000/api/users", {
       headers: {
         Authorization: token,
@@ -92,10 +100,13 @@ function AdminDashboard() {
     })
       .then((res) => res.json())
       .then((data) => setUsers(data.user))
-      .catch((err) => console.error("Error fetching users:", err));
+      .catch((err) => console.error("Error fetching users:", err))
+      .finally(() => setLoadingUsers(false));
   }, [token]);
 
   useEffect(() => {
+    if (!token) return;
+    setLoadingReviews(true);
     fetch("http://localhost:5000/api/reviews", {
       headers: {
         Authorization: token,
@@ -103,7 +114,8 @@ function AdminDashboard() {
     })
       .then((res) => res.json())
       .then((data) => setReviews(data.review))
-      .catch((err) => console.error("Error fetching reviews:", err));
+      .catch((err) => console.error("Error fetching reviews:", err))
+      .finally(() => setLoadingReviews(false));
   }, [token]);
 
   const handleDeleteFacility = async (id) => {
@@ -287,7 +299,7 @@ function AdminDashboard() {
   return (
     <div className="heritage-hub">
       <nav className="navbar">
-    {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
+        {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link to="/" className="logo">
@@ -458,7 +470,9 @@ function AdminDashboard() {
             </div>
 
             <div className="facilities-grid-home">
-              {facilities.length > 0 ? (
+              {loadingFacilities ? (
+                <p>Loading facilities...</p>
+              ) : facilities.length > 0 ? (
                 facilities.map((facility) => (
                   <div>
                     <Link
@@ -659,7 +673,9 @@ function AdminDashboard() {
           </div>
         ) : currentView === "users" ? (
           <div className="facilities-grid-home">
-            {users.length > 0 ? (
+            {loadingUsers ? (
+              <p>Loading users...</p>
+            ) : users.length > 0 ? (
               users.map((user) => (
                 <div>
                   <div key={user._id} className="facility-card-home">
@@ -710,7 +726,9 @@ function AdminDashboard() {
           </div>
         ) : currentView === "reviews" ? (
           <div className="facilities-grid-home">
-            {reviews.length > 0 ? (
+            {loadingReviews ? (
+              <p>Loading reviews...</p>
+            ) : reviews.length > 0 ? (
               reviews.map((review) => (
                 <div>
                   <Link
