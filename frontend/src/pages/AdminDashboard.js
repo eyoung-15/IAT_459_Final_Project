@@ -42,7 +42,7 @@ function AdminDashboard() {
       try {
         const query = new URLSearchParams({
           page,
-          limit: 6, //number of facilities per page
+          limit: 9, //number of facilities per page
           searchTerm: searchTerm,
           Category: selectedCategory === "All" ? "" : selectedCategory,
           City: selectedCity,
