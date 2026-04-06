@@ -5,7 +5,7 @@ import "./css/HeritageHub.css";
 
 function Dashboard() {
   const [myFacilities, setMyFacilities] = useState([]);
-  const { token, user, logout } = useContext(AuthContext);
+  const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [editMenu, setEditMenu] = useState();
   // Initialize facilityData and specify attributes/inputs that can be filled under it
@@ -208,6 +208,7 @@ function Dashboard() {
   return (
     <div className="heritage-hub">
       <nav className="navbar">
+    {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link to="/" className="logo">
