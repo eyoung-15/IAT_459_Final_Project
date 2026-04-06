@@ -28,7 +28,6 @@ function AdminDashboard() {
     Address: "",
     Latitude: "",
     Longitude: "",
-    PostalCode: "",
   });
 
   //   Backup security - redirect user out if they aren't admin
@@ -586,13 +585,6 @@ function AdminDashboard() {
                           <input
                             name="Longitude"
                             value={facilityData.Longitude}
-                            onChange={handleEditFacility}
-                            style={styles.input}
-                          />
-                          <label style={styles.label}>Postal Code</label>
-                          <input
-                            name="PostalCode"
-                            value={facilityData.PostalCode}
                             onChange={handleEditFacility}
                             style={styles.input}
                           />
