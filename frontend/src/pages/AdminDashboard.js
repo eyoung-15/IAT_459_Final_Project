@@ -199,9 +199,13 @@ function AdminDashboard() {
             "Content-Type": "application/json",
             Authorization: token,
           },
-          // Ensure lat/lng values are numbers
+          // Apply to the fields that may need to be changed
           body: JSON.stringify({
-            ...facilityData,
+            Name: facilityData.Name,
+            Category: facilityData.Category,
+            Province: facilityData.Province,
+            City: facilityData.City,
+            Address: facilityData.Address,
             Latitude: Number(facilityData.Latitude),
             Longitude: Number(facilityData.Longitude),
           }),
@@ -532,12 +536,22 @@ function AdminDashboard() {
                             required
                           />
                           <label style={styles.label}>Category</label>
-                          <input
+                          <select
                             name="Category"
                             value={facilityData.Category}
                             onChange={handleEditFacility}
                             style={styles.input}
-                          />
+                          >
+                            <option value={"museum"}>Museum</option>
+                            <option value={"gallery"}>Gallery</option>
+                            <option value={"heritage or historic site"}>
+                              Heritage or Historic Site
+                            </option>
+                            <option value={"art or cultural centre"}>
+                              Art or Cultural Centre
+                            </option>
+                            <option value={"other"}>Other</option>
+                          </select>
                           <label style={styles.label}>Province/Territory</label>
                           <select
                             name="Province"
