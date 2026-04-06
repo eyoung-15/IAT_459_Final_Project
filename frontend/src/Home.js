@@ -232,7 +232,8 @@ function Home() {
 
                   <div className="card-content">
                     <div className="location-tag">
-                      {facility.City?.toUpperCase()},{" "}
+                      {facility.City?.toUpperCase()}
+                      {"  "}
                       {facility.Province?.toUpperCase()}
                     </div>
                     <h3 className="facility-name">{facility.Name}</h3>
@@ -244,12 +245,15 @@ function Home() {
                     </p>
 
                     <div className="category-tags">
-                      {/* <span className="category-tag">
-                    {facility.Category || "Museum"}
-                  </span> */}
-                      <span className="category-tag">Museum</span>
-                      <span className="category-tag">Art</span>
-                      <span className="category-tag">History</span>
+                      <div>
+                        {facility.Category ? (
+                          <span className="category-tag">
+                            {facility.Category}
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
