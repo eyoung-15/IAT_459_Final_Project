@@ -5,7 +5,7 @@ import "./css/HeritageHub.css";
 import { useCallback } from "react";
 
 function Home() {
-  const { token, user, logout } = useContext(AuthContext);
+  const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const [facility, setFacility] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -66,6 +66,7 @@ function Home() {
     <div className="heritage-hub">
       {/* Navigation Bar */}
       <nav className="navbar">
+    {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link to="/" className="logo">
