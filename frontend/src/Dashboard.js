@@ -7,6 +7,7 @@ function Dashboard() {
   const [myFacilities, setMyFacilities] = useState([]);
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
   const [editMenu, setEditMenu] = useState();
   // Initialize facilityData and specify attributes/inputs that can be filled under it
   const [facilityEditData, setFacilityEditData] = useState({
@@ -21,6 +22,8 @@ function Dashboard() {
   });
 
   useEffect(() => {
+    if (!token) return;
+    setLoading(true);
     fetch("http://localhost:5000/api/facility/my-facilities", {
       headers: {
         Authorization: token,
@@ -31,7 +34,10 @@ function Dashboard() {
         return res.json();
       })
       .then((data) => setMyFacilities(data))
-      .catch((err) => console.error("Error fetching facilities:", err));
+      .catch((err) => console.error("Error fetching facilities:", err))
+      .finally(() => {
+        setLoading(false);
+      });
   }, [token]);
 
   const [formData, setFormData] = useState({
@@ -208,7 +214,7 @@ function Dashboard() {
   return (
     <div className="heritage-hub">
       <nav className="navbar">
-    {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
+        {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link to="/" className="logo">
@@ -282,7 +288,9 @@ function Dashboard() {
 
         {/* Facilities Grid */}
         <div className="facilities-grid-home">
-          {filteredFacilities.length > 0 ? (
+          {loading ? (
+            <p>Loading facilities...</p>
+          ) : filteredFacilities.length > 0 ? (
             filteredFacilities.map((facility) => (
               <div>
                 <Link
@@ -574,3 +582,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
