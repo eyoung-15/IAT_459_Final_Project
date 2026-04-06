@@ -299,13 +299,27 @@ function Dashboard() {
                           className="facility-image"
                         />
                       ) : (
-                        <div className="image-placeholder">🏛️</div>
+                        // Change img placeholder based on category
+                        <div className="image-placeholder">
+                          {facility.Category === "museum" ? (
+                            <div>🏺</div>
+                          ) : facility.Category === "gallery" ? (
+                            <div>🖼️</div>
+                          ) : facility.Category ===
+                            "heritage or historic site" ? (
+                            <div>🏛️</div>
+                          ) : facility.Category === "art or cultural centre" ? (
+                            <div>🎭</div>
+                          ) : (
+                            <div>📍</div>
+                          )}
+                        </div>
                       )}
                     </div>
                     <div className="card-content">
                       <div className="location-tag">
                         {facility.City?.toUpperCase()}
-                        {"  "}
+                        {facility.City && facility.Province && ", "}
                         {facility.Province?.toUpperCase()}
                       </div>
                       <h3 className="facility-name">{facility.Name}</h3>
