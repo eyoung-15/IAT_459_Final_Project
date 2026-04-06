@@ -479,7 +479,8 @@ function AdminDashboard() {
                         </div>
                         <div className="card-content">
                           <div className="location-tag">
-                            {facility.City?.toUpperCase()},{" "}
+                            {facility.City?.toUpperCase()}
+                            {"  "}
                             {facility.Province?.toUpperCase()}
                           </div>
                           <h3 className="facility-name">{facility.Name}</h3>
@@ -542,6 +543,7 @@ function AdminDashboard() {
                             onChange={handleEditFacility}
                             style={styles.input}
                           >
+                            <option value={""}></option>
                             <option value={"museum"}>Museum</option>
                             <option value={"gallery"}>Gallery</option>
                             <option value={"heritage or historic site"}>
@@ -559,6 +561,7 @@ function AdminDashboard() {
                             onChange={handleEditFacility}
                             style={styles.input}
                           >
+                            <option value={""}></option>
                             <option value={"on"}>Ontario</option>
                             <option value={"qc"}>Quebec</option>
                             <option value={"bc"}>British Columbia</option>
