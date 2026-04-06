@@ -16,6 +16,7 @@ function FacilityDetails() {
   // Main facilities array
   const [facility, setFacility] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(false);
   //Get token, user, logout from AuthContext
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
 
@@ -25,12 +26,16 @@ function FacilityDetails() {
 
   const [visitedDate, setVisitedDate] = useState(""); //for setting date visited
 
-//fetch reviews and facility details
+  //fetch reviews and facility details
   useEffect(() => {
+    setLoading(true);
     fetch(`http://localhost:5000/api/facility/${id}`)
       .then((res) => res.json())
       .then((data) => setFacility(data))
-      .catch((err) => console.error("Error fetching facilities:", err));
+      .catch((err) => console.error("Error fetching facilities:", err))
+      .finally(() => {
+        setLoading(false);
+      });
 
     fetch(`http://localhost:5000/api/reviews/${id}`)
       .then((res) => res.json())
@@ -72,46 +77,50 @@ function FacilityDetails() {
     }).then(() => {
       setInBucket(!inBucket);
     });
-  }
+  };
 
   //toggle visited status
   const toggleVisited = async () => {
-    try{
-      if (isVisited){
+    try {
+      if (isVisited) {
         await fetch(`http://localhost:5000/api/users/visited/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-      },
-        
-      });
-      setIsVisited(false);
-    } else {
-      //add to visited, default to todays date if no date provided
-      const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        });
+        setIsVisited(false);
+      } else {
+        //add to visited, default to todays date if no date provided
+        const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
 
-      await fetch(`http://localhost:5000/api/users/visited/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-      },
-      body: JSON.stringify({
-        visitedAt: dateToSend,
+        await fetch(`http://localhost:5000/api/users/visited/${id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({
+            visitedAt: dateToSend,
+          }),
+        });
+        setIsVisited(true);
+        setInBucket(false); //remove from bucket list if in travel journal
+        setVisitedDate(""); //reset date input
+      }
+    } catch (err) {
+      console.error("Toggle visited failed:", err);
+    }
+  };
 
-      }),
-    });
-    setIsVisited(true);
-    setInBucket(false); //remove from bucket list if in travel journal
-    setVisitedDate(""); //reset date input
+  if (loading) {
+    return <p>Loading facility...</p>;
   }
-} catch (err) {
-  console.error("Toggle visited failed:", err);
-} 
-};
 
-  if (!facility) return <p>No facility found...</p>;
+  if (!facility) {
+    return <p>No facility found.</p>;
+  }
 
   // Map markers
   const markerIcon = new L.Icon({
@@ -121,9 +130,8 @@ function FacilityDetails() {
     popupAnchor: [0, -26], //[left/right, top/bottom]
   });
 
-
   const deleteReview = async (id) => {
-    try{
+    try {
       const res = await fetch(`http://localhost:5000/api/reviews/${id}`, {
         method: "DELETE",
         headers: {
@@ -139,41 +147,41 @@ function FacilityDetails() {
       alert(err.message);
     }
   };
-  
+
   //capitalize the first letter of each word
   function capitalizeWords(str) {
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
+    return str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
 
-//province shorthand to full name
-const provinceMap = {
-  ab: "Alberta",
-  bc: "British Columbia",
-  mb: "Manitoba",
-  nb: "New Brunswick",
-  nl: "Newfoundland and Labrador",
-  ns: "Nova Scotia",
-  nt: "Northwest Territories",
-  nu: "Nunavut",
-  on: "Ontario",
-  pe: "Prince Edward Island",
-  qc: "Quebec",
-  sk: "Saskatchewan",
-  yt: "Yukon",
-};
+  //province shorthand to full name
+  const provinceMap = {
+    ab: "Alberta",
+    bc: "British Columbia",
+    mb: "Manitoba",
+    nb: "New Brunswick",
+    nl: "Newfoundland and Labrador",
+    ns: "Nova Scotia",
+    nt: "Northwest Territories",
+    nu: "Nunavut",
+    on: "Ontario",
+    pe: "Prince Edward Island",
+    qc: "Quebec",
+    sk: "Saskatchewan",
+    yt: "Yukon",
+  };
 
-function getProvinceName(code) {
-  return provinceMap[code] || code;
-}
+  function getProvinceName(code) {
+    return provinceMap[code] || code;
+  }
 
   return (
     <div className="heritage-hub">
       <nav className="navbar">
-    {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
+        {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link to="/" className="logo">
@@ -195,7 +203,7 @@ function getProvinceName(code) {
               <Link to="/dashboard" className="nav-link">
                 Manage
               </Link>
-                  {/* Nav link to admin panel. Only visible if user is present and role is admin */}
+              {/* Nav link to admin panel. Only visible if user is present and role is admin */}
               {user && user.role === "admin" && (
                 <Link to="/admin-dashboard" className="nav-link">
                   Admin
@@ -250,16 +258,16 @@ function getProvinceName(code) {
           </button>
 
           <label>
-            Visited Date: {" "}
-          <input
-          type="date"
-          value={visitedDate}
-          onChange={(e) => setVisitedDate(e.target.value)}
-          />
-        </label>
-        <button onClick={toggleVisited}>
-          {isVisited ? "Remove from Travel Journal" : "Visited"}
-        </button>
+            Visited Date:{" "}
+            <input
+              type="date"
+              value={visitedDate}
+              onChange={(e) => setVisitedDate(e.target.value)}
+            />
+          </label>
+          <button onClick={toggleVisited}>
+            {isVisited ? "Remove from Travel Journal" : "Visited"}
+          </button>
         </div>
       )}
 
@@ -274,16 +282,10 @@ function getProvinceName(code) {
             <strong>{r.user.username}</strong>
             <p>{r.rating}/5</p>
             <p>{r.comment}</p>
-            {r.image && (
-              <img
-              src={r.image}
-              alt = "Review"
-                />
-              )}
-              {(user?.role === "admin" || user?.id === r.user._id) && (
-                <button onClick={() => deleteReview(r._id)}>Delete Review</button>
-              )}
-    
+            {r.image && <img src={r.image} alt="Review" />}
+            {(user?.role === "admin" || user?.id === r.user._id) && (
+              <button onClick={() => deleteReview(r._id)}>Delete Review</button>
+            )}
           </div>
         ))
       )}
