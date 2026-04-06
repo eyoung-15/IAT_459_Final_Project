@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 
 function AdminDashboard() {
-  const { token, user, logout } = useContext(AuthContext);
+  const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const navigate = useNavigate();
   const [facilities, setFacilities] = useState([]);
   const [users, setUsers] = useState([]);
@@ -287,6 +287,7 @@ function AdminDashboard() {
   return (
     <div className="heritage-hub">
       <nav className="navbar">
+    {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link to="/" className="logo">
