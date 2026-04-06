@@ -8,6 +8,7 @@ function Home() {
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const [facility, setFacility] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
@@ -18,6 +19,7 @@ function Home() {
   const fetchFacilities = useCallback(
     async (page = 1) => {
       try {
+        setLoading(true);
         const query = new URLSearchParams({
           page,
           limit: 9, //number of facilities per page
@@ -38,6 +40,8 @@ function Home() {
         setCurrentPage(data.currentPage);
       } catch (err) {
         console.error("Error fetching facilities:", err);
+      } finally {
+        setLoading(false);
       }
     },
     [searchTerm, selectedCategory, selectedCity, selectedProvince],
@@ -66,7 +70,7 @@ function Home() {
     <div className="heritage-hub">
       {/* Navigation Bar */}
       <nav className="navbar">
-    {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
+        {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link to="/" className="logo">
@@ -211,7 +215,9 @@ function Home() {
         </div>
 
         <div className="facilities-grid-home">
-          {facility.length > 0 ? (
+          {loading && facility.length === 0 ? (
+            <p>Loading facilities...</p>
+          ) : facility.length > 0 ? (
             facility.map((facility) => (
               <Link
                 to={`/facility/${facility._id}`}
@@ -280,9 +286,7 @@ function Home() {
             ))
           ) : (
             <div>
-              <p>
-                No facilities found. Try adjusting your filters or search terms
-              </p>
+              <p>No facilities found.</p>
             </div>
           )}
         </div>
