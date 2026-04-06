@@ -28,24 +28,36 @@ const markerIcon = new L.Icon({
 function Map() {
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const [facility, setFacility] = useState(null);
+  const [loading, setLoading] = useState(true);
+  let timeout = null;
   // const [searchTerm, setSearchTerm] = useState("");
 
   // Use leaflet's mapEvents to get map bounds, and only generate facilities within those boundaries
   function MapEvents({ setFacility }) {
     const map = useMapEvents({
       moveend: () => {
-        const bounds = map.getBounds();
+        clearTimeout(timeout);
 
-        const params = new URLSearchParams({
-          north: bounds.getNorth(),
-          south: bounds.getSouth(),
-          east: bounds.getEast(),
-          west: bounds.getWest(),
-        });
+        // Set timer so that bounds doesnt fire too often
+        // https://medium.com/%40velja/delaying-debouncing-and-cancelling-request-using-abortcontoller-in-react-d8e089bfce14
+        timeout = setTimeout(() => {
+          const bounds = map.getBounds();
 
-        fetch(`http://localhost:5000/api/facility?${params}`)
-          .then((res) => res.json())
-          .then((data) => setFacility(data.data));
+          const params = new URLSearchParams({
+            north: bounds.getNorth(),
+            south: bounds.getSouth(),
+            east: bounds.getEast(),
+            west: bounds.getWest(),
+          });
+
+          setLoading(true);
+
+          fetch(`http://localhost:5000/api/facility?${params}`)
+            .then((res) => res.json())
+            .then((data) => setFacility(data.data))
+            .catch((err) => console.error(err))
+            .finally(() => setLoading(false));
+        }, 300); // wait 300 milliseconds after user stops moving map
       },
     });
 
@@ -54,13 +66,17 @@ function Map() {
 
   // initial load
   useEffect(() => {
+    setLoading(true);
     fetch("http://localhost:5000/api/facility")
       .then((res) => res.json())
       .then((data) => setFacility(data.data))
-      .catch((err) => console.error("Error fetching facilities:", err));
+      .catch((err) => console.error("Error fetching facilities:", err))
+      .finally(() => setLoading(false));
   }, []);
 
-  if (!facility) return <p>No facility found...</p>;
+  if (loading && (!facility || facility.length === 0)) {
+    return <p>Loading map...</p>;
+  }
 
   const filteredFacilities = facility.filter((facility) => {
     return (facility.Name || "").toLowerCase();
@@ -71,7 +87,7 @@ function Map() {
     <div>
       {/* Navigation Bar */}
       <nav className="navbar">
-    {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
+        {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link to="/" className="logo">
