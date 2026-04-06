@@ -106,7 +106,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
 router.get("/", verifyToken, async (req, res) => {
   try {
     if (req.user.role !== "admin") return res.status(403).json({message: "Forbidden"});
-    const review = await Review.find().sort({ _id: -1 }).populate("facility");
+    const review = await Review.find().sort({ _id: -1 }).populate("facility", "Name");
 
     if (!review) {
       return res.status(404).json({ message: "Reviews not found" });
