@@ -81,7 +81,7 @@ router.get("/", async (req, res) => {
       //calculate average rating + review count
       {
         $addFields: {
-          avgRating: { $avg: "$reviews.rating" },
+          avgRating: { $round: [{$avg: "$reviews.rating" }, 1]}, //round to one decimal place
           reviewCount: { $size: "$reviews" },
         },
       },
