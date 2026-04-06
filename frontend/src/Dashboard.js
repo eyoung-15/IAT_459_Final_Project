@@ -18,7 +18,6 @@ function Dashboard() {
     Address: "",
     Latitude: "",
     Longitude: "",
-    PostalCode: "",
   });
 
   useEffect(() => {
@@ -43,7 +42,6 @@ function Dashboard() {
     Address: "",
     Latitude: "",
     Longitude: "",
-    PostalCode: "",
     imgUrl: "",
   });
 
@@ -78,7 +76,6 @@ function Dashboard() {
         Address: "",
         Latitude: "",
         Longitude: "",
-        PostalCode: "",
         imgUrl: "",
       });
     } catch (err) {
@@ -419,13 +416,6 @@ function Dashboard() {
                         onChange={handleEditFacility}
                         style={styles.input}
                       />
-                      <label style={styles.label}>Postal Code</label>
-                      <input
-                        name="PostalCode"
-                        value={facilityEditData.PostalCode}
-                        onChange={handleEditFacility}
-                        style={styles.input}
-                      />
                       <button type="submit" style={styles.submit}>
                         Submit Changes
                       </button>
@@ -483,7 +473,7 @@ function Dashboard() {
             </option>
             <option value={"other"}>Other</option>
           </select>
-          <label style={styles.label}>Province</label>
+          <label style={styles.label}>Province/Territory</label>
           <select
             name="Province"
             value={formData.Province}
