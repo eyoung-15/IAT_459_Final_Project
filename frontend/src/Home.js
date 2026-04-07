@@ -1,25 +1,49 @@
-import { useContext, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { AuthContext } from "./context/AuthContext";
-import "./css/HeritageHub.css";
+import { useEffect, useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 
-function Home() {
+function AdminDashboard() {
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
-  const [facility, setFacility] = useState([]);
+  const navigate = useNavigate();
+  const [loadingFacilities, setLoadingFacilities] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [facilities, setFacilities] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
-
+  // Initialize useState for dashboard navigation
+  const [currentView, setCurrentView] = useState("facilities");
+  const [editMenu, setEditMenu] = useState();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  // Initialize facilityData and specify attributes/inputs that can be filled under it
+  const [facilityData, setFacilityData] = useState({
+    //Empty until user inputs new data
+    Name: "",
+    Category: "",
+    Province: "",
+    City: "",
+    Address: "",
+    Latitude: "",
+    Longitude: "",
+  });
+
+  //   Backup security - redirect user out if they aren't admin
+  useEffect(() => {
+    if (user?.role !== "admin") {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const fetchFacilities = useCallback(
     async (page = 1) => {
+      setLoadingFacilities(true);
       try {
-        setLoading(true);
         const query = new URLSearchParams({
           page,
           limit: 9, //number of facilities per page
@@ -35,13 +59,13 @@ function Home() {
 
         const data = await res.json();
 
-        setFacility(data.data);
+        setFacilities(data.data);
         setTotalPages(data.totalPages);
         setCurrentPage(data.currentPage);
       } catch (err) {
         console.error("Error fetching facilities:", err);
       } finally {
-        setLoading(false);
+        setLoadingFacilities(false);
       }
     },
     [searchTerm, selectedCategory, selectedCity, selectedProvince],
@@ -66,9 +90,216 @@ function Home() {
     return () => clearTimeout(delay);
   }, [searchTerm]);
 
+  useEffect(() => {
+    if (!token) return;
+    if (currentView !== "users") return;
+    setLoadingUsers(true);
+    fetch("http://localhost:5000/api/users", {
+      headers: {
+        Authorization: token,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setUsers(data.user))
+      .catch((err) => console.error("Error fetching users:", err))
+      .finally(() => setLoadingUsers(false));
+  }, [token, currentView]);
+
+  useEffect(() => {
+    if (!token) return;
+    if (currentView !== "reviews") return;
+    setLoadingReviews(true);
+    fetch("http://localhost:5000/api/reviews", {
+      headers: {
+        Authorization: token,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setReviews(data.review))
+      .catch((err) => console.error("Error fetching reviews:", err))
+      .finally(() => setLoadingReviews(false));
+  }, [token, currentView]);
+
+  const handleDeleteFacility = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/facility/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete. Are you authorized?");
+      }
+      setFacilities(facilities.filter((facility) => facility._id !== id));
+      // Update reviews in case there were some under that facility that deleted too
+      setReviews(reviews.filter((review) => review.facility?._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
+
+  const handleDeleteUser = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete. Are you authorized?");
+      }
+      setUsers(users.filter((user) => user._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
+
+  const handleDeleteReview = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/reviews/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete. Are you authorized?");
+      }
+      setReviews(reviews.filter((review) => review._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
+
+  const handleRole = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/users/${id}/role`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: token,
+          },
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update role");
+      }
+      const data = await response.json();
+      // Update the UI right away
+      setUsers(
+        users.map((u) => (u._id === id ? { ...u, role: data.user.role } : u)),
+      );
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
+
+  // onSubmit, applies this function. Prevents reload behaviour, applies facilityData. EditMenu holds the id of the facility with the editMenu currently open
+  async function handleFacilitySubmit(e) {
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/facility/${editMenu}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          // Apply to the fields that may need to be changed
+          body: JSON.stringify({
+            Name: facilityData.Name,
+            Category: facilityData.Category,
+            Province: facilityData.Province,
+            City: facilityData.City,
+            Address: facilityData.Address,
+            Latitude: Number(facilityData.Latitude),
+            Longitude: Number(facilityData.Longitude),
+          }),
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update facility");
+      }
+      const updatedFacility = await response.json();
+      // Update the UI right away
+      setFacilities(
+        facilities.map((facility) =>
+          facility._id === editMenu ? updatedFacility : facility,
+        ),
+      );
+      // Close editMenu
+      setEditMenu(null);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  }
+
+  // When user interacts with edit facility inputs, set the facilityData attribute to match the value
+  const handleEditFacility = (e) => {
+    const { name, value } = e.target;
+    setFacilityData({
+      ...facilityData,
+      [name]: value,
+    });
+  };
+
+  const styles = {
+    mainBtn: {
+      background: "none",
+      border: "1px solid #eaeef2",
+      padding: "0.4rem 1rem",
+      margin: "2rem 0.5rem",
+      borderRadius: "20px",
+      color: "#5b6778",
+      cursor: "pointer",
+      transition: "all 0.2s",
+    },
+    active: {
+      background: "#0d7451",
+      color: "white",
+    },
+    form: {
+      display: "flex",
+      flexDirection: "column",
+      marginTop: "0.8rem",
+    },
+    label: {
+      fontSize: "0.7rem",
+      fontWeight: "500",
+      marginBottom: "0.17rem",
+      color: "#0d7451",
+    },
+    input: {
+      padding: "0.25rem 0.65rem",
+      borderRadius: "20px",
+      border: "1px solid #d6dde5",
+      fontSize: "0.85rem",
+      marginBottom: "0.35rem",
+      color: "rgb(92, 92, 92)",
+    },
+    submit: {
+      marginTop: "0.5rem",
+      padding: "0.5rem",
+      borderRadius: "20px",
+      border: "none",
+      background: "#0d7451",
+      color: "white",
+      fontWeight: "600",
+      cursor: "pointer",
+    },
+  };
+
   return (
     <div className="heritage-hub">
-      {/* Navigation Bar */}
       <nav className="navbar">
         {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
@@ -119,197 +350,452 @@ function Home() {
           </div>
         </div>
       </nav>
+      <div className="featured" style={{ marginTop: "2rem" }}>
+        <h2 className="section-title">Admin Dashboard</h2>
 
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-content">
-          <h1 className="hero-title">Discover Canada's Heritage</h1>
-          <p className="hero-subtitle">
-            Explore world-class museums, galleries and historic sites from coast
-            to coast
-          </p>
-        </div>
-      </section>
+        {/* Conditional Rendering Buttons */}
+        <button
+          // spread all styles but override some if state is active
+          style={{
+            ...styles.mainBtn,
+            ...(currentView === "facilities" ? styles.active : ""),
+          }}
+          onClick={() => {
+            setCurrentView("facilities");
+          }}
+        >
+          View Facilities
+        </button>
+        <button
+          style={{
+            ...styles.mainBtn,
+            ...(currentView === "users" ? styles.active : ""),
+          }}
+          onClick={() => {
+            setCurrentView("users");
+          }}
+        >
+          View Users
+        </button>
+        <button
+          style={{
+            ...styles.mainBtn,
+            ...(currentView === "reviews" ? styles.active : ""),
+          }}
+          onClick={() => {
+            setCurrentView("reviews");
+          }}
+        >
+          View Reviews
+        </button>
 
-      {/* Featured Destination */}
-      <section className="featured">
-        <h2 className="section-title">Featured Destinations</h2>
+        {/* Facilities Grid */}
+        {currentView === "facilities" ? (
+          <div>
+            {/* Filters */}
+            <div className="filters-row">
+              <div className="filter-buttons">
+                {/* Search */}
+                <label className="filter-label">Search</label>
+                <input
+                  type="text"
+                  className="filter-btn"
+                  placeholder="Search facilities..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
 
-        {/* Filters */}
-        <div className="filters-row">
-          <div className="filter-buttons">
-            {/* Search */}
-            <input
-              type="text"
-              className="filter-btn"
-              placeholder="Search my facilities..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+              <div className="filter-buttons">
+                <label className="filter-label">Category</label>
+                <select
+                  name="Category"
+                  className="filter-btn"
+                  value={selectedCategory}
+                  onChange={(e) =>
+                    setSelectedCategory(e.target.value.toLowerCase())
+                  }
+                >
+                  <option value={""}></option>
+                  <option value={"museum"}>Museum</option>
+                  <option value={"gallery"}>Gallery</option>
+                  <option value={"heritage or historic site"}>
+                    Heritage or Historic Site
+                  </option>
+                  <option value={"art or cultural centre"}>
+                    Art or Cultural Centre
+                  </option>
+                  <option value={"other"}>Other</option>
+                </select>
+              </div>
 
-            <h3>Category</h3>
-            <select
-              name="Category"
-              className="filter-btn"
-              value={selectedCategory}
-              onChange={(e) =>
-                setSelectedCategory(e.target.value.toLowerCase())
-              }
-            >
-              <option value={""}></option>
-              <option value={"museum"}>Museum</option>
-              <option value={"gallery"}>Gallery</option>
-              <option value={"heritage or historic site"}>
-                Heritage or Historic Site
-              </option>
-              <option value={"art or cultural centre"}>
-                Art or Cultural Centre
-              </option>
-              <option value={"other"}>Other</option>
-            </select>
+              <div className="filter-buttons">
+                <label className="filter-label">City</label>
+                <input
+                  type="text"
+                  className="filter-btn"
+                  placeholder="City..."
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                />
+              </div>
 
-            <h3>City</h3>
-            <input
-              type="text"
-              className="filter-btn"
-              placeholder="City"
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-            />
+              <div className="filter-buttons">
+                <label className="filter-label">Province/Territory</label>
+                <select
+                  name="province"
+                  className="filter-btn"
+                  value={selectedProvince}
+                  onChange={(e) => setSelectedProvince(e.target.value)}
+                >
+                  <option value={""}></option>
+                  <option value={"on"}>Ontario</option>
+                  <option value={"qc"}>Quebec</option>
+                  <option value={"bc"}>British Columbia</option>
+                  <option value={"ab"}>Alberta</option>
+                  <option value={"ns"}>Nova Scotia</option>
+                  <option value={"nb"}>New Brunswick</option>
+                  <option value={"nl"}>Newfoundland and Labrador</option>
+                  <option value={"sk"}>Saskatchewan</option>
+                  <option value={"mb"}>Manitoba</option>
+                  <option value={"nu"}>Nunavut</option>
+                  <option value={"yt"}>Yukon</option>
+                  <option value={"nt"}>Northwest Territories</option>
+                </select>
+              </div>
 
-            <h3>Province/Territory</h3>
-            <select
-              name="province"
-              className="filter-btn"
-              value={selectedProvince}
-              onChange={(e) => setSelectedProvince(e.target.value)}
-            >
-              <option value={""}></option>
-              <option value={"on"}>Ontario</option>
-              <option value={"qc"}>Quebec</option>
-              <option value={"bc"}>British Columbia</option>
-              <option value={"ab"}>Alberta</option>
-              <option value={"ns"}>Nova Scotia</option>
-              <option value={"nb"}>New Brunswick</option>
-              <option value={"nl"}>Newfoundland and Labrador</option>
-              <option value={"sk"}>Saskatchewan</option>
-              <option value={"mb"}>Manitoba</option>
-              <option value={"nu"}>Nunavut</option>
-              <option value={"yt"}>Yukon</option>
-              <option value={"nt"}>Northwest Territories</option>
-            </select>
-
-            {/* Clear filters button */}
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setSelectedCategory("");
-                setSelectedCity("");
-                setSelectedProvince("");
-              }}
-              className="filter-btn"
-            >
-              Clear All Filters
-            </button>
-          </div>
-        </div>
-
-        <div className="facilities-grid-home">
-          {loading && facility.length === 0 ? (
-            <p>Loading facilities...</p>
-          ) : facility.length > 0 ? (
-            facility.map((facility) => (
-              <Link
-                to={`/facility/${facility._id}`}
-                key={facility._id}
-                style={{ textDecoration: "none" }}
+              {/* Clear filters button */}
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategory("");
+                  setSelectedCity("");
+                  setSelectedProvince("");
+                }}
+                className="filter-btn"
               >
-                <div className="facility-card-home">
-                  <div className="card-image-container">
-                    {/* show the last posted image from reviews */}
-                    {facility.lastReviewImage ? (
-                      <img
-                        src={facility.lastReviewImage}
-                        alt={facility.Name}
-                        className="facility-image"
-                      />
-                    ) : (
-                      // Change img placeholder based on category
-                      <div className="image-placeholder">
-                        {facility.Category === "museum" ? (
-                          <div>🏺</div>
-                        ) : facility.Category === "gallery" ? (
-                          <div>🖼️</div>
-                        ) : facility.Category ===
-                          "heritage or historic site" ? (
-                          <div>🏛️</div>
-                        ) : facility.Category === "art or cultural centre" ? (
-                          <div>🎭</div>
-                        ) : (
-                          <div>📍</div>
-                        )}
-                      </div>
-                    )}
-                    <div className="rating-badge">
-                      ★ {facility.avgRating || "N/A"}
-                    </div>
-                  </div>
-
-                  <div className="card-content">
-                    <div className="location-tag">
-                      {facility.City?.toUpperCase()}
-                      {facility.City && facility.Province && ", "}
-                      {facility.Province?.toUpperCase()}
-                    </div>
-                    <h3 className="facility-name">{facility.Name}</h3>
-                    <p className="facility-description">
-                      {facility.Description ||
-                        (facility.Category === "Museum"
-                          ? "One of the largest museums in North America and the largest museum in Canada."
-                          : "Experience the rich cultural heritage of Canada's historic sites.")}
-                    </p>
-
-                    <div className="category-tags">
-                      <div>
-                        {facility.Category ? (
-                          <span className="category-tag">
-                            {facility.Category}
-                          </span>
-                        ) : (
-                          ""
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))
-          ) : (
-            <div>
-              <p>No facilities found.</p>
+                Clear All Filters
+              </button>
+              {/* </div> */}
             </div>
-          )}
-        </div>
-        <div className="pagination">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            ⬅
-          </button>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            ⮕
-          </button>
-        </div>
-      </section>
+
+            <div className="facilities-grid-home">
+              {loadingFacilities ? (
+                <p>Loading facilities...</p>
+              ) : facilities.length > 0 ? (
+                facilities.map((facility) => (
+                  <div>
+                    <Link
+                      to={`/facility/${facility._id}`}
+                      key={facility._id}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <div key={facility._id} className="facility-card-home">
+                        <div className="card-image-container">
+                          {facility.lastReviewImage ? (
+                            <img
+                              src={facility.lastReviewImage}
+                              alt={facility.Name}
+                              className="facility-image"
+                            />
+                          ) : (
+                            // Change img placeholder based on category
+                            <div className="image-placeholder">
+                              {facility.Category === "museum" ? (
+                                <div>🏺</div>
+                              ) : facility.Category === "gallery" ? (
+                                <div>🖼️</div>
+                              ) : facility.Category ===
+                                "heritage or historic site" ? (
+                                <div>🏛️</div>
+                              ) : facility.Category ===
+                                "art or cultural centre" ? (
+                                <div>🎭</div>
+                              ) : (
+                                <div>📍</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="card-content">
+                          <div className="location-tag">
+                            {facility.City?.toUpperCase()}
+                            {facility.City && facility.Province && ", "}
+                            {facility.Province?.toUpperCase()}
+                          </div>
+                          <h3 className="facility-name">{facility.Name}</h3>
+                        </div>
+                      </div>
+                    </Link>
+
+                    <button
+                      onClick={() => handleDeleteFacility(facility._id)}
+                      className="filter-btn"
+                      style={{
+                        marginTop: "7px",
+                        background: "#fee",
+                        color: "#c00",
+                        borderColor: "#fcc",
+                        width: "59%",
+                      }}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Open the edit menu based on which id has been clicked
+                        setEditMenu(
+                          editMenu === facility._id ? null : facility._id,
+                        );
+                        // Fill values with existing facility data
+                        setFacilityData(facility);
+                      }}
+                      className="filter-btn"
+                      style={{
+                        marginTop: "7px",
+                        marginLeft: "1%",
+                        background: "rgb(237, 249, 246)",
+                        color: "#0d7451",
+                        borderColor: "rgb(163, 220, 205)",
+                        width: "40%",
+                      }}
+                    >
+                      Edit
+                    </button>
+                    {editMenu === facility._id ? (
+                      <div styles={styles.formContainer}>
+                        <form
+                          onSubmit={handleFacilitySubmit}
+                          style={styles.form}
+                        >
+                          <label style={styles.label}>Facility Name</label>
+                          <input
+                            name="Name"
+                            value={facilityData.Name}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                            required
+                          />
+                          <label style={styles.label}>Category</label>
+                          <select
+                            name="Category"
+                            value={facilityData.Category}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          >
+                            <option value={""}></option>
+                            <option value={"museum"}>Museum</option>
+                            <option value={"gallery"}>Gallery</option>
+                            <option value={"heritage or historic site"}>
+                              Heritage or Historic Site
+                            </option>
+                            <option value={"art or cultural centre"}>
+                              Art or Cultural Centre
+                            </option>
+                            <option value={"other"}>Other</option>
+                          </select>
+                          <label style={styles.label}>Province/Territory</label>
+                          <select
+                            name="Province"
+                            value={facilityData.Province}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          >
+                            <option value={""}></option>
+                            <option value={"on"}>Ontario</option>
+                            <option value={"qc"}>Quebec</option>
+                            <option value={"bc"}>British Columbia</option>
+                            <option value={"ab"}>Alberta</option>
+                            <option value={"ns"}>Nova Scotia</option>
+                            <option value={"nb"}>New Brunswick</option>
+                            <option value={"nl"}>
+                              Newfoundland and Labrador
+                            </option>
+                            <option value={"sk"}>Saskatchewan</option>
+                            <option value={"mb"}>Manitoba</option>
+                            <option value={"nu"}>Nunavut</option>
+                            <option value={"yt"}>Yukon</option>
+                            <option value={"nt"}>Northwest Territories</option>
+                          </select>
+                          <label style={styles.label}>City</label>
+                          <input
+                            name="City"
+                            value={facilityData.City}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          />
+                          <label style={styles.label}>Address</label>
+                          <input
+                            name="Address"
+                            value={facilityData.Address}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          />
+                          <label style={styles.label}>Latitude</label>
+                          <input
+                            name="Latitude"
+                            value={facilityData.Latitude}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          />
+                          <label style={styles.label}>Longitude</label>
+                          <input
+                            name="Longitude"
+                            value={facilityData.Longitude}
+                            onChange={handleEditFacility}
+                            style={styles.input}
+                          />
+                          <button type="submit" style={styles.submit}>
+                            Submit Changes
+                          </button>
+                        </form>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div>
+                  <p>No facilities found.</p>
+                </div>
+              )}
+            </div>
+            <div className="pagination">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                ⬅
+              </button>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+              >
+                ⮕
+              </button>
+            </div>
+          </div>
+        ) : currentView === "users" ? (
+          <div className="facilities-grid-home">
+            {loadingUsers ? (
+              <p>Loading users...</p>
+            ) : users.length > 0 ? (
+              users.map((user) => (
+                <div>
+                  <div key={user._id} className="facility-card-home">
+                    <div className="card-content">
+                      <h3 className="facility-name">{user.username}</h3>
+                      <p className="facility-description">
+                        <strong>Email:</strong> {user.email}
+                        <br />
+                        <strong>Role:</strong> {user.role}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleDeleteUser(user._id)}
+                    className="filter-btn"
+                    style={{
+                      marginTop: "7px",
+                      background: "#fee",
+                      color: "#c00",
+                      borderColor: "#fcc",
+                      width: "59%",
+                    }}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => handleRole(user._id)}
+                    className="filter-btn"
+                    style={{
+                      marginTop: "7px",
+                      marginLeft: "1%",
+                      background: "rgb(237, 249, 246)",
+                      color: "#0d7451",
+                      borderColor: "rgb(163, 220, 205)",
+                      width: "40%",
+                    }}
+                  >
+                    Make {user.role === "admin" ? "Member" : "Admin"}
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div>
+                <p>No users found.</p>
+              </div>
+            )}
+          </div>
+        ) : currentView === "reviews" ? (
+          <div className="facilities-grid-home">
+            {loadingReviews ? (
+              <p>Loading reviews...</p>
+            ) : reviews.length > 0 ? (
+              reviews.map((review) => (
+                <div>
+                  <Link
+                    to={
+                      review.facility?.Name
+                        ? `/facility/${review.facility?._id}`
+                        : ""
+                    }
+                    key={review._id}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <div key={review._id} className="facility-card-home">
+                      <div className="card-content">
+                        <p
+                          className="facility-description"
+                          style={{ color: "black" }}
+                        >
+                          {review.comment}
+                        </p>
+                        <p className="facility-description">
+                          <strong>Facility:</strong>{" "}
+                          {review.facility?.Name
+                            ? review.facility?.Name
+                            : "Deleted Facility"}
+                          <br />
+                          <strong>Rating:</strong> {review.rating}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+
+                  <button
+                    onClick={() => handleDeleteReview(review._id)}
+                    className="filter-btn"
+                    style={{
+                      marginTop: "7px",
+                      background: "#fee",
+                      color: "#c00",
+                      borderColor: "#fcc",
+                      width: "100%",
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div>
+                <p>No reviews found.</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          ""
+        )}
+      </div>
     </div>
   );
 }
-
-export default Home;
+export default AdminDashboard;
