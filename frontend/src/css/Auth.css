@@ -34,11 +34,22 @@
   max-width: 1200px;
   margin: 4rem auto;
   padding: 0 2rem;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .auth-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.auth-register-grid {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 4rem;
   align-items: center;
 }
