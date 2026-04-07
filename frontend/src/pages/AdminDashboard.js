@@ -92,6 +92,7 @@ function AdminDashboard() {
 
   useEffect(() => {
     if (!token) return;
+    if (currentView !== "users") return;
     setLoadingUsers(true);
     fetch("http://localhost:5000/api/users", {
       headers: {
@@ -102,10 +103,11 @@ function AdminDashboard() {
       .then((data) => setUsers(data.user))
       .catch((err) => console.error("Error fetching users:", err))
       .finally(() => setLoadingUsers(false));
-  }, [token]);
+  }, [token, currentView]);
 
   useEffect(() => {
     if (!token) return;
+    if (currentView !== "reviews") return;
     setLoadingReviews(true);
     fetch("http://localhost:5000/api/reviews", {
       headers: {
@@ -116,7 +118,7 @@ function AdminDashboard() {
       .then((data) => setReviews(data.review))
       .catch((err) => console.error("Error fetching reviews:", err))
       .finally(() => setLoadingReviews(false));
-  }, [token]);
+  }, [token, currentView]);
 
   const handleDeleteFacility = async (id) => {
     try {
