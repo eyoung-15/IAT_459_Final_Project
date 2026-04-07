@@ -298,7 +298,7 @@ function Dashboard() {
                   key={facility._id}
                   style={{ textDecoration: "none" }}
                 >
-                  <div key={facility._id} className="facility-card-home">
+                  <div className="facility-card-home">
                     <div className="card-image-container">
                       {/* show the last posted image from reviews */}
                       {facility.lastReviewImage ? (
@@ -324,7 +324,11 @@ function Dashboard() {
                           )}
                         </div>
                       )}
+                      <div className="rating-badge">
+                        ★ {facility.avgRating || "N/A"}
+                      </div>
                     </div>
+
                     <div className="card-content">
                       <div className="location-tag">
                         {facility.City?.toUpperCase()}
@@ -332,19 +336,18 @@ function Dashboard() {
                         {facility.Province?.toUpperCase()}
                       </div>
                       <h3 className="facility-name">{facility.Name}</h3>
-                      {/* Only display these attributes if they are filled */}
-                      <p className="facility-description">
-                        {facility?.Category && (
-                          <div>
-                            <strong>Category:</strong> {facility.Category}
-                          </div>
-                        )}
-                        {facility?.Address && (
-                          <div>
-                            <strong>Address:</strong> {facility.Address}
-                          </div>
-                        )}
-                      </p>
+
+                      <div className="category-tags">
+                        <div>
+                          {facility.Category ? (
+                            <span className="category-tag">
+                              {facility.Category}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -582,4 +585,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-
