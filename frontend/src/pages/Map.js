@@ -94,10 +94,10 @@ function Map() {
               Heritage<span>Hub</span>
             </Link>
             <div className="nav-links">
-              <Link to="/" className="nav-link active">
+              <Link to="/" className="nav-link">
                 Explore
               </Link>
-              <Link to="/Map" className="nav-link">
+              <Link to="/Map" className="nav-link active">
                 Map View
               </Link>
               <Link to="/bucket-list" className="nav-link">
