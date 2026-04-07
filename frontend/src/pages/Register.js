@@ -49,7 +49,7 @@ function Register() {
       </nav>
 
       <div className="auth-container">
-        <div className="auth-grid">
+        <div className="auth-register-grid">
           {/* Left Column - Form */}
           <div className="auth-form-container">
             <h1 className="auth-title">Create Your Account</h1>
