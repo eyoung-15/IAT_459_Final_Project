@@ -221,7 +221,7 @@ function Dashboard() {
               Heritage<span>Hub</span>
             </Link>
             <div className="nav-links">
-              <Link to="/" className="nav-link active">
+              <Link to="/" className="nav-link">
                 Explore
               </Link>
               <Link to="/Map" className="nav-link">
@@ -233,7 +233,7 @@ function Dashboard() {
               <Link to="/travel-journal" className="nav-link">
                 Travel Journal
               </Link>
-              <Link to="/dashboard" className="nav-link">
+              <Link to="/dashboard" className="nav-link active">
                 Manage
               </Link>
               {/* Nav link to admin panel. Only visible if user is present and role is admin */}
