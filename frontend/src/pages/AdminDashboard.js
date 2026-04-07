@@ -308,7 +308,7 @@ function AdminDashboard() {
               Heritage<span>Hub</span>
             </Link>
             <div className="nav-links">
-              <Link to="/" className="nav-link active">
+              <Link to="/" className="nav-link">
                 Explore
               </Link>
               <Link to="/Map" className="nav-link">
@@ -325,7 +325,7 @@ function AdminDashboard() {
               </Link>
               {/* Nav link to admin panel. Only visible if user is present and role is admin */}
               {user && user.role === "admin" && (
-                <Link to="/admin-dashboard" className="nav-link">
+                <Link to="/admin-dashboard" className="nav-link active">
                   Admin
                 </Link>
               )}
