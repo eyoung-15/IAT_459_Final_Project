@@ -298,7 +298,7 @@ function Dashboard() {
                   key={facility._id}
                   style={{ textDecoration: "none" }}
                 >
-                  <div className="facility-card-home">
+                  <div key={facility._id} className="facility-card-home">
                     <div className="card-image-container">
                       {/* show the last posted image from reviews */}
                       {facility.lastReviewImage ? (
