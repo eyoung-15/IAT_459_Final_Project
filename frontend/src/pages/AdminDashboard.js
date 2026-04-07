@@ -396,15 +396,18 @@ function AdminDashboard() {
             <div className="filters-row">
               <div className="filter-buttons">
                 {/* Search */}
+                <label className="filter-label">Search</label>
                 <input
                   type="text"
                   className="filter-btn"
-                  placeholder="Search my facilities..."
+                  placeholder="Search facilities..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
+              </div>
 
-                <h3>Category</h3>
+              <div className="filter-buttons">
+                <label className="filter-label">Category</label>
                 <select
                   name="Category"
                   className="filter-btn"
@@ -424,17 +427,21 @@ function AdminDashboard() {
                   </option>
                   <option value={"other"}>Other</option>
                 </select>
+              </div>
 
-                <h3>City</h3>
+              <div className="filter-buttons">
+                <label className="filter-label">City</label>
                 <input
                   type="text"
                   className="filter-btn"
-                  placeholder="City"
+                  placeholder="City..."
                   value={selectedCity}
                   onChange={(e) => setSelectedCity(e.target.value)}
                 />
+              </div>
 
-                <h3>Province/Territory</h3>
+              <div className="filter-buttons">
+                <label className="filter-label">Province/Territory</label>
                 <select
                   name="province"
                   className="filter-btn"
@@ -455,20 +462,21 @@ function AdminDashboard() {
                   <option value={"yt"}>Yukon</option>
                   <option value={"nt"}>Northwest Territories</option>
                 </select>
-
-                {/* Clear filters button */}
-                <button
-                  onClick={() => {
-                    setSearchTerm("");
-                    setSelectedCategory("");
-                    setSelectedCity("");
-                    setSelectedProvince("");
-                  }}
-                  className="filter-btn"
-                >
-                  Clear All Filters
-                </button>
               </div>
+
+              {/* Clear filters button */}
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategory("");
+                  setSelectedCity("");
+                  setSelectedProvince("");
+                }}
+                className="filter-btn"
+              >
+                Clear All Filters
+              </button>
+              {/* </div> */}
             </div>
 
             <div className="facilities-grid-home">
