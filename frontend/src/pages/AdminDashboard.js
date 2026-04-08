@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useCallback } from "react";
+import "../css/HeritageHub.css";
 
 function AdminDashboard() {
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
@@ -300,16 +301,34 @@ function AdminDashboard() {
 
   return (
     <div className="heritage-hub">
+      {/* --- REPLACED NAV BAR --- */}
       <nav className="navbar">
         {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
             <Link
               to="/"
-              className="logo"
+              className="logo-link"
               onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
             >
-              Heritage<span>Hub</span>
+              <div className="logo-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z" />
+                </svg>
+              </div>
+              <span className="logo-text">
+                Heritage<span className="logo-accent">Hub</span>
+              </span>
             </Link>
             <div className="nav-links">
               <Link
@@ -347,7 +366,6 @@ function AdminDashboard() {
               >
                 Manage
               </Link>
-              {/* Nav link to admin panel. Only visible if user is present and role is admin */}
               {user && user.role === "admin" && (
                 <Link
                   to="/admin-dashboard"
@@ -384,6 +402,8 @@ function AdminDashboard() {
           </div>
         </div>
       </nav>
+      {/* --- END REPLACED NAV BAR --- */}
+
       <div className="featured" style={{ marginTop: "2rem" }}>
         <h2 className="section-title">Admin Dashboard</h2>
 
@@ -844,4 +864,5 @@ function AdminDashboard() {
     </div>
   );
 }
+
 export default AdminDashboard;

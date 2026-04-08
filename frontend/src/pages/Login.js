@@ -7,7 +7,8 @@ import loginImg from "../images/login-img.jpg";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useContext(AuthContext);
+  // Add token, user, logout, and timeoutMsg to use the shared navigation bar logic
+  const { login, token, user, logout, timeoutMsg } = useContext(AuthContext);
   const navigate = useNavigate();
 
   async function handleLogin(e) {
@@ -35,14 +36,105 @@ function Login() {
 
   return (
     <div className="auth-page">
-      <nav className="auth-nav">
+      {/* Standard Shared Navigation */}
+      <nav className="navbar">
+        {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
-          <Link to="/" className="logo">
-            Heritage<span>Hub</span>
-          </Link>
-          <Link to="/" className="back-link">
-            ← Back to Explore
-          </Link>
+          <div className="nav-left">
+            <Link
+              to="/"
+              className="logo-link"
+              onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+            >
+              <div className="logo-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z" />
+                </svg>
+              </div>
+              <span className="logo-text">
+                Heritage<span className="logo-accent">Hub</span>
+              </span>
+            </Link>
+            <div className="nav-links">
+              <Link
+                to="/"
+                className="nav-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
+                Explore
+              </Link>
+              <Link
+                to="/Map"
+                className="nav-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
+                Map View
+              </Link>
+              <Link
+                to="/bucket-list"
+                className="nav-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
+                Bucket List
+              </Link>
+              <Link
+                to="/travel-journal"
+                className="nav-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
+                Travel Journal
+              </Link>
+              <Link
+                to="/dashboard"
+                className="nav-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
+                Manage
+              </Link>
+              {user && user.role === "admin" && (
+                <Link
+                  to="/admin-dashboard"
+                  className="nav-link"
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "instant" })
+                  }
+                >
+                  Admin
+                </Link>
+              )}
+            </div>
+          </div>
+
+          <div className="nav-right">
+            {!token ? (
+              <Link
+                to="/login"
+                className="sign-in-btn"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
+                Sign In
+              </Link>
+            ) : (
+              <div className="user-menu">
+                <span className="user-greeting">
+                  Hi, {user?.username || "User"}
+                </span>
+                <button onClick={logout} className="logout-btn">
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 

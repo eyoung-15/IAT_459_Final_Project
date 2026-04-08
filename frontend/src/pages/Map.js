@@ -29,7 +29,7 @@ function Map() {
   // Initial load: Fetch ALL facilities at once and keep them in memory
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:5001/api/facility")
+    fetch("http://localhost:5001/api/facility?limit=5000")
       .then((res) => res.json())
       .then((data) => setFacilities(data.data || []))
       .catch((err) => console.error("Error fetching facilities:", err))

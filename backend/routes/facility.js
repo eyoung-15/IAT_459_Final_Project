@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
       City,
       searchTerm,
       page = 1,
-      limit = 40,
+      limit = 150,
       north,
       south,
       east,
@@ -81,7 +81,7 @@ router.get("/", async (req, res) => {
       //calculate average rating + review count
       {
         $addFields: {
-          avgRating: { $round: [{$avg: "$reviews.rating" }, 1]}, //round to one decimal place
+          avgRating: { $round: [{ $avg: "$reviews.rating" }, 1] }, //round to one decimal place
           reviewCount: { $size: "$reviews" },
         },
       },
@@ -199,7 +199,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
           bucketList: req.params.id,
           visited: { facility: req.params.id },
         },
-      },
+      }
     );
     res.json({ message: "Facility successfully deleted" });
   } catch (err) {
@@ -214,7 +214,7 @@ router.put("/:id", verifyToken, async (req, res) => {
       req.params.id,
       req.body,
       // Enable the new facility, not old one
-      { new: true },
+      { new: true }
     );
     if (!updatedFacility) {
       return res.status(404).json({ error: "Facility not found" });
