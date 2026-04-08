@@ -289,7 +289,10 @@ function Dashboard() {
         {/* Facilities Grid */}
         <div className="facilities-grid-home">
           {loading ? (
-            <p>Loading facilities...</p>
+            <div className="load-container">
+              <div className="load-spin"></div>
+              <p>Loading facilities...</p>
+            </div>
           ) : filteredFacilities.length > 0 ? (
             filteredFacilities.map((facility) => (
               <div>
@@ -478,7 +481,7 @@ function Dashboard() {
               </div>
             ))
           ) : (
-            <div>
+            <div className="load-container">
               <p>No facilities found.</p>
             </div>
           )}
