@@ -224,7 +224,10 @@ function Home() {
 
         <div className="facilities-grid-home">
           {loading && facility.length === 0 ? (
-            <p>Loading facilities...</p>
+            <div className="load-container">
+              <div className="load-spin"></div>
+              <p>Loading facilities...</p>
+            </div>
           ) : facility.length > 0 ? (
             facility.map((facility) => (
               <Link
@@ -287,7 +290,7 @@ function Home() {
               </Link>
             ))
           ) : (
-            <div>
+            <div className="load-container">
               <p>No facilities found.</p>
             </div>
           )}
