@@ -52,7 +52,7 @@ function Map() {
 
           setLoading(true);
 
-          fetch(`http://localhost:5000/api/facility?${params}`)
+          fetch(`http://localhost:5001/api/facility?${params}`)
             .then((res) => res.json())
             .then((data) => setFacility(data.data))
             .catch((err) => console.error(err))
@@ -67,7 +67,7 @@ function Map() {
   // initial load
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:5000/api/facility")
+    fetch("http://localhost:5001/api/facility")
       .then((res) => res.json())
       .then((data) => setFacility(data.data))
       .catch((err) => console.error("Error fetching facilities:", err))
@@ -238,7 +238,7 @@ function Map() {
             </Marker>
           ) : (
             ""
-          ),
+          )
         )}
       </MapContainer>
     </div>

@@ -29,7 +29,7 @@ function FacilityDetails() {
   //fetch reviews and facility details
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:5000/api/facility/${id}`)
+    fetch(`http://localhost:5001/api/facility/${id}`)
       .then((res) => res.json())
       .then((data) => setFacility(data))
       .catch((err) => console.error("Error fetching facilities:", err))
@@ -37,7 +37,7 @@ function FacilityDetails() {
         setLoading(false);
       });
 
-    fetch(`http://localhost:5000/api/reviews/${id}`)
+    fetch(`http://localhost:5001/api/reviews/${id}`)
       .then((res) => res.json())
       .then((data) => setReviews(data));
   }, [id]);
@@ -46,7 +46,7 @@ function FacilityDetails() {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:5000/api/users/me", {
+    fetch("http://localhost:5001/api/users/me", {
       headers: {
         "Content-Type": "application/json",
         Authorization: token,
@@ -68,7 +68,7 @@ function FacilityDetails() {
   const toggleBucket = async () => {
     const method = inBucket ? "DELETE" : "POST";
 
-    await fetch(`http://localhost:5000/api/users/bucket/${id}`, {
+    await fetch(`http://localhost:5001/api/users/bucket/${id}`, {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -83,7 +83,7 @@ function FacilityDetails() {
   const toggleVisited = async () => {
     try {
       if (isVisited) {
-        await fetch(`http://localhost:5000/api/users/visited/${id}`, {
+        await fetch(`http://localhost:5001/api/users/visited/${id}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -95,7 +95,7 @@ function FacilityDetails() {
         //add to visited, default to todays date if no date provided
         const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
 
-        await fetch(`http://localhost:5000/api/users/visited/${id}`, {
+        await fetch(`http://localhost:5001/api/users/visited/${id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -141,7 +141,7 @@ function FacilityDetails() {
 
   const deleteReview = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/reviews/${id}`, {
+      const res = await fetch(`http://localhost:5001/api/reviews/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: token,
