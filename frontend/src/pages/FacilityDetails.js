@@ -115,11 +115,20 @@ function FacilityDetails() {
   };
 
   if (loading) {
-    return <p>Loading facility...</p>;
+    return (
+      <div className="load-container">
+        <div className="load-spin"></div>
+        <p>Loading facility...</p>
+      </div>
+    );
   }
 
   if (!facility) {
-    return <p>No facility found.</p>;
+    return (
+      <div className="load-container">
+        <p>No facility found.</p>
+      </div>
+    );
   }
 
   // Map markers
