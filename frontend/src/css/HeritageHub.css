@@ -16,6 +16,7 @@ body {
 
 .heritage-hub {
   min-height: 100vh;
+    padding-bottom: 2.5rem;
 }
 
 /* Navigation */
