@@ -78,12 +78,6 @@ function Login() {
                 />
               </div>
 
-              <div className="form-options">
-                <Link to="/forgot-password" className="forgot-link">
-                  Forgot password?
-                </Link>
-              </div>
-
               <button type="submit" className="auth-button">
                 Sign In →
               </button>
@@ -91,7 +85,11 @@ function Login() {
 
             <p className="auth-footer">
               Don't have a passport yet?{" "}
-              <Link to="/register" className="auth-link">
+              <Link
+                to="/register"
+                className="auth-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
                 Create an account
               </Link>
             </p>
@@ -100,11 +98,7 @@ function Login() {
           {/* Right Column - Quote with Image */}
           <div className="auth-quote-container">
             <div className="quote-content">
-              <img
-                src={loginImg}
-                alt="HeritageHub"
-                className="quote-image"
-              />
+              <img src={loginImg} alt="HeritageHub" className="quote-image" />
               <blockquote className="quote-text">
                 "Traveling—it leaves you speechless, then turns you into a
                 storyteller."
@@ -121,3 +115,4 @@ function Login() {
 }
 
 export default Login;
+
