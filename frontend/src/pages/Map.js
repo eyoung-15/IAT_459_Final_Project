@@ -75,7 +75,20 @@ function Map() {
   }, []);
 
   if (loading && (!facility || facility.length === 0)) {
-    return <p>Loading map...</p>;
+    return (
+      <div className="load-container">
+        <div className="load-spin"></div>
+        <p>Loading facilities...</p>
+      </div>
+    );
+  }
+
+  if (!facility) {
+    return (
+      <div className="load-container">
+        <p>No facilities found.</p>
+      </div>
+    );
   }
 
   const filteredFacilities = facility.filter((facility) => {
