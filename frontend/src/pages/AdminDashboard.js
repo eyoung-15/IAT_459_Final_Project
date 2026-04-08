@@ -481,7 +481,10 @@ function AdminDashboard() {
 
             <div className="facilities-grid-home">
               {loadingFacilities ? (
-                <p>Loading facilities...</p>
+                <div className="load-container">
+                  <div className="load-spin"></div>
+                  <p>Loading facilities...</p>
+                </div>
               ) : facilities.length > 0 ? (
                 facilities.map((facility) => (
                   <div>
@@ -656,7 +659,7 @@ function AdminDashboard() {
                   </div>
                 ))
               ) : (
-                <div>
+                <div className="load-container">
                   <p>No facilities found.</p>
                 </div>
               )}
@@ -684,7 +687,10 @@ function AdminDashboard() {
         ) : currentView === "users" ? (
           <div className="facilities-grid-home">
             {loadingUsers ? (
-              <p>Loading users...</p>
+              <div className="load-container">
+                <div className="load-spin"></div>
+                <p>Loading users...</p>
+              </div>
             ) : users.length > 0 ? (
               users.map((user) => (
                 <div>
@@ -729,7 +735,7 @@ function AdminDashboard() {
                 </div>
               ))
             ) : (
-              <div>
+              <div className="load-container">
                 <p>No users found.</p>
               </div>
             )}
@@ -737,7 +743,10 @@ function AdminDashboard() {
         ) : currentView === "reviews" ? (
           <div className="facilities-grid-home">
             {loadingReviews ? (
-              <p>Loading reviews...</p>
+              <div className="load-container">
+                <div className="load-spin"></div>
+                <p>Loading reviews...</p>
+              </div>
             ) : reviews.length > 0 ? (
               reviews.map((review) => (
                 <div>
@@ -786,7 +795,7 @@ function AdminDashboard() {
                 </div>
               ))
             ) : (
-              <div>
+              <div className="load-container">
                 <p>No reviews found.</p>
               </div>
             )}
