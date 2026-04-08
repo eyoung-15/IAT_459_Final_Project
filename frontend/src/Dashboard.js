@@ -217,28 +217,58 @@ function Dashboard() {
         {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
-            <Link to="/" className="logo">
+            <Link
+              to="/"
+              className="logo"
+              onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+            >
               Heritage<span>Hub</span>
             </Link>
             <div className="nav-links">
-              <Link to="/" className="nav-link">
+              <Link
+                to="/"
+                className="nav-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
                 Explore
               </Link>
-              <Link to="/Map" className="nav-link">
+              <Link
+                to="/Map"
+                className="nav-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
                 Map View
               </Link>
-              <Link to="/bucket-list" className="nav-link">
+              <Link
+                to="/bucket-list"
+                className="nav-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
                 Bucket List
               </Link>
-              <Link to="/travel-journal" className="nav-link">
+              <Link
+                to="/travel-journal"
+                className="nav-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
                 Travel Journal
               </Link>
-              <Link to="/dashboard" className="nav-link active">
+              <Link
+                to="/dashboard"
+                className="nav-link active"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
                 Manage
               </Link>
               {/* Nav link to admin panel. Only visible if user is present and role is admin */}
               {user && user.role === "admin" && (
-                <Link to="/admin-dashboard" className="nav-link">
+                <Link
+                  to="/admin-dashboard"
+                  className="nav-link"
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "instant" })
+                  }
+                >
                   Admin
                 </Link>
               )}
@@ -247,7 +277,11 @@ function Dashboard() {
 
           <div className="nav-right">
             {!token ? (
-              <Link to="/login" className="sign-in-btn">
+              <Link
+                to="/login"
+                className="sign-in-btn"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
                 Sign In
               </Link>
             ) : (
@@ -300,6 +334,9 @@ function Dashboard() {
                   to={`/facility/${facility._id}`}
                   key={facility._id}
                   style={{ textDecoration: "none" }}
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "instant" })
+                  }
                 >
                   <div key={facility._id} className="facility-card-home">
                     <div className="card-image-container">
