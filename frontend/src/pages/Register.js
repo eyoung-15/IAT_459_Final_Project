@@ -102,7 +102,11 @@ function Register() {
 
             <p className="auth-footer">
               Already have an account?{" "}
-              <Link to="/login" className="auth-link">
+              <Link
+                to="/login"
+                className="auth-link"
+                onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+              >
                 Sign in
               </Link>
             </p>
