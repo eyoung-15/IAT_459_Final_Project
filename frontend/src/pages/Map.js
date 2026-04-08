@@ -6,12 +6,11 @@ import {
   Marker,
   Popup,
   TileLayer,
-  useMapEvents,
   ZoomControl,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import "../css/HeritageHub.css"; // Ensure this matches your CSS file path
+import "../css/HeritageHub.css";
 
 // Restore your original marker image
 const markerIcon = new L.Icon({
@@ -26,35 +25,8 @@ function Map() {
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  let timeout = null;
 
-  // Fetch facilities based on map bounds (Original Logic Preserved)
-  function MapEvents() {
-    const map = useMapEvents({
-      moveend: () => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          const bounds = map.getBounds();
-          const params = new URLSearchParams({
-            north: bounds.getNorth(),
-            south: bounds.getSouth(),
-            east: bounds.getEast(),
-            west: bounds.getWest(),
-          });
-
-          setLoading(true);
-          fetch(`http://localhost:5001/api/facility?${params}`)
-            .then((res) => res.json())
-            .then((data) => setFacilities(data.data || []))
-            .catch((err) => console.error("API failed", err))
-            .finally(() => setLoading(false));
-        }, 300);
-      },
-    });
-    return null;
-  }
-
-  // Initial load
+  // Initial load: Fetch ALL facilities at once and keep them in memory
   useEffect(() => {
     setLoading(true);
     fetch("http://localhost:5001/api/facility")
@@ -64,18 +36,49 @@ function Map() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredFacilities = facilities.filter(
-    (facility) =>
-      (facility.Name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (facility.Location || "")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      (facility.Type || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Map province codes to full names for accurate search filtering
+  const provinceMap = {
+    ab: "Alberta",
+    bc: "British Columbia",
+    mb: "Manitoba",
+    nb: "New Brunswick",
+    nl: "Newfoundland and Labrador",
+    ns: "Nova Scotia",
+    nt: "Northwest Territories",
+    nu: "Nunavut",
+    on: "Ontario",
+    pe: "Prince Edward Island",
+    qc: "Quebec",
+    sk: "Saskatchewan",
+    yt: "Yukon",
+  };
+
+  function getProvinceFullName(code) {
+    if (!code) return "";
+    return provinceMap[code.toLowerCase()] || code;
+  }
+
+  // Improved Search filter applied to Name, City, Province (Code & Full Name), or Category
+  const filteredFacilities = facilities.filter((facility) => {
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return true; // Show all if search is empty
+
+    const provinceFullName = getProvinceFullName(
+      facility.Province
+    ).toLowerCase();
+
+    return (
+      (facility.Name || "").toLowerCase().includes(term) ||
+      (facility.City || "").toLowerCase().includes(term) ||
+      (facility.Category || "").toLowerCase().includes(term) ||
+      (facility.Province || "").toLowerCase().includes(term) ||
+      provinceFullName.includes(term)
+    );
+  });
 
   return (
     <div className="heritage-hub-wrapper">
-      {/* Top Navigation */}
+      {/* Shared Navigation Bar */}
       <nav className="navbar">
         {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
@@ -83,10 +86,9 @@ function Map() {
             <Link
               to="/"
               className="logo-link"
-              onClick={() => window.scrollTo({ top: 0 })}
+              onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
             >
               <div className="logo-icon">
-                {/* Replaced Lucide Leaf with inline SVG */}
                 <svg
                   width="20"
                   height="20"
@@ -121,23 +123,29 @@ function Map() {
               <Link to="/dashboard" className="nav-link">
                 Manage
               </Link>
+              {user && user.role === "admin" && (
+                <Link to="/admin-dashboard" className="nav-link">
+                  Admin
+                </Link>
+              )}
             </div>
           </div>
-
-          {!token ? (
-            <Link to="/login" className="sign-in-btn">
-              Sign In
-            </Link>
-          ) : (
-            <div className="user-menu">
-              <span className="user-greeting">
-                Hi, {user?.username || "User"}
-              </span>
-              <button onClick={logout} className="logout-btn">
-                Logout
-              </button>
-            </div>
-          )}
+          <div className="nav-right">
+            {!token ? (
+              <Link to="/login" className="sign-in-btn">
+                Sign In
+              </Link>
+            ) : (
+              <div className="user-menu">
+                <span className="user-greeting">
+                  Hi, {user?.username || "User"}
+                </span>
+                <button onClick={logout} className="logout-btn">
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -148,8 +156,8 @@ function Map() {
           <div className="sidebar-header">
             <h1 className="sidebar-title">Explore Map</h1>
 
-            <div className="search-box">
-              {/* Replaced Lucide Search with inline SVG */}
+            {/* Clean Search Box */}
+            <div className="search-box" style={{ marginBottom: 0 }}>
               <svg
                 className="search-icon"
                 width="18"
@@ -166,17 +174,10 @@ function Map() {
               </svg>
               <input
                 type="text"
-                placeholder="Search by name, city, or category..."
+                placeholder="Search by name, city, or province..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-            </div>
-
-            <div className="filter-chips">
-              <button className="chip filter-btn">Filters</button>
-              <button className="chip active">All Types</button>
-              <button className="chip outline">Museums</button>
-              <button className="chip outline">Galleries</button>
             </div>
           </div>
 
@@ -186,69 +187,91 @@ function Map() {
             </h2>
 
             <div className="facility-list">
-              {filteredFacilities.map((facility) => (
-                <div key={facility._id} className="facility-card">
-                  {/* Using a placeholder if no image exists in DB */}
-                  <img
-                    src={
-                      facility.Image ||
-                      "https://images.unsplash.com/photo-1667903717735-d6c58672839f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400"
-                    }
-                    alt={facility.Name}
-                    className="facility-img"
-                  />
-                  <div className="facility-info">
-                    <div className="facility-meta">
-                      <span className="facility-type">
-                        {facility.Type || "HERITAGE SITE"}
-                      </span>
-                      <div className="facility-rating">
-                        {/* Replaced Lucide Star with inline SVG */}
+              {loading ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "2rem",
+                    color: "#6b8e78",
+                  }}
+                >
+                  Loading map data...
+                </div>
+              ) : (
+                filteredFacilities.map((facility) => (
+                  <div key={facility._id} className="facility-card">
+                    {/* Using user-submitted image or generic fallback */}
+                    <img
+                      src={
+                        facility.lastReviewImage ||
+                        "https://images.unsplash.com/photo-1667903717735-d6c58672839f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400"
+                      }
+                      alt={facility.Name}
+                      className="facility-img"
+                    />
+
+                    <div className="facility-info">
+                      <div className="facility-meta">
+                        <span className="facility-type">
+                          {facility.Category || "HERITAGE SITE"}
+                        </span>
+
+                        {/* Dynamic Review Rating */}
+                        <div className="facility-rating">
+                          <svg
+                            className="star-icon"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="#f59e0b"
+                            stroke="#f59e0b"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                          </svg>
+                          <span>
+                            {facility.avgRating && facility.avgRating > 0
+                              ? Number(facility.avgRating).toFixed(1)
+                              : "New"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <h3 className="facility-name">{facility.Name}</h3>
+
+                      <p className="facility-location">
+                        {facility.City}
+                        {facility.City && facility.Province ? ", " : ""}
+                        {facility.Province?.toUpperCase()}
+                      </p>
+
+                      <Link
+                        to={`/facility/${facility._id}`}
+                        className="view-details-btn"
+                        onClick={() =>
+                          window.scrollTo({ top: 0, behavior: "instant" })
+                        }
+                      >
+                        View Details
                         <svg
-                          className="star-icon"
-                          width="12"
-                          height="12"
+                          width="14"
+                          height="14"
                           viewBox="0 0 24 24"
-                          fill="#f59e0b"
-                          stroke="#f59e0b"
+                          fill="none"
+                          stroke="currentColor"
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                          <path d="m9 18 6-6-6-6" />
                         </svg>
-                        <span>{facility.Rating || "4.5"}</span>
-                      </div>
+                      </Link>
                     </div>
-
-                    <h3 className="facility-name">{facility.Name}</h3>
-                    <p className="facility-location">
-                      {facility.Location || "Canada"}
-                    </p>
-
-                    <Link
-                      to={`/facility/${facility._id}`}
-                      className="view-details-btn"
-                      onClick={() => window.scrollTo({ top: 0 })}
-                    >
-                      View Details
-                      {/* Replaced Lucide ChevronRight with inline SVG */}
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="m9 18 6-6-6-6" />
-                      </svg>
-                    </Link>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </aside>
@@ -266,10 +289,9 @@ function Map() {
               attribution="&copy; OpenStreetMap contributors &copy; CARTO"
             />
 
-            <MapEvents />
             <ZoomControl position="topright" />
 
-            {/* Restored Original Popup functionality with marker.png */}
+            {/* Render all fetched locations */}
             {filteredFacilities.map((facility) =>
               facility.Latitude && facility.Longitude ? (
                 <Marker

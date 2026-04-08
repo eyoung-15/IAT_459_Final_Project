@@ -3,9 +3,8 @@ import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import "../css/HeritageHub.css";
 
-//display facilities users want to visit
 function BucketList() {
-  const { token } = useContext(AuthContext);
+  const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const [bucket, setBucket] = useState([]);
   const [stats, setStats] = useState({});
 
@@ -18,7 +17,6 @@ function BucketList() {
     })
       .then((res) => res.json())
       .then((data) => {
-        //sort bucket list by newest first
         setBucket(
           data.user.bucketList.sort((a, b) => new Date(b._id) - new Date(a._id))
         );
@@ -38,10 +36,8 @@ function BucketList() {
     });
   };
 
-  //get provinces from bucket list for grouping
   const provinces = [...new Set(bucket.map((facility) => facility.Province))];
 
-  //map province to its full name to replace shorthand
   const provinceMap = {
     ab: "Alberta",
     bc: "British Columbia",
@@ -58,74 +54,136 @@ function BucketList() {
     yt: "Yukon",
   };
 
-  //get full province name
   function getProvinceName(code) {
     return provinceMap[code] || code;
   }
 
   return (
-    <div className="page-container">
-      <header
-        className="main-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <h1 style={{ margin: 0 }}>
-            Canada Museums, Galleries, & Cultural Sites
-          </h1>
-        </div>
-
-        {/* Conditionaly display login/logout buttons based on if user has token */}
-        {!token ? (
-          <Link to="/login" style={{ color: "#122A64", fontWeight: "bold" }}>
-            Login
-          </Link>
-        ) : (
-          <div>
-            {/* To Home page */}
+    <div className="heritage-home-wrapper page-container">
+      {/* Shared Navigation Bar */}
+      <nav className="navbar">
+        {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
+        <div className="nav-container">
+          <div className="nav-left">
             <Link
               to="/"
-              style={{ padding: "4rem", color: "#122A64", fontWeight: "bold" }}
+              className="logo-link"
+              onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
             >
-              Home
+              <div className="logo-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                </svg>
+              </div>
+              <span className="logo-text">
+                Heritage<span className="logo-accent">Hub</span>
+              </span>
             </Link>
-          </div>
-        )}
-      </header>
-
-      <h2>My Bucket List</h2>
-      <p> You have {stats.bucketCount || 0} saved places</p>
-
-      {/* group bucket list by province */}
-      {provinces.map((prov) => (
-        <div key={prov}>
-          <h3>{getProvinceName(prov)}</h3>
-          {bucket
-            .filter((facility) => facility.Province === prov) //filter facilities by province
-            .map((facility) => (
-              <Link to={`/facility/${facility._id}`} key={facility._id}>
-                <div className="facility-card-home">
-                  <h3>{facility.Name}</h3>
-                  <p>
-                    {facility.City}, {facility.Province}
-                  </p>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      remove(facility._id);
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
+            <div className="nav-links">
+              <Link to="/" className="nav-link">
+                Explore
               </Link>
-            ))}
+              <Link to="/Map" className="nav-link">
+                Map View
+              </Link>
+              <Link to="/bucket-list" className="nav-link active">
+                Bucket List
+              </Link>
+              <Link to="/travel-journal" className="nav-link">
+                Travel Journal
+              </Link>
+              <Link to="/dashboard" className="nav-link">
+                Manage
+              </Link>
+              {user && user.role === "admin" && (
+                <Link to="/admin-dashboard" className="nav-link">
+                  Admin
+                </Link>
+              )}
+            </div>
+          </div>
+          <div className="nav-right">
+            {!token ? (
+              <Link to="/login" className="sign-in-btn">
+                Sign In
+              </Link>
+            ) : (
+              <div className="user-menu">
+                <span className="user-greeting">
+                  Hi, {user?.username || "User"}
+                </span>
+                <button onClick={logout} className="logout-btn">
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      ))}
+      </nav>
+
+      <div className="lists-container">
+        <header className="list-header">
+          <h1 className="list-title">My Bucket List</h1>
+          <p className="list-subtitle">
+            You have {stats.bucketCount || 0} locations saved for future
+            travels.
+          </p>
+        </header>
+
+        {provinces.map((prov) => (
+          <div key={prov} className="list-group">
+            <h3 className="group-title">{getProvinceName(prov)}</h3>
+            <div className="facilities-grid">
+              {bucket
+                .filter((facility) => facility.Province === prov)
+                .map((facility) => (
+                  <div
+                    key={facility._id}
+                    className="facility-card-home list-card"
+                  >
+                    <div className="card-details">
+                      <div className="card-meta">
+                        <span className="card-category">SAVED SITE</span>
+                      </div>
+                      <h3 className="card-title">{facility.Name}</h3>
+                      <p className="card-location">
+                        {facility.City}, {getProvinceName(facility.Province)}
+                      </p>
+
+                      <div className="card-actions">
+                        <Link
+                          to={`/facility/${facility._id}`}
+                          className="view-btn"
+                        >
+                          View Details
+                        </Link>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            remove(facility._id);
+                          }}
+                          className="remove-btn"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
