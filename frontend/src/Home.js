@@ -30,7 +30,7 @@ function Home() {
         });
 
         const res = await fetch(
-          `http://localhost:5000/api/facility?${query.toString()}`,
+          `http://localhost:5001/api/facility?${query.toString()}`
         );
 
         const data = await res.json();
@@ -44,7 +44,7 @@ function Home() {
         setLoading(false);
       }
     },
-    [searchTerm, selectedCategory, selectedCity, selectedProvince],
+    [searchTerm, selectedCategory, selectedCity, selectedProvince]
   ); //refetch if a filter changes
 
   //fetch when page changes

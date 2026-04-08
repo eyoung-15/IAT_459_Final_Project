@@ -54,7 +54,7 @@ function AdminDashboard() {
         });
 
         const res = await fetch(
-          `http://localhost:5000/api/facility?${query.toString()}`,
+          `http://localhost:5001/api/facility?${query.toString()}`
         );
 
         const data = await res.json();
@@ -68,7 +68,7 @@ function AdminDashboard() {
         setLoadingFacilities(false);
       }
     },
-    [searchTerm, selectedCategory, selectedCity, selectedProvince],
+    [searchTerm, selectedCategory, selectedCity, selectedProvince]
   ); //refetch if a filter changes
 
   //fetch when page changes
@@ -94,7 +94,7 @@ function AdminDashboard() {
     if (!token) return;
     if (currentView !== "users") return;
     setLoadingUsers(true);
-    fetch("http://localhost:5000/api/users", {
+    fetch("http://localhost:5001/api/users", {
       headers: {
         Authorization: token,
       },
@@ -109,7 +109,7 @@ function AdminDashboard() {
     if (!token) return;
     if (currentView !== "reviews") return;
     setLoadingReviews(true);
-    fetch("http://localhost:5000/api/reviews", {
+    fetch("http://localhost:5001/api/reviews", {
       headers: {
         Authorization: token,
       },
@@ -122,7 +122,7 @@ function AdminDashboard() {
 
   const handleDeleteFacility = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/facility/${id}`, {
+      const response = await fetch(`http://localhost:5001/api/facility/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: token,
@@ -142,7 +142,7 @@ function AdminDashboard() {
 
   const handleDeleteUser = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+      const response = await fetch(`http://localhost:5001/api/users/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: token,
@@ -160,7 +160,7 @@ function AdminDashboard() {
 
   const handleDeleteReview = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/reviews/${id}`, {
+      const response = await fetch(`http://localhost:5001/api/reviews/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: token,
@@ -179,13 +179,13 @@ function AdminDashboard() {
   const handleRole = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/users/${id}/role`,
+        `http://localhost:5001/api/users/${id}/role`,
         {
           method: "PUT",
           headers: {
             Authorization: token,
           },
-        },
+        }
       );
       if (!response.ok) {
         throw new Error("Failed to update role");
@@ -193,7 +193,7 @@ function AdminDashboard() {
       const data = await response.json();
       // Update the UI right away
       setUsers(
-        users.map((u) => (u._id === id ? { ...u, role: data.user.role } : u)),
+        users.map((u) => (u._id === id ? { ...u, role: data.user.role } : u))
       );
     } catch (err) {
       console.error(err);
@@ -206,7 +206,7 @@ function AdminDashboard() {
     e.preventDefault();
     try {
       const response = await fetch(
-        `http://localhost:5000/api/facility/${editMenu}`,
+        `http://localhost:5001/api/facility/${editMenu}`,
         {
           method: "PUT",
           headers: {
@@ -223,7 +223,7 @@ function AdminDashboard() {
             Latitude: Number(facilityData.Latitude),
             Longitude: Number(facilityData.Longitude),
           }),
-        },
+        }
       );
       if (!response.ok) {
         throw new Error("Failed to update facility");
@@ -232,8 +232,8 @@ function AdminDashboard() {
       // Update the UI right away
       setFacilities(
         facilities.map((facility) =>
-          facility._id === editMenu ? updatedFacility : facility,
-        ),
+          facility._id === editMenu ? updatedFacility : facility
+        )
       );
       // Close editMenu
       setEditMenu(null);
@@ -585,7 +585,7 @@ function AdminDashboard() {
                       onClick={() => {
                         // Open the edit menu based on which id has been clicked
                         setEditMenu(
-                          editMenu === facility._id ? null : facility._id,
+                          editMenu === facility._id ? null : facility._id
                         );
                         // Fill values with existing facility data
                         setFacilityData(facility);

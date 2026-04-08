@@ -24,7 +24,7 @@ function Dashboard() {
   useEffect(() => {
     if (!token) return;
     setLoading(true);
-    fetch("http://localhost:5000/api/facility/my-facilities", {
+    fetch("http://localhost:5001/api/facility/my-facilities", {
       headers: {
         Authorization: token,
       },
@@ -61,7 +61,7 @@ function Dashboard() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/facility", {
+      const response = await fetch("http://localhost:5001/api/facility", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +92,7 @@ function Dashboard() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/facility/${id}`, {
+      const response = await fetch(`http://localhost:5001/api/facility/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: token,
@@ -119,7 +119,7 @@ function Dashboard() {
     e.preventDefault();
     try {
       const response = await fetch(
-        `http://localhost:5000/api/facility/${editMenu}`,
+        `http://localhost:5001/api/facility/${editMenu}`,
         {
           method: "PUT",
           headers: {
@@ -136,7 +136,7 @@ function Dashboard() {
             Latitude: Number(facilityEditData.Latitude),
             Longitude: Number(facilityEditData.Longitude),
           }),
-        },
+        }
       );
       if (!response.ok) {
         throw new Error("Failed to update facility");
@@ -145,8 +145,8 @@ function Dashboard() {
       // Update the UI right away
       setMyFacilities(
         myFacilities.map((facility) =>
-          facility._id === editMenu ? updatedFacility : facility,
-        ),
+          facility._id === editMenu ? updatedFacility : facility
+        )
       );
       // Close editMenu
       setEditMenu(null);
@@ -409,7 +409,7 @@ function Dashboard() {
                   onClick={() => {
                     // Open the edit menu based on which id has been clicked
                     setEditMenu(
-                      editMenu === facility._id ? null : facility._id,
+                      editMenu === facility._id ? null : facility._id
                     );
                     // Fill values with existing facility data
                     setFacilityEditData(facility);
