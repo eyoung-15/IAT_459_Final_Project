@@ -1,25 +1,21 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import {
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-  ZoomControl,
-  useMap,
-  useMapEvents,
-} from "react-leaflet";
+import {MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap, useMapEvents,} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "../css/HeritageHub.css";
+
+// References to build map:
+// https://ujjwaltiwari2.medium.com/a-guide-to-using-openstreetmap-with-react-70932389b8b1
+// https://medevel.com/react-and-leaflet-js-tutorial/
 
 // Restore your original marker image
 const markerIcon = new L.Icon({
   iconUrl: require("../../src/images/marker.png"),
   iconSize: [24, 24],
-  iconAnchor: [12, 24],
-  popupAnchor: [0, -26],
+  iconAnchor: [12, 24], //[left/right, top/bottom]
+  popupAnchor: [0, -26], //[left/right, top/bottom]
 });
 
 // Component to handle map events and update bounds

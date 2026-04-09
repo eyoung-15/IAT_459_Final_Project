@@ -7,17 +7,25 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "../css/HeritageHub.css";
 
+// References to build map:
+// https://ujjwaltiwari2.medium.com/a-guide-to-using-openstreetmap-with-react-70932389b8b1
+// https://medevel.com/react-and-leaflet-js-tutorial/
+
 function FacilityDetails() {
   const { id } = useParams();
+  // Main facilities array
   const [facility, setFacility] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  //Get token, user, logout from AuthContext
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
+  //bucket list + visited
   const [inBucket, setInBucket] = useState(false);
   const [isVisited, setIsVisited] = useState(false);
-  const [visitedDate, setVisitedDate] = useState("");
+  const [visitedDate, setVisitedDate] = useState(""); //for setting date visited
 
+  //fetch reviews and facility details
   useEffect(() => {
     setLoading(true);
     fetch(`http://localhost:5001/api/facility/${id}`)
@@ -31,6 +39,7 @@ function FacilityDetails() {
       .then((data) => setReviews(data));
   }, [id]);
 
+  // fetch bucket list and visited status if logged in
   useEffect(() => {
     if (!token) return;
     fetch("http://localhost:5001/api/users/me", {
@@ -39,11 +48,14 @@ function FacilityDetails() {
       .then((res) => res.json())
       .then((data) => {
         const user = data.user;
+        //check if facility is in bucket list
         setInBucket(user.bucketList.some((f) => f._id.toString() === id));
+        //check if facility is in travel journal
         setIsVisited(user.visited.some((v) => v.facility._id === id));
       });
   }, [token, id]);
 
+  //toggle bucket list
   const toggleBucket = async () => {
     const method = inBucket ? "DELETE" : "POST";
     await fetch(`http://localhost:5001/api/users/bucket/${id}`, {
@@ -52,6 +64,7 @@ function FacilityDetails() {
     }).then(() => setInBucket(!inBucket));
   };
 
+  //toggle visited status
   const toggleVisited = async () => {
     try {
       if (isVisited) {
@@ -61,6 +74,7 @@ function FacilityDetails() {
         });
         setIsVisited(false);
       } else {
+        //add to visited, default to todays date if no date provided
         const dateToSend = visitedDate ? new Date(visitedDate) : new Date();
         await fetch(`http://localhost:5001/api/users/visited/${id}`, {
           method: "POST",
@@ -68,19 +82,20 @@ function FacilityDetails() {
           body: JSON.stringify({ visitedAt: dateToSend }),
         });
         setIsVisited(true);
-        setInBucket(false);
-        setVisitedDate("");
+        setInBucket(false); //remove from bucket list if in travel journal
+        setVisitedDate(""); //reset date input
       }
     } catch (err) {
       console.error("Toggle visited failed:", err);
     }
   };
 
+  // Map markers
   const markerIcon = new L.Icon({
     iconUrl: require("../../src/images/marker.png"),
     iconSize: [24, 24],
-    iconAnchor: [12, 24],
-    popupAnchor: [0, -26],
+    iconAnchor: [12, 24], //[left/right, top/bottom]
+    popupAnchor: [0, -26], //[left/right, top/bottom]
   });
 
   const deleteReview = async (id) => {
@@ -96,6 +111,7 @@ function FacilityDetails() {
     }
   };
 
+  //capitalize the first letter of each word
   function capitalizeWords(str) {
     if (!str) return "";
     return str
@@ -105,6 +121,7 @@ function FacilityDetails() {
       .join(" ");
   }
 
+  //province shorthand to full name
   const provinceMap = {
     ab: "Alberta",
     bc: "British Columbia",
@@ -274,7 +291,8 @@ function FacilityDetails() {
           )}
         </div>
 
-        {/* Map Section */}
+      {/* MAP */}
+      {/* Avoid throwing error if theres no lat/lng values by only generating map if they exist */}
         {facility.Latitude && facility.Longitude && (
           <div className="details-map-container">
             <MapContainer
@@ -286,10 +304,12 @@ function FacilityDetails() {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution="&copy; OpenStreetMap contributors"
               />
+              {/* Marker to indicate where facility is located on map based on lat/lng values */}
               <Marker
                 position={[facility.Latitude, facility.Longitude]}
                 icon={markerIcon}
               >
+              {/* On clicking the marker, display name and address */}
                 <Popup>
                   <b>{facility.Name}</b>
                   <br />

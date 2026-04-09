@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import "../css/HeritageHub.css";
 
+//display facilities users want to visit
 function BucketList() {
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const [bucket, setBucket] = useState([]);
@@ -17,9 +18,8 @@ function BucketList() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setBucket(
-          data.user.bucketList.sort((a, b) => new Date(b._id) - new Date(a._id))
-        );
+      //sort bucket list by newest first
+        setBucket(data.user.bucketList.sort((a, b) => new Date(b._id) - new Date(a._id)) );
         setStats(data.stats);
       });
   }, [token]);
@@ -36,8 +36,10 @@ function BucketList() {
     });
   };
 
+  //get provinces from bucket list for grouping
   const provinces = [...new Set(bucket.map((facility) => facility.Province))];
 
+  //map province to its full name to replace shorthand
   const provinceMap = {
     ab: "Alberta",
     bc: "British Columbia",
@@ -54,6 +56,7 @@ function BucketList() {
     yt: "Yukon",
   };
 
+  //get full province name
   function getProvinceName(code) {
     return provinceMap[code] || code;
   }
@@ -113,6 +116,7 @@ function BucketList() {
             </div>
           </div>
           <div className="nav-right">
+          {/* Conditionaly display login/logout buttons based on if user has token */}
             {!token ? (
               <Link to="/login" className="sign-in-btn">
                 Sign In
@@ -140,12 +144,13 @@ function BucketList() {
           </p>
         </header>
 
+        {/* group bucket list by province */}
         {provinces.map((prov) => (
           <div key={prov} className="list-group">
             <h3 className="group-title">{getProvinceName(prov)}</h3>
             <div className="facilities-grid">
               {bucket
-                .filter((facility) => facility.Province === prov)
+                .filter((facility) => facility.Province === prov) //filter facilities by province
                 .map((facility) => (
                   <div
                     key={facility._id}

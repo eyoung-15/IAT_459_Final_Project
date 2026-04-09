@@ -9,8 +9,9 @@ function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [editMenu, setEditMenu] = useState(null);
-
+  // Initialize facilityData and specify attributes/inputs that can be filled under it
   const [facilityEditData, setFacilityEditData] = useState({
+    //Empty until user inputs new data
     Name: "",
     Category: "",
     Province: "",
@@ -97,6 +98,7 @@ function Dashboard() {
     (facility.Name || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // onSubmit, applies this function. Prevents reload behaviour, applies facilityData. EditMenu holds the id of the facility with the editMenu currently open
   async function handleFacilityEditSubmit(e) {
     e.preventDefault();
     try {
@@ -119,15 +121,18 @@ function Dashboard() {
       if (!response.ok) throw new Error("Failed to update facility");
 
       const updatedFacility = await response.json();
+      // Update the UI right away
       setMyFacilities(
         myFacilities.map((f) => (f._id === editMenu ? updatedFacility : f))
       );
+      // Close editMenu
       setEditMenu(null);
     } catch (err) {
       alert(err.message);
     }
   }
 
+  // When user interacts with edit facility inputs, set the facilityData attribute to match the value
   const handleEditFacility = (e) => {
     setFacilityEditData({
       ...facilityEditData,
@@ -262,6 +267,7 @@ function Dashboard() {
                 <div key={facility._id} className="manage-card-wrapper">
                   <div className="facility-card-home">
                     <div className="card-image-box" style={{ height: "180px" }}>
+                      {/* show the last posted image from reviews */}
                       {facility.lastReviewImage ? (
                         <img
                           src={facility.lastReviewImage}

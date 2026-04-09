@@ -43,8 +43,7 @@ function Home() {
         setLoading(false);
       }
     },
-    [searchTerm, selectedCategory, selectedCity, selectedProvince]
-  ); //refetch if a filter changes
+    [searchTerm, selectedCategory, selectedCity, selectedProvince]); //refetch if a filter changes
 
   //fetch when page changes
   useEffect(() => {
@@ -60,6 +59,7 @@ function Home() {
   useEffect(() => {
     const delay = setTimeout(() => {
       setCurrentPage(1);
+      //reset to first page after user stops typing in search
     }, 400);
     return () => clearTimeout(delay);
   }, [searchTerm]);
@@ -308,6 +308,7 @@ function Home() {
                   }
                 >
                   <div className="card-image-box">
+                     {/* show the last posted image from reviews */}
                     {item.lastReviewImage || item.Image ? (
                       <img
                         src={item.lastReviewImage || item.Image}

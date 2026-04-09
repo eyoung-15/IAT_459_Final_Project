@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import "../css/HeritageHub.css";
 
+//display facilities users have visited
 function TravelJournal() {
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
   const [visited, setVisited] = useState([]);
@@ -17,22 +18,18 @@ function TravelJournal() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setVisited(
-          data.user.visited.sort(
-            (a, b) => new Date(b.visitedAt) - new Date(a.visitedAt)
-          )
-        );
+       //sort visited by newest first
+        setVisited(data.user.visited.sort((a, b) => new Date(b.visitedAt) - new Date(a.visitedAt)));
         setStats(data.stats);
       });
   }, [token]);
 
+   //group visited places by month and year for UI
   const grouped = (visited || []).reduce((acc, v) => {
     const date = new Date(v.visitedAt);
-    const key = `${date.toLocaleString("default", {
-      month: "long",
-    })} ${date.getFullYear()}`;
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(v);
+    const key = `${date.toLocaleString("default", {month: "long",})} ${date.getFullYear()}`; //generate string key for grouping (month and year)
+    if (!acc[key]) acc[key] = []; //check if accumulator already has an array for this month/year key, if not create an empty array to hold visits for that month
+    acc[key].push(v); //push facility into correct month
     return acc;
   }, {});
 
@@ -133,10 +130,12 @@ function TravelJournal() {
           </p>
         </header>
 
+        {/* group visited places by month */}
         {Object.keys(grouped).map((month) => (
           <div key={month} className="list-group">
             <h3 className="group-title">{month}</h3>
             <div className="facilities-grid">
+               {/* list facilities visited in this month */}
               {grouped[month].map((v) => (
                 <div
                   key={v.facility._id}
