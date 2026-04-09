@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import {
@@ -7,6 +7,8 @@ import {
   Popup,
   TileLayer,
   ZoomControl,
+  useMap,
+  useMapEvents,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -20,11 +22,32 @@ const markerIcon = new L.Icon({
   popupAnchor: [0, -26],
 });
 
+// Component to handle map events and update bounds
+function MapEventsHandler({ onBoundsChange, onZoomChange }) {
+  const map = useMapEvents({
+    moveend: () => {
+      const bounds = map.getBounds();
+      const zoom = map.getZoom();
+      onBoundsChange(bounds);
+      onZoomChange(zoom);
+    },
+    zoomend: () => {
+      const bounds = map.getBounds();
+      const zoom = map.getZoom();
+      onBoundsChange(bounds);
+      onZoomChange(zoom);
+    },
+  });
+  return null;
+}
+
 function Map() {
   const { token, user, logout, timeoutMsg } = useContext(AuthContext) || {};
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [mapBounds, setMapBounds] = useState(null);
+  const [currentZoom, setCurrentZoom] = useState(4);
 
   // Initial load: Fetch ALL facilities at once and keep them in memory
   useEffect(() => {
@@ -64,7 +87,7 @@ function Map() {
     if (!term) return true; // Show all if search is empty
 
     const provinceFullName = getProvinceFullName(
-      facility.Province
+      facility.Province,
     ).toLowerCase();
 
     return (
@@ -75,6 +98,39 @@ function Map() {
       provinceFullName.includes(term)
     );
   });
+
+  // Filter markers based on zoom level and bounds
+  const getVisibleMarkers = () => {
+    const isSearching = searchTerm.trim().length > 0;
+    const isZoomedIn = currentZoom >= 6;
+
+    // If searching or zoomed in, show filtered results within bounds
+    if (isSearching || isZoomedIn) {
+      if (!mapBounds) return filteredFacilities;
+
+      return filteredFacilities.filter((facility) => {
+        if (!facility.Latitude || !facility.Longitude) return false;
+        const latLng = L.latLng(facility.Latitude, facility.Longitude);
+        return mapBounds.contains(latLng);
+      });
+    }
+
+    // When zoomed out and not searching, show a limited subset
+    // Use a sampling strategy to show representative locations across the map
+    const sampleSize = 50; // Limit to 150 markers when zoomed out
+
+    if (filteredFacilities.length <= sampleSize) {
+      return filteredFacilities;
+    }
+
+    // Sample facilities evenly across the dataset
+    const step = Math.floor(filteredFacilities.length / sampleSize);
+    return filteredFacilities
+      .filter((_, index) => index % step === 0)
+      .slice(0, sampleSize);
+  };
+
+  const visibleMarkers = getVisibleMarkers();
 
   return (
     <div className="heritage-hub-wrapper">
@@ -184,6 +240,18 @@ function Map() {
           <div className="sidebar-content">
             <h2 className="results-count">
               {filteredFacilities.length} Locations Found
+              {currentZoom < 6 && searchTerm.trim().length === 0 && (
+                <span
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "#6b8e78",
+                    fontWeight: "normal",
+                    marginLeft: "0.5rem",
+                  }}
+                >
+                  (Zoom in to see more)
+                </span>
+              )}
             </h2>
 
             <div className="facility-list">
@@ -291,8 +359,13 @@ function Map() {
 
             <ZoomControl position="topright" />
 
-            {/* Render all fetched locations */}
-            {filteredFacilities.map((facility) =>
+            <MapEventsHandler
+              onBoundsChange={setMapBounds}
+              onZoomChange={setCurrentZoom}
+            />
+
+            {/* Render visible locations based on zoom and search */}
+            {visibleMarkers.map((facility) =>
               facility.Latitude && facility.Longitude ? (
                 <Marker
                   key={facility._id}
@@ -309,7 +382,7 @@ function Map() {
                     </Link>
                   </Popup>
                 </Marker>
-              ) : null
+              ) : null,
             )}
           </MapContainer>
         </main>
