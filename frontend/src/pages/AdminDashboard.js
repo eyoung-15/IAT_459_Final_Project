@@ -361,13 +361,17 @@ function AdminDashboard() {
       <div className="manage-container">
         <div className="manage-header">
           <h1 className="manage-title">Admin Dashboard</h1>
-          <p className="manage-subtitle">Manage platform facilities, users, and reviews.</p>
+          <p className="manage-subtitle">
+            Manage platform facilities, users, and reviews.
+          </p>
         </div>
 
         {/* View Selection Tabs */}
         <div className="filter-chips" style={{ marginBottom: "2rem" }}>
           <button
-            className={`chip ${currentView === "facilities" ? "active" : "outline"}`}
+            className={`chip ${
+              currentView === "facilities" ? "active" : "outline"
+            }`}
             onClick={() => setCurrentView("facilities")}
           >
             View Facilities
@@ -379,7 +383,9 @@ function AdminDashboard() {
             View Users
           </button>
           <button
-            className={`chip ${currentView === "reviews" ? "active" : "outline"}`}
+            className={`chip ${
+              currentView === "reviews" ? "active" : "outline"
+            }`}
             onClick={() => setCurrentView("reviews")}
           >
             View Reviews
@@ -394,7 +400,17 @@ function AdminDashboard() {
               <div className="filter-group">
                 <label className="filter-label">Search</label>
                 <div className="search-input-wrapper">
-                  <svg className="search-icon-home" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    className="search-icon-home"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
@@ -414,13 +430,19 @@ function AdminDashboard() {
                   name="Category"
                   className="filter-input"
                   value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value.toLowerCase())}
+                  onChange={(e) =>
+                    setSelectedCategory(e.target.value.toLowerCase())
+                  }
                 >
                   <option value={""}>All Categories</option>
                   <option value={"museum"}>Museum</option>
                   <option value={"gallery"}>Gallery</option>
-                  <option value={"heritage or historic site"}>Heritage or Historic Site</option>
-                  <option value={"art or cultural centre"}>Art or Cultural Centre</option>
+                  <option value={"heritage or historic site"}>
+                    Heritage or Historic Site
+                  </option>
+                  <option value={"art or cultural centre"}>
+                    Art or Cultural Centre
+                  </option>
                   <option value={"other"}>Other</option>
                 </select>
               </div>
@@ -487,7 +509,9 @@ function AdminDashboard() {
                     <Link
                       to={`/facility/${facility._id}`}
                       style={{ textDecoration: "none" }}
-                      onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+                      onClick={() =>
+                        window.scrollTo({ top: 0, behavior: "instant" })
+                      }
                       className="facility-card-home"
                     >
                       <div className="card-image-box">
@@ -499,23 +523,24 @@ function AdminDashboard() {
                           />
                         ) : (
                           <div className="card-placeholder">
-                            {facility.Category === "museum" ? (
-                              "🏺"
-                            ) : facility.Category === "gallery" ? (
-                              "🖼️"
-                            ) : facility.Category === "heritage or historic site" ? (
-                              "🏛️"
-                            ) : facility.Category === "art or cultural centre" ? (
-                              "🎭"
-                            ) : (
-                              "📍"
-                            )}
+                            {facility.Category === "museum"
+                              ? "🏺"
+                              : facility.Category === "gallery"
+                              ? "🖼️"
+                              : facility.Category ===
+                                "heritage or historic site"
+                              ? "🏛️"
+                              : facility.Category === "art or cultural centre"
+                              ? "🎭"
+                              : "📍"}
                           </div>
                         )}
                       </div>
                       <div className="card-details">
                         <div className="card-meta">
-                          <span className="card-category">{facility.Category || "Other"}</span>
+                          <span className="card-category">
+                            {facility.Category || "Other"}
+                          </span>
                           <span className="card-location">
                             {facility.City?.toUpperCase()}
                             {facility.City && facility.Province && ", "}
@@ -529,7 +554,9 @@ function AdminDashboard() {
                     <div className="manage-actions">
                       <button
                         onClick={() => {
-                          setEditMenu(editMenu === facility._id ? null : facility._id);
+                          setEditMenu(
+                            editMenu === facility._id ? null : facility._id
+                          );
                           setFacilityData(facility);
                         }}
                         className="manage-edit-btn"
@@ -546,12 +573,20 @@ function AdminDashboard() {
 
                     {/* Inline Edit Menu */}
                     {editMenu === facility._id && (
-                      <div className="inline-edit-form" style={{ marginTop: "1rem" }}>
+                      <div
+                        className="inline-edit-form"
+                        style={{ marginTop: "1rem" }}
+                      >
                         <h4 className="form-heading">Edit Facility</h4>
-                        <form onSubmit={handleFacilitySubmit} className="elegant-form">
+                        <form
+                          onSubmit={handleFacilitySubmit}
+                          className="elegant-form"
+                        >
                           <div className="form-grid">
                             <div className="form-group full-width">
-                              <label className="form-label">Facility Name</label>
+                              <label className="form-label">
+                                Facility Name
+                              </label>
                               <input
                                 className="form-input"
                                 name="Name"
@@ -571,13 +606,19 @@ function AdminDashboard() {
                                 <option value={""}></option>
                                 <option value={"museum"}>Museum</option>
                                 <option value={"gallery"}>Gallery</option>
-                                <option value={"heritage or historic site"}>Heritage or Historic Site</option>
-                                <option value={"art or cultural centre"}>Art or Cultural Centre</option>
+                                <option value={"heritage or historic site"}>
+                                  Heritage or Historic Site
+                                </option>
+                                <option value={"art or cultural centre"}>
+                                  Art or Cultural Centre
+                                </option>
                                 <option value={"other"}>Other</option>
                               </select>
                             </div>
                             <div className="form-group">
-                              <label className="form-label">Province/Territory</label>
+                              <label className="form-label">
+                                Province/Territory
+                              </label>
                               <select
                                 className="form-input"
                                 name="Province"
@@ -591,12 +632,16 @@ function AdminDashboard() {
                                 <option value={"ab"}>Alberta</option>
                                 <option value={"ns"}>Nova Scotia</option>
                                 <option value={"nb"}>New Brunswick</option>
-                                <option value={"nl"}>Newfoundland and Labrador</option>
+                                <option value={"nl"}>
+                                  Newfoundland and Labrador
+                                </option>
                                 <option value={"sk"}>Saskatchewan</option>
                                 <option value={"mb"}>Manitoba</option>
                                 <option value={"nu"}>Nunavut</option>
                                 <option value={"yt"}>Yukon</option>
-                                <option value={"nt"}>Northwest Territories</option>
+                                <option value={"nt"}>
+                                  Northwest Territories
+                                </option>
                               </select>
                             </div>
                             <div className="form-group">
@@ -657,17 +702,42 @@ function AdminDashboard() {
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                 disabled={currentPage === 1}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
               </button>
               <span className="page-indicator">
-                Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+                Page <strong>{currentPage}</strong> of{" "}
+                <strong>{totalPages}</strong>
               </span>
               <button
                 className="page-btn"
-                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
               </button>
             </div>
           </div>
@@ -684,12 +754,31 @@ function AdminDashboard() {
             ) : users.length > 0 ? (
               users.map((user) => (
                 <div key={user._id} className="manage-card-wrapper">
-                  <div className="facility-card-home" style={{ height: "auto" }}>
+                  <div
+                    className="facility-card-home"
+                    style={{ height: "auto" }}
+                  >
                     <div className="card-details">
-                      <h3 className="card-title" style={{ marginBottom: "1rem" }}>{user.username}</h3>
-                      <div style={{ fontFamily: "-apple-system, sans-serif", fontSize: "0.95rem", color: "#5b6778", lineHeight: "1.6" }}>
-                        <div><strong>Email:</strong> {user.email}</div>
-                        <div><strong>Role:</strong> {user.role}</div>
+                      <h3
+                        className="card-title"
+                        style={{ marginBottom: "1rem" }}
+                      >
+                        {user.username}
+                      </h3>
+                      <div
+                        style={{
+                          fontFamily: "-apple-system, sans-serif",
+                          fontSize: "0.95rem",
+                          color: "#5b6778",
+                          lineHeight: "1.6",
+                        }}
+                      >
+                        <div>
+                          <strong>Email:</strong> {user.email}
+                        </div>
+                        <div>
+                          <strong>Role:</strong> {user.role}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -729,21 +818,50 @@ function AdminDashboard() {
             ) : reviews.length > 0 ? (
               reviews.map((review) => (
                 <div key={review._id} className="manage-card-wrapper">
-                  <div className="facility-card-home" style={{ height: "auto", padding: "1.5rem" }}>
-                    
-                    <div className="review-meta" style={{ marginBottom: "0.8rem", alignItems: "center" }}>
-                      <div className="review-author" style={{ fontSize: "0.95rem", color: "#6b8e78" }}>
-                        <strong>Facility:</strong> {review.facility?.Name || "Deleted Facility"}
+                  <div
+                    className="facility-card-home"
+                    style={{ height: "auto", padding: "1.5rem" }}
+                  >
+                    <div
+                      className="review-meta"
+                      style={{ marginBottom: "0.8rem", alignItems: "center" }}
+                    >
+                      <div
+                        className="review-author"
+                        style={{ fontSize: "0.95rem", color: "#6b8e78" }}
+                      >
+                        <strong>Facility:</strong>{" "}
+                        {review.facility?.Name || "Deleted Facility"}
                       </div>
-                      <div className="review-rating" style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                        <svg className="star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      <div
+                        className="review-rating"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.3rem",
+                        }}
+                      >
+                        <svg
+                          className="star-icon"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                         </svg>
                         {review.rating}/5
                       </div>
                     </div>
 
-                    <p className="review-comment" style={{ fontStyle: "italic", color: "#1e382b", margin: 0 }}>
+                    <p
+                      className="review-comment"
+                      style={{
+                        fontStyle: "italic",
+                        color: "#1e382b",
+                        margin: 0,
+                      }}
+                    >
                       "{review.comment}"
                     </p>
                   </div>

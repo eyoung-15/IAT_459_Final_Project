@@ -3,36 +3,49 @@ import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import "../css/HeritageHub.css";
 
-//display facilities users have visited
+// TRAVEL JOURNAL PAGE - Member-Only Feature
+// Displays user's visited heritage sites grouped by month/year
+
 function TravelJournal() {
+  // Access authentication context for user data and JWT token
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
+
+  // State for visited facilities list and user statistics
   const [visited, setVisited] = useState([]);
   const [stats, setStats] = useState({});
 
+  // Fetch user data on mount - requires authentication
   useEffect(() => {
     fetch("http://localhost:5001/api/users/me", {
       headers: {
         "Content-Type": "application/json",
-        Authorization: token,
+        Authorization: token, // JWT token for protected route
       },
     })
       .then((res) => res.json())
       .then((data) => {
-       //sort visited by newest first
-        setVisited(data.user.visited.sort((a, b) => new Date(b.visitedAt) - new Date(a.visitedAt)));
+        // Sort visited facilities by most recent first
+        setVisited(
+          data.user.visited.sort(
+            (a, b) => new Date(b.visitedAt) - new Date(a.visitedAt)
+          )
+        );
         setStats(data.stats);
       });
   }, [token]);
 
-   //group visited places by month and year for UI
+  // Group facilities by month and year for organized timeline display
   const grouped = (visited || []).reduce((acc, v) => {
     const date = new Date(v.visitedAt);
-    const key = `${date.toLocaleString("default", {month: "long",})} ${date.getFullYear()}`; //generate string key for grouping (month and year)
-    if (!acc[key]) acc[key] = []; //check if accumulator already has an array for this month/year key, if not create an empty array to hold visits for that month
-    acc[key].push(v); //push facility into correct month
+    const key = `${date.toLocaleString("default", {
+      month: "long",
+    })} ${date.getFullYear()}`; // e.g., "December 2024"
+    if (!acc[key]) acc[key] = []; // Initialize array if month doesn't exist
+    acc[key].push(v); // Add facility to appropriate month
     return acc;
   }, {});
 
+  // Remove facility from travel journal
   const removeVisited = async (facilityId) => {
     try {
       await fetch(`http://localhost:5001/api/users/visited/${facilityId}`, {
@@ -42,7 +55,7 @@ function TravelJournal() {
           Authorization: token,
         },
       });
-
+      // Update UI immediately after successful deletion
       setVisited((prev) => prev.filter((v) => v.facility._id !== facilityId));
     } catch (err) {
       console.error("Failed to remove visited:", err);
@@ -51,11 +64,14 @@ function TravelJournal() {
 
   return (
     <div className="heritage-home-wrapper page-container">
-      {/* Shared Navigation Bar */}
+      {/* ========== SHARED NAVIGATION BAR ========== */}
+      {/* Consistent navigation across all pages with conditional rendering */}
       <nav className="navbar">
+        {/* Session timeout warning message */}
         {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
           <div className="nav-left">
+            {/* Logo with heritage icon SVG */}
             <Link
               to="/"
               className="logo-link"
@@ -80,6 +96,7 @@ function TravelJournal() {
                 Heritage<span className="logo-accent">Hub</span>
               </span>
             </Link>
+            {/* Main navigation links - "active" class highlights current page */}
             <div className="nav-links">
               <Link to="/" className="nav-link">
                 Explore
@@ -96,6 +113,7 @@ function TravelJournal() {
               <Link to="/dashboard" className="nav-link">
                 Manage
               </Link>
+              {/* Admin link only visible to users with admin role */}
               {user && user.role === "admin" && (
                 <Link to="/admin-dashboard" className="nav-link">
                   Admin
@@ -103,6 +121,7 @@ function TravelJournal() {
               )}
             </div>
           </div>
+          {/* Right side: Auth status - Sign In button OR user menu */}
           <div className="nav-right">
             {!token ? (
               <Link to="/login" className="sign-in-btn">
@@ -122,7 +141,9 @@ function TravelJournal() {
         </div>
       </nav>
 
+      {/* ========== TRAVEL JOURNAL CONTENT ========== */}
       <div className="lists-container">
+        {/* Page header with visit count */}
         <header className="list-header">
           <h1 className="list-title">My Travel Journal</h1>
           <p className="list-subtitle">
@@ -130,12 +151,14 @@ function TravelJournal() {
           </p>
         </header>
 
-        {/* group visited places by month */}
+        {/* Group visited places by month for timeline effect */}
         {Object.keys(grouped).map((month) => (
           <div key={month} className="list-group">
+            {/* Month/Year header (e.g., "December 2024") */}
             <h3 className="group-title">{month}</h3>
+            {/* Grid of facility cards for this time period */}
             <div className="facilities-grid">
-               {/* list facilities visited in this month */}
+              {/* List all facilities visited in this month */}
               {grouped[month].map((v) => (
                 <div
                   key={v.facility._id}
@@ -143,15 +166,18 @@ function TravelJournal() {
                 >
                   <div className="card-details">
                     <div className="card-meta">
+                      {/* Display visit date */}
                       <span className="card-category">
                         VISITED {new Date(v.visitedAt).toLocaleDateString()}
                       </span>
                     </div>
+                    {/* Facility name and location */}
                     <h3 className="card-title">{v.facility.Name}</h3>
                     <p className="card-location">
                       {v.facility.City}, {v.facility.Province}
                     </p>
 
+                    {/* Action buttons: View details or Remove */}
                     <div className="card-actions">
                       <Link
                         to={`/facility/${v.facility._id}`}

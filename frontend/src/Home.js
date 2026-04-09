@@ -43,7 +43,8 @@ function Home() {
         setLoading(false);
       }
     },
-    [searchTerm, selectedCategory, selectedCity, selectedProvince]); //refetch if a filter changes
+    [searchTerm, selectedCategory, selectedCity, selectedProvince]
+  ); //refetch if a filter changes
 
   //fetch when page changes
   useEffect(() => {
@@ -308,7 +309,7 @@ function Home() {
                   }
                 >
                   <div className="card-image-box">
-                     {/* show the last posted image from reviews */}
+                    {/* show the last posted image from reviews */}
                     {item.lastReviewImage || item.Image ? (
                       <img
                         src={item.lastReviewImage || item.Image}
@@ -318,7 +319,7 @@ function Home() {
                     ) : (
                       <div className="card-placeholder">
                         {item.Category === "museum"
-                          ? "🏺"
+                          ? "🏛️"
                           : item.Category === "gallery"
                           ? "🖼️"
                           : item.Category === "heritage or historic site"

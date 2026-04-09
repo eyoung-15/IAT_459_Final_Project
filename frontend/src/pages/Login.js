@@ -1,16 +1,23 @@
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import "../css/Auth.css"; // This should work - Auth.css is in the same directory as Login.js
+import "../css/Auth.css";
 import loginImg from "../images/login-img.jpg";
 
+// LOGIN PAGE - User Authentication
+// Validates credentials and returns JWT token
+// Token stored in Context API for persistent authentication
+
 function Login() {
+  // Form state for login credentials
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // Add token, user, logout, and timeoutMsg to use the shared navigation bar logic
+
+  // Access authentication context - login function stores JWT token
   const { login, token, user, logout, timeoutMsg } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // Submit login credentials to backend API
   async function handleLogin(e) {
     e.preventDefault();
 
@@ -24,8 +31,9 @@ function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        login(data.token);
-        navigate("/");
+        // Store JWT token in context and localStorage
+        login(data.token); // Token decoded with jwt-decode to extract user info
+        navigate("/"); // Redirect to home page
       } else {
         alert(data.message || "Login failed");
       }
@@ -36,7 +44,7 @@ function Login() {
 
   return (
     <div className="auth-page">
-      {/* Standard Shared Navigation */}
+      {/* ========== SHARED NAVIGATION BAR ========== */}
       <nav className="navbar">
         {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
@@ -138,16 +146,19 @@ function Login() {
         </div>
       </nav>
 
+      {/* ========== LOGIN FORM WITH INSPIRATIONAL QUOTE ========== */}
       <div className="auth-container">
         <div className="auth-grid">
-          {/* Left Column - Form */}
+          {/* LEFT COLUMN: Login Form */}
           <div className="auth-form-container">
             <h1 className="auth-title">Welcome Back</h1>
             <p className="auth-subtitle">
               Sign in to access your digital passport and bucket list.
             </p>
 
+            {/* Login form - validates credentials with backend */}
             <form onSubmit={handleLogin} className="auth-form">
+              {/* Email input - unique identifier for user */}
               <div className="form-group">
                 <label>Email</label>
                 <input
@@ -159,6 +170,7 @@ function Login() {
                 />
               </div>
 
+              {/* Password input - compared against bcrypt hash */}
               <div className="form-group">
                 <label>Password</label>
                 <input
@@ -170,11 +182,13 @@ function Login() {
                 />
               </div>
 
+              {/* Submit button - returns JWT on success */}
               <button type="submit" className="auth-button">
                 Sign In →
               </button>
             </form>
 
+            {/* Link to registration page for new users */}
             <p className="auth-footer">
               Don't have a passport yet?{" "}
               <Link
@@ -187,10 +201,12 @@ function Login() {
             </p>
           </div>
 
-          {/* Right Column - Quote with Image */}
+          {/* RIGHT COLUMN: Inspirational Quote with Image */}
           <div className="auth-quote-container">
             <div className="quote-content">
+              {/* Hero image for visual appeal */}
               <img src={loginImg} alt="HeritageHub" className="quote-image" />
+              {/* Travel quote to inspire users */}
               <blockquote className="quote-text">
                 "Traveling—it leaves you speechless, then turns you into a
                 storyteller."

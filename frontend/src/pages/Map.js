@@ -1,32 +1,47 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import {MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap, useMapEvents,} from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  ZoomControl,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "../css/HeritageHub.css";
 
-// References to build map:
+// MAP VIEW PAGE - Interactive Canadian Heritage Map
+// Uses React Leaflet API with dynamic filtering
+// Implements performance optimization with bounding box logic
+
+// References for implementation:
 // https://ujjwaltiwari2.medium.com/a-guide-to-using-openstreetmap-with-react-70932389b8b1
 // https://medevel.com/react-and-leaflet-js-tutorial/
 
-// Restore your original marker image
+// Custom marker icon using imported image
 const markerIcon = new L.Icon({
   iconUrl: require("../../src/images/marker.png"),
   iconSize: [24, 24],
-  iconAnchor: [12, 24], //[left/right, top/bottom]
-  popupAnchor: [0, -26], //[left/right, top/bottom]
+  iconAnchor: [12, 24], // Anchor point: [horizontal offset, vertical offset]
+  popupAnchor: [0, -26], // Where popup appears relative to icon
 });
 
-// Component to handle map events and update bounds
+// MAP EVENTS HANDLER - Tracks zoom and pan changes
+// Enables dynamic marker rendering based on visible area
 function MapEventsHandler({ onBoundsChange, onZoomChange }) {
   const map = useMapEvents({
+    // Fires when map stops moving
     moveend: () => {
-      const bounds = map.getBounds();
-      const zoom = map.getZoom();
+      const bounds = map.getBounds(); // Get visible map area
+      const zoom = map.getZoom(); // Get current zoom level
       onBoundsChange(bounds);
       onZoomChange(zoom);
     },
+    // Fires when zoom animation ends
     zoomend: () => {
       const bounds = map.getBounds();
       const zoom = map.getZoom();
@@ -34,18 +49,23 @@ function MapEventsHandler({ onBoundsChange, onZoomChange }) {
       onZoomChange(zoom);
     },
   });
-  return null;
+  return null; // This component doesn't render anything
 }
 
 function Map() {
+  // Access authentication context for conditional features
   const { token, user, logout, timeoutMsg } = useContext(AuthContext) || {};
+
+  // State management for facilities and filters
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [mapBounds, setMapBounds] = useState(null);
-  const [currentZoom, setCurrentZoom] = useState(4);
 
-  // Initial load: Fetch ALL facilities at once and keep them in memory
+  // Map interaction state for performance optimization
+  const [mapBounds, setMapBounds] = useState(null); // Currently visible map area
+  const [currentZoom, setCurrentZoom] = useState(4); // Current zoom level (1-18)
+
+  // Fetch ALL facilities once on initial load (client-side filtering for speed)
   useEffect(() => {
     setLoading(true);
     fetch("http://localhost:5001/api/facility?limit=5000")
@@ -55,7 +75,7 @@ function Map() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Map province codes to full names for accurate search filtering
+  // Province code to full name mapping for search functionality
   const provinceMap = {
     ab: "Alberta",
     bc: "British Columbia",
@@ -72,20 +92,22 @@ function Map() {
     yt: "Yukon",
   };
 
+  // Convert province code to full name
   function getProvinceFullName(code) {
     if (!code) return "";
     return provinceMap[code.toLowerCase()] || code;
   }
 
-  // Improved Search filter applied to Name, City, Province (Code & Full Name), or Category
+  // CLIENT-SIDE FILTERING - Search across multiple fields
   const filteredFacilities = facilities.filter((facility) => {
     const term = searchTerm.toLowerCase().trim();
     if (!term) return true; // Show all if search is empty
 
     const provinceFullName = getProvinceFullName(
-      facility.Province,
+      facility.Province
     ).toLowerCase();
 
+    // Search matches Name, City, Category, or Province
     return (
       (facility.Name || "").toLowerCase().includes(term) ||
       (facility.City || "").toLowerCase().includes(term) ||
@@ -95,31 +117,32 @@ function Map() {
     );
   });
 
-  // Filter markers based on zoom level and bounds
+  // PERFORMANCE OPTIMIZATION - Smart Marker Rendering
+  // Shows fewer markers when zoomed out, more when zoomed in
   const getVisibleMarkers = () => {
     const isSearching = searchTerm.trim().length > 0;
-    const isZoomedIn = currentZoom >= 6;
+    const isZoomedIn = currentZoom >= 6; // Threshold for detailed view
 
-    // If searching or zoomed in, show filtered results within bounds
+    // Show all filtered results within bounds when zoomed in or searching
     if (isSearching || isZoomedIn) {
       if (!mapBounds) return filteredFacilities;
 
+      // Only show markers within the visible map area
       return filteredFacilities.filter((facility) => {
         if (!facility.Latitude || !facility.Longitude) return false;
         const latLng = L.latLng(facility.Latitude, facility.Longitude);
-        return mapBounds.contains(latLng);
+        return mapBounds.contains(latLng); // Check if marker is in viewport
       });
     }
 
-    // When zoomed out and not searching, show a limited subset
-    // Use a sampling strategy to show representative locations across the map
-    const sampleSize = 50; // Limit to 150 markers when zoomed out
+    // When zoomed out: limit markers to prevent lag (sampling strategy)
+    const sampleSize = 50; // Maximum markers when zoomed out
 
     if (filteredFacilities.length <= sampleSize) {
       return filteredFacilities;
     }
 
-    // Sample facilities evenly across the dataset
+    // Evenly sample facilities across the dataset
     const step = Math.floor(filteredFacilities.length / sampleSize);
     return filteredFacilities
       .filter((_, index) => index % step === 0)
@@ -130,7 +153,7 @@ function Map() {
 
   return (
     <div className="heritage-hub-wrapper">
-      {/* Shared Navigation Bar */}
+      {/* ========== SHARED NAVIGATION BAR ========== */}
       <nav className="navbar">
         {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
@@ -151,7 +174,7 @@ function Map() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10 Z" />
                   <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
                 </svg>
               </div>
@@ -163,6 +186,7 @@ function Map() {
               <Link to="/" className="nav-link">
                 Explore
               </Link>
+              {/* Active class indicates current page */}
               <Link to="/Map" className="nav-link active">
                 Map View
               </Link>
@@ -201,14 +225,14 @@ function Map() {
         </div>
       </nav>
 
-      {/* Main Map Layout (Sidebar + Map) */}
+      {/*  MAP LAYOUT: Sidebar + Interactive Map  */}
       <div className="map-layout">
-        {/* Left Sidebar */}
+        {/* ===== LEFT SIDEBAR: Search & List View ===== */}
         <aside className="map-sidebar">
           <div className="sidebar-header">
             <h1 className="sidebar-title">Explore Map</h1>
 
-            {/* Clean Search Box */}
+            {/* INSTANT SEARCH INPUT - Client-side filtering */}
             <div className="search-box" style={{ marginBottom: 0 }}>
               <svg
                 className="search-icon"
@@ -234,6 +258,7 @@ function Map() {
           </div>
 
           <div className="sidebar-content">
+            {/* Results count with helpful hint when zoomed out */}
             <h2 className="results-count">
               {filteredFacilities.length} Locations Found
               {currentZoom < 6 && searchTerm.trim().length === 0 && (
@@ -250,6 +275,7 @@ function Map() {
               )}
             </h2>
 
+            {/* Scrollable facility list */}
             <div className="facility-list">
               {loading ? (
                 <div
@@ -264,7 +290,7 @@ function Map() {
               ) : (
                 filteredFacilities.map((facility) => (
                   <div key={facility._id} className="facility-card">
-                    {/* Using user-submitted image or generic fallback */}
+                    {/* Display user-submitted review image or fallback image */}
                     <img
                       src={
                         facility.lastReviewImage ||
@@ -280,7 +306,7 @@ function Map() {
                           {facility.Category || "HERITAGE SITE"}
                         </span>
 
-                        {/* Dynamic Review Rating */}
+                        {/* Dynamic rating calculated from reviews */}
                         <div className="facility-rating">
                           <svg
                             className="star-icon"
@@ -311,6 +337,7 @@ function Map() {
                         {facility.Province?.toUpperCase()}
                       </p>
 
+                      {/* Link to detailed facility page */}
                       <Link
                         to={`/facility/${facility._id}`}
                         className="view-details-btn"
@@ -340,27 +367,30 @@ function Map() {
           </div>
         </aside>
 
-        {/* Right Map Area */}
+        {/* ===== RIGHT SIDE: Interactive Leaflet Map ===== */}
         <main className="map-area">
           <MapContainer
-            center={[57, -100]}
-            zoom={4}
+            center={[57, -100]} // Centered on Canada
+            zoom={4} // Initial zoom level
             className="leaflet-container"
-            zoomControl={false}
+            zoomControl={false} // We'll add custom zoom controls
           >
+            {/* CartoDB light tile layer for clean map appearance */}
             <TileLayer
               url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
               attribution="&copy; OpenStreetMap contributors &copy; CARTO"
             />
 
+            {/* Custom zoom controls positioned top-right */}
             <ZoomControl position="topright" />
 
+            {/* Track map interactions for performance optimization */}
             <MapEventsHandler
               onBoundsChange={setMapBounds}
               onZoomChange={setCurrentZoom}
             />
 
-            {/* Render visible locations based on zoom and search */}
+            {/* Render markers dynamically based on zoom and search */}
             {visibleMarkers.map((facility) =>
               facility.Latitude && facility.Longitude ? (
                 <Marker
@@ -368,6 +398,7 @@ function Map() {
                   position={[facility.Latitude, facility.Longitude]}
                   icon={markerIcon}
                 >
+                  {/* Popup appears when marker is clicked */}
                   <Popup>
                     <Link
                       to={`/facility/${facility._id}`}
@@ -378,7 +409,7 @@ function Map() {
                     </Link>
                   </Popup>
                 </Marker>
-              ) : null,
+              ) : null
             )}
           </MapContainer>
         </main>

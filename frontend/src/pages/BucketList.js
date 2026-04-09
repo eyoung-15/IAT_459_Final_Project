@@ -18,8 +18,10 @@ function BucketList() {
     })
       .then((res) => res.json())
       .then((data) => {
-      //sort bucket list by newest first
-        setBucket(data.user.bucketList.sort((a, b) => new Date(b._id) - new Date(a._id)) );
+        //sort bucket list by newest first
+        setBucket(
+          data.user.bucketList.sort((a, b) => new Date(b._id) - new Date(a._id))
+        );
         setStats(data.stats);
       });
   }, [token]);
@@ -116,7 +118,7 @@ function BucketList() {
             </div>
           </div>
           <div className="nav-right">
-          {/* Conditionaly display login/logout buttons based on if user has token */}
+            {/* Conditionaly display login/logout buttons based on if user has token */}
             {!token ? (
               <Link to="/login" className="sign-in-btn">
                 Sign In

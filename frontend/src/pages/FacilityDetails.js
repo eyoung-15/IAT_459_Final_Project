@@ -197,7 +197,7 @@ function FacilityDetails() {
               <Link to="/dashboard" className="nav-link">
                 Manage
               </Link>
-                                  {user && user.role === "admin" && (
+              {user && user.role === "admin" && (
                 <Link to="/admin-dashboard" className="nav-link">
                   Admin
                 </Link>
@@ -291,8 +291,8 @@ function FacilityDetails() {
           )}
         </div>
 
-      {/* MAP */}
-      {/* Avoid throwing error if theres no lat/lng values by only generating map if they exist */}
+        {/* MAP */}
+        {/* Avoid throwing error if theres no lat/lng values by only generating map if they exist */}
         {facility.Latitude && facility.Longitude && (
           <div className="details-map-container">
             <MapContainer
@@ -309,7 +309,7 @@ function FacilityDetails() {
                 position={[facility.Latitude, facility.Longitude]}
                 icon={markerIcon}
               >
-              {/* On clicking the marker, display name and address */}
+                {/* On clicking the marker, display name and address */}
                 <Popup>
                   <b>{facility.Name}</b>
                   <br />

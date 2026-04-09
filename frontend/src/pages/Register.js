@@ -3,7 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import "../css/Auth.css";
 
+// REGISTRATION PAGE - New User Sign-Up
+// Creates new user account with bcrypt password hashing
+// Default role: 'member' (can be upgraded to 'admin')
+
 function Register() {
+  // Form state for registration inputs
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -11,26 +16,28 @@ function Register() {
   });
   const navigate = useNavigate();
 
-  // Bring in AuthContext properties for the navigation bar
+  // Access context for navigation bar rendering
   const { token, user, logout, timeoutMsg } = useContext(AuthContext);
 
+  // Update form data on input change
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
+  // Submit registration form to backend API
   async function handleSubmit(e) {
     e.preventDefault();
     try {
       const res = await fetch("http://localhost:5001/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData), // Send username, email, password
       });
 
       const data = await res.json();
       if (res.ok) {
         alert("Registration successful! Please log in.");
-        navigate("/login");
+        navigate("/login"); // Redirect to login page
       } else {
         alert(data.message || "Registration failed");
       }
@@ -41,7 +48,7 @@ function Register() {
 
   return (
     <div className="auth-page">
-      {/* Standard Shared Navigation */}
+      {/* ========== SHARED NAVIGATION BAR ========== */}
       <nav className="navbar">
         {timeoutMsg && <div className="timeout">{timeoutMsg}</div>}
         <div className="nav-container">
@@ -143,9 +150,10 @@ function Register() {
         </div>
       </nav>
 
+      {/* ========== REGISTRATION FORM ========== */}
       <div className="auth-container">
         <div className="auth-register-grid">
-          {/* Left Column - Form */}
+          {/* Form container with elegant styling */}
           <div className="auth-form-container">
             <h1 className="auth-title">Create Your Account</h1>
             <p className="auth-subtitle">
@@ -153,7 +161,9 @@ function Register() {
               heritage.
             </p>
 
+            {/* Registration form - sends data to /api/auth/register */}
             <form onSubmit={handleSubmit} className="auth-form">
+              {/* Username input field */}
               <div className="form-group">
                 <label>Username</label>
                 <input
@@ -166,6 +176,7 @@ function Register() {
                 />
               </div>
 
+              {/* Email input field - used for login */}
               <div className="form-group">
                 <label>Email</label>
                 <input
@@ -178,6 +189,7 @@ function Register() {
                 />
               </div>
 
+              {/* Password input - will be hashed with bcrypt on backend */}
               <div className="form-group">
                 <label>Password</label>
                 <input
@@ -190,11 +202,13 @@ function Register() {
                 />
               </div>
 
+              {/* Submit button creates new user in MongoDB */}
               <button type="submit" className="auth-button">
                 Sign Up →
               </button>
             </form>
 
+            {/* Link to login page for existing users */}
             <p className="auth-footer">
               Already have an account?{" "}
               <Link
