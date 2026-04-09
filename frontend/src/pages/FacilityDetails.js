@@ -180,6 +180,11 @@ function FacilityDetails() {
               <Link to="/dashboard" className="nav-link">
                 Manage
               </Link>
+                                  {user && user.role === "admin" && (
+                <Link to="/admin-dashboard" className="nav-link">
+                  Admin
+                </Link>
+              )}
             </div>
           </div>
           <div className="nav-right">
